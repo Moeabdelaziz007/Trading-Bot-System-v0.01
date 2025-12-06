@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { DashboardLayout, StatCard, TableSkeleton, EmptyState } from '@/components/DashboardLayout';
 import { History, RefreshCw, CheckCircle, XCircle, Clock, Filter, Download, Search } from 'lucide-react';
 
-const API_BASE = "https://trading-brain-v1.amrikyy1.workers.dev";
+const API_BASE = "https://trading-brain-v1.amrikyy.workers.dev";
 
 interface TradeLog {
     id?: number;

@@ -1,6 +1,6 @@
 name = "trading-brain-v1"
 main = "src/worker.py"
-account_id = "ac5004cd1897da0d9ae75df53afb3a70" 
+account_id = "f4b5d0354439ce71e91063e477b4d60c" 
 compatibility_date = "2024-04-05"
 compatibility_flags = ["python_workers"]
 
@@ -14,10 +14,10 @@ crons = ["* * * * *"]
 # 🧠 MEMORY: KV Namespace
 [[kv_namespaces]]
 binding = "BRAIN_MEMORY"
-id = "c203227d895b44cda280846022356a5f"
+id = "b2623ff0d28342c799dae14fae4eb512"
 
 # 💾 DATABASE: D1 (SQLite at Edge)
 [[d1_databases]]
 binding = "TRADING_DB"
 database_name = "trading-brain-db"
-database_id = "9d4168e4-391c-4b79-a20a-6661e599fde6"
+database_id = "d465948d-1aff-4d56-9d45-ad771a879d9f"

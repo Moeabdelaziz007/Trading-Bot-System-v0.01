@@ -4,7 +4,7 @@ import { DashboardLayout, StatCard } from '@/components/DashboardLayout';
 import { TradingChart } from '@/components/TradingChart';
 import { ArrowUp, ArrowDown, DollarSign, LineChart, Zap, AlertTriangle } from 'lucide-react';
 
-const API_BASE = "https://trading-brain-v1.amrikyy1.workers.dev";
+const API_BASE = "https://trading-brain-v1.amrikyy.workers.dev";
 
 export default function TradePage() {
     const [symbol, setSymbol] = useState('SPY');

@@ -90,16 +90,16 @@ async def on_fetch(request, env):
     if "api/logs" in url:
         try:
             db = env.TRADING_DB
-            result = await db.prepare("SELECT * FROM trade_logs ORDER BY executed_at DESC LIMIT 50").all()
+            result = await db.prepare("SELECT * FROM trades ORDER BY timestamp DESC LIMIT 50").all()
             logs = []
             if hasattr(result, 'results'):
                 for row in result.results:
                     logs.append({
                         "id": row.id if hasattr(row, 'id') else None,
-                        "ticker": row.ticker if hasattr(row, 'ticker') else "",
-                        "action": row.action if hasattr(row, 'action') else "",
+                        "ticker": row.symbol if hasattr(row, 'symbol') else "",
+                        "action": row.side if hasattr(row, 'side') else "",
                         "qty": row.qty if hasattr(row, 'qty') else 0,
-                        "executed_at": str(row.executed_at) if hasattr(row, 'executed_at') else ""
+                        "executed_at": str(row.timestamp) if hasattr(row, 'timestamp') else ""
                     })
             return Response.new(json.dumps({"logs": logs}), headers=headers)
         except:
@@ -506,8 +506,11 @@ async def send_telegram_reply(env, chat_id, text):
 async def fetch_yahoo_news(symbol):
     """Fetch news from Yahoo Finance RSS"""
     try:
-        rss_url = f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={symbol}"
-        response = await fetch(rss_url)
+
+        # Use Google News RSS as it's more reliable than Yahoo
+        rss_url = f"https://news.google.com/rss/search?q={symbol}+stock+news&hl=en-US&gl=US&ceid=US:en"
+        headers = Headers.new({"User-Agent": "Mozilla/5.0 (compatible; AntigravityBot/2.0)"}.items())
+        response = await fetch(rss_url, headers=headers)
         text = await response.text()
         return str(text)[:10000]  # Max for Gemini context
     except:
@@ -647,14 +650,32 @@ def generate_demo_candles():
 
 
 async def get_candles(request, env, headers):
-    """API endpoint for candles"""
+    """API endpoint for candles with KV Caching"""
     url = str(request.url)
     symbol = "SPY"
     
     if "symbol=" in url:
         symbol = url.split("symbol=")[1].split("&")[0].upper()
     
+    # ⚡️ KV Cache Check
+    cache_key = f"candles_{symbol}"
+    try:
+        if hasattr(env, 'BRAIN_MEMORY'):
+            cached = await env.BRAIN_MEMORY.get(cache_key)
+            if cached:
+                return Response.new(json.dumps({"symbol": symbol, "candles": json.loads(cached), "cached": True}), headers=headers)
+    except:
+        pass
+
     candles = await fetch_alpaca_bars(symbol, env)
+    
+    # 💾 Cache Result
+    try:
+        if hasattr(env, 'BRAIN_MEMORY') and candles:
+            await env.BRAIN_MEMORY.put(cache_key, json.dumps(candles), expiration_ttl=60)
+    except:
+        pass
+        
     return Response.new(json.dumps({"symbol": symbol, "candles": candles}), headers=headers)
 
 

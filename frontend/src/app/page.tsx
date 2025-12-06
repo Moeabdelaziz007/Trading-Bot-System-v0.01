@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { TradingChart } from '@/components/TradingChart';
 
-const API_BASE = "https://trading-brain-v1.amrikyy1.workers.dev";
+const API_BASE = "https://trading-brain-v1.amrikyy.workers.dev";
 
 // ==================== SIDEBAR ====================
 const routes = [
