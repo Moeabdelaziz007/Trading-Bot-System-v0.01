@@ -3,8 +3,8 @@
 // يربط الواجهة بـ Backend (FastAPI)
 // ==============================================
 
-const API_BASE = 'http://127.0.0.1:8000';
-const WS_BASE = 'ws://127.0.0.1:8000';
+const API_BASE = 'https://trading-brain-v1.amrikyy1.workers.dev';
+const WS_BASE = 'wss://trading-brain-v1.amrikyy1.workers.dev';
 
 export interface MarketData {
     symbol: string;
