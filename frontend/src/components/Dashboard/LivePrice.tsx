@@ -80,7 +80,7 @@ export default function LivePrice({ symbol, name, color }: LivePriceProps) {
         );
     }
 
-    const changePercent = data?.changePercent || 0;
+    const changePercent = data?.change_percent || 0;
     const isPositive = changePercent >= 0;
 
     return (

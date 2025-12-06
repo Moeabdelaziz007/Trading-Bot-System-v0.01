@@ -1,0 +1,19 @@
+name = "trading-brain-v1"
+main = "src/worker.py"
+account_id = "ac5004cd1897da0d9ae75df53afb3a70" 
+compatibility_date = "2024-04-05"
+compatibility_flags = ["python_workers"]
+
+# ⏰ THE HEARTBEAT: Runs every 1 minute (Zero Cost)
+[triggers]
+crons = ["* * * * *"]
+
+# 🧠 MEMORY: KV Namespace
+[[kv_namespaces]]
+binding = "BRAIN_MEMORY"
+id = "c203227d895b44cda280846022356a5f"
+
+# 🌐 CUSTOM DOMAIN: Route to your subdomain
+[[routes]]
+pattern = "tradingai.axiomid.app/*"
+zone_name = "axiomid.app"
