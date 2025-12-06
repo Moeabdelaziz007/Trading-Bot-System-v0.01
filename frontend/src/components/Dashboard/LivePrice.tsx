@@ -106,7 +106,7 @@ export default function LivePrice({ symbol, name, color }: LivePriceProps) {
                     </div>
                 </div>
                 <div className={`p-3 rounded-full bg-gradient-to-br ${colors.bg}`}>
-                    <Activity className={`w-5 h-5 ${colors.text} ${trend === 'BULLISH' ? 'animate-bounce' : ''}`} />
+                    <Activity className={`w-5 h-5 ${colors.text} ${trend === 'UP' ? 'animate-bounce' : ''}`} />
                 </div>
             </div>
         </div>
