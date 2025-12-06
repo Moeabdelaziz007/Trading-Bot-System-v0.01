@@ -191,9 +191,9 @@ async def handle_moe_chat(request, env, headers):
                     "reply": f"⚠️ Trade failed: {result.get('error', 'Unknown error')}"
                 }), headers=headers)
         
-        # D. CHAT AGENT (Gemini for smart conversation)
+        # D. CHAT AGENT (Groq for smart conversation)
         else:
-            reply = await call_gemini_chat(user_msg, "Trader", env)
+            reply = await call_groq_chat(user_msg, env)
             return Response.new(json.dumps({
                 "type": "CHAT",
                 "reply": reply
@@ -218,16 +218,25 @@ async def route_intent(user_msg, env):
 
 OUTPUT JSON with these fields:
 - type: RESEARCH | SHOW_CHART | TRADE | CHAT
-- symbol: Stock/crypto symbol (if applicable)
+- symbol: Stock/crypto symbol (ONLY if user mentions a specific stock)
 - side: buy | sell (for TRADE only)
 - qty: number (for TRADE only)
 - reply: Brief response
+
+CLASSIFICATION RULES:
+- RESEARCH: User wants analysis of a SPECIFIC stock (e.g., "Analyze AAPL", "What do you think about Tesla?")
+- SHOW_CHART: User wants to see a chart (e.g., "Show SPY chart", "Chart for NVDA")
+- TRADE: User wants to execute a trade (e.g., "Buy 10 AAPL", "Sell 5 TSLA")
+- CHAT: General questions, greetings, strategy questions, explanations (e.g., "Hello", "What is RSI?", "Best strategy for trading?")
 
 EXAMPLES:
 "Analyze Tesla" -> {"type": "RESEARCH", "symbol": "TSLA", "reply": "Analyzing TSLA..."}
 "Show SPY chart" -> {"type": "SHOW_CHART", "symbol": "SPY", "reply": "Loading chart..."}
 "Buy 10 AAPL" -> {"type": "TRADE", "symbol": "AAPL", "side": "buy", "qty": 10, "reply": "Executing..."}
-"Hello" -> {"type": "CHAT", "reply": "Hello! How can I help?"}"""
+"Hello" -> {"type": "CHAT", "symbol": null, "reply": "Hello! How can I help?"}
+"What is RSI indicator?" -> {"type": "CHAT", "symbol": null, "reply": "RSI is..."}
+"Best strategy for day trading?" -> {"type": "CHAT", "symbol": null, "reply": "Here are some strategies..."}
+"How are you?" -> {"type": "CHAT", "symbol": null, "reply": "I'm doing great!"}"""
 
         payload = json.dumps({
             "model": "llama-3.3-70b-versatile",
@@ -236,7 +245,7 @@ EXAMPLES:
                 {"role": "user", "content": user_msg}
             ],
             "response_format": {"type": "json_object"},
-            "temperature": 0.3,
+            "temperature": 0.2,
             "max_tokens": 200
         })
         
@@ -257,6 +266,7 @@ EXAMPLES:
             return {"type": "CHAT", "reply": f"Router error: {response_text[:100]}"}
     except Exception as e:
         return {"type": "CHAT", "reply": f"Processing: {str(e)[:50]}"}
+
 
 
 # ==========================================
