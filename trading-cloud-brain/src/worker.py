@@ -224,60 +224,59 @@ EXAMPLES:
 # ==========================================
 
 async def analyze_with_gemini_rag(symbol, news_text, price_data, env):
-    """Gemini 1.5 Flash RAG - Debug Mode Enabled 🛠️"""
-    gemini_key = str(getattr(env, 'GEMINI_API_KEY', ''))
+    """Smart RAG Analysis - Groq Llama 3.3 (Fallback since Gemini not working)"""
+    groq_key = str(getattr(env, 'GROQ_API_KEY', ''))
     
-    if not gemini_key:
-        return f"⚠️ GEMINI_API_KEY not configured"
+    if not groq_key:
+        return f"⚠️ GROQ_API_KEY not configured"
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={gemini_key}"
-    
-    # Shorter, faster prompt
-    prompt = f"""Analyze {symbol} stock.
+    # Smart Analysis Prompt for Groq
+    prompt = f"""You are SENTINEL, an expert trading analyst. Analyze {symbol} based on the data below.
 
-MARKET DATA:
+📊 MARKET DATA:
 - Price: ${price_data.get('price', 'N/A')}
 - Change: {price_data.get('change_percent', '0')}%
 
-NEWS (Recent):
-{news_text[:3000]}
+📰 NEWS (Yahoo Finance RSS):
+{news_text[:2500]}
 
-OUTPUT (Be concise):
+📋 PROVIDE:
 1. SENTIMENT: 🟢 BULLISH / 🔴 BEARISH / 🟡 NEUTRAL
-2. KEY REASON: (One sentence based on news)
-3. VERDICT: (Buy/Sell/Hold recommendation)"""
+2. KEY DRIVER: (One sentence based on news headlines)
+3. RISK: (Main risk factor)
+4. VERDICT: Buy/Sell/Hold with brief reason
+
+Be concise and actionable. Use emojis sparingly."""
 
     payload = json.dumps({
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": 0.5,
-            "maxOutputTokens": 400
-        }
+        "model": "llama-3.3-70b-versatile",
+        "messages": [
+            {"role": "system", "content": "You are SENTINEL, an expert Wall Street analyst providing actionable trading insights."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.5,
+        "max_tokens": 500
     })
     
     try:
-        req_headers = Headers.new({"Content-Type": "application/json"}.items())
-        response = await fetch(url, method="POST", headers=req_headers, body=payload)
+        req_headers = Headers.new({
+            "Authorization": f"Bearer {groq_key}",
+            "Content-Type": "application/json"
+        }.items())
+        
+        response = await fetch(GROQ_API_URL, method="POST", headers=req_headers, body=payload)
         response_text = await response.text()
         data = json.loads(str(response_text))
         
-        # 1. Check for Google API errors
         if "error" in data:
             error_msg = data.get("error", {}).get("message", "Unknown Error")
-            return f"⚠️ Google Error: {error_msg}"
+            return f"⚠️ Groq Error: {error_msg}"
         
-        # 2. Check for Safety Filters (no candidates)
-        if not data.get("candidates"):
-            block_reason = data.get("promptFeedback", {}).get("blockReason", "Unknown")
-            return f"⚠️ Blocked by Safety Filters: {block_reason}"
+        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        if content:
+            return content
         
-        # 3. Extract text from response
-        text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
-        
-        if text:
-            return text
-        else:
-            return f"⚠️ Empty response from Gemini"
+        return f"⚠️ Empty response from AI"
     
     except Exception as e:
         return f"⚠️ System Error: {str(e)}"
