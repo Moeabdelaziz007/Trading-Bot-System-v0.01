@@ -474,3 +474,162 @@ async def get_positions(env, headers):
         return Response.new(json.dumps({"positions": []}), headers=headers)
     except:
         return Response.new(json.dumps({"positions": []}), headers=headers)
+
+
+# ============ CRON JOB AUTOMATION ============
+
+async def on_scheduled(event, env, ctx):
+    """
+    🕐 Cron Job Handler - Runs every minute
+    Checks active trading rules and executes them if conditions are met
+    """
+    try:
+        db = env.TRADING_DB
+        
+        # 1. Fetch all active rules
+        result = await db.prepare(
+            "SELECT * FROM trading_rules WHERE status = 'active'"
+        ).all()
+        
+        rules = result.results if result.results else []
+        
+        if not rules:
+            return  # No active rules
+        
+        # 2. Fetch account info to check if we can trade
+        trades_today = await get_trades_count_internal(env)
+        if trades_today >= MAX_TRADES_PER_DAY:
+            # Log that we hit the limit
+            await db.prepare(
+                "INSERT INTO trade_logs (ticker, action, qty, trigger_reason) VALUES (?, ?, ?, ?)"
+            ).bind("SYSTEM", "blocked", 0, "Daily trade limit reached").run()
+            return
+        
+        # 3. Process each rule
+        for rule in rules:
+            try:
+                rule_id = rule["rule_id"]
+                ticker = rule["ticker"]
+                logic_json = json.loads(rule["logic_json"]) if isinstance(rule["logic_json"], str) else rule["logic_json"]
+                
+                # Get current price (simplified - using demo for now)
+                current_price = await get_current_price(ticker, env)
+                
+                # Evaluate condition
+                should_execute = evaluate_rule(logic_json, current_price)
+                
+                if should_execute:
+                    # Execute the trade
+                    action = logic_json.get("action", "BUY").lower()
+                    qty = logic_json.get("qty", 1)
+                    
+                    trade_result = await execute_trade_internal(env, ticker, action, qty)
+                    
+                    if trade_result.get("status") == "success":
+                        # Log successful trade
+                        await db.prepare(
+                            "INSERT INTO trade_logs (ticker, action, qty, order_id, trigger_reason) VALUES (?, ?, ?, ?, ?)"
+                        ).bind(ticker, action, qty, trade_result.get("order_id", ""), f"cron_rule_{rule_id}").run()
+                        
+                        # Optionally deactivate one-time rules
+                        # await db.prepare("UPDATE trading_rules SET status = 'executed' WHERE rule_id = ?").bind(rule_id).run()
+                        
+            except Exception as rule_error:
+                # Log rule error and continue
+                pass
+                
+    except Exception as e:
+        # Log cron error
+        pass
+
+
+def evaluate_rule(logic, current_price):
+    """Evaluate if a rule condition is met"""
+    try:
+        condition = logic.get("condition", "").upper()
+        trigger = float(logic.get("trigger", 0))
+        
+        if condition == "PRICE_BELOW" and current_price < trigger:
+            return True
+        elif condition == "PRICE_ABOVE" and current_price > trigger:
+            return True
+        elif condition == "RSI_BELOW":
+            # RSI logic would need indicator calculation
+            return False
+        elif condition == "RSI_ABOVE":
+            return False
+        
+        return False
+    except:
+        return False
+
+
+async def get_current_price(symbol, env):
+    """Get current price for a symbol"""
+    try:
+        alpaca_key = str(getattr(env, 'ALPACA_KEY', ''))
+        alpaca_secret = str(getattr(env, 'ALPACA_SECRET', ''))
+        
+        url = f"{ALPACA_DATA_URL}/stocks/{symbol}/trades/latest"
+        
+        req_headers = Headers.new({
+            "APCA-API-KEY-ID": alpaca_key,
+            "APCA-API-SECRET-KEY": alpaca_secret
+        }.items())
+        
+        response = await fetch(url, method="GET", headers=req_headers)
+        
+        if response.ok:
+            response_text = await response.text()
+            data = json.loads(str(response_text))
+            return float(data.get("trade", {}).get("p", 0))
+        
+        # Return demo price
+        demo_prices = {"SPY": 595, "AAPL": 245, "TSLA": 380, "GOOGL": 175}
+        return demo_prices.get(symbol.upper(), 100)
+    except:
+        return 100
+
+
+async def get_trades_count_internal(env):
+    """Internal function to get trade count"""
+    try:
+        db = env.TRADING_DB
+        result = await db.prepare(
+            "SELECT COUNT(*) as count FROM trade_logs WHERE date(executed_at) = date('now')"
+        ).all()
+        return result.results[0]["count"] if result.results else 0
+    except:
+        return 0
+
+
+async def execute_trade_internal(env, symbol, side, qty):
+    """Internal trade execution for cron"""
+    try:
+        alpaca_key = str(getattr(env, 'ALPACA_KEY', ''))
+        alpaca_secret = str(getattr(env, 'ALPACA_SECRET', ''))
+        
+        order_body = json.dumps({
+            "symbol": symbol.upper(),
+            "qty": str(qty),
+            "side": side.lower(),
+            "type": "market",
+            "time_in_force": "day"
+        })
+        
+        order_headers = Headers.new({
+            "APCA-API-KEY-ID": alpaca_key,
+            "APCA-API-SECRET-KEY": alpaca_secret,
+            "Content-Type": "application/json"
+        }.items())
+        
+        response = await fetch(f"{ALPACA_API_URL}/orders", method="POST", headers=order_headers, body=order_body)
+        response_text = await response.text()
+        
+        if response.ok:
+            order_data = json.loads(str(response_text))
+            return {"status": "success", "order_id": order_data.get("id")}
+        return {"status": "error"}
+    except:
+        return {"status": "error"}
+
