@@ -1,27 +1,31 @@
-import type { Metadata } from 'next'
-import './globals.css'
+import type { Metadata } from "next";
+import { JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+import Sidebar from "@/components/Sidebar";
+
+const mono = JetBrains_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: 'Trading System 0.1 | Hedge Fund Terminal',
-    description: 'نظام التداول الموحد - Multi-Asset Trading Platform',
-}
+    title: "Antigravity Terminal",
+    description: "AI-Powered Institutional Trading System",
+};
 
 export default function RootLayout({
     children,
-}: {
-    children: React.ReactNode
-}) {
+}: Readonly<{
+    children: React.ReactNode;
+}>) {
     return (
-        <html lang="ar" dir="ltr">
-            <head>
-                <link
-                    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-                    rel="stylesheet"
-                />
-            </head>
-            <body className="min-h-screen bg-midnight antialiased">
-                {children}
+        <html lang="en">
+            <body className={`${mono.className} bg-black text-white h-screen flex overflow-hidden`}>
+                {/* Sidebar fixed on left */}
+                <Sidebar />
+
+                {/* Main content area */}
+                <main className="flex-1 overflow-auto relative bg-[#030303]">
+                    {children}
+                </main>
             </body>
         </html>
-    )
+    );
 }
