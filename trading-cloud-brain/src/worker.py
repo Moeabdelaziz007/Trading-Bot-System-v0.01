@@ -445,8 +445,14 @@ async def call_groq_chat(user_message, env):
 async def handle_telegram_webhook(request, env, headers):
     """Receive Telegram messages and reply with LLM"""
     try:
-        body = await request.json()
+        # Parse JS object to Python dict
+        body_js = await request.json()
+        body = json.loads(JSON.stringify(body_js))
+        
         message = body.get("message", {})
+        if not message:
+            return Response.new(json.dumps({"ok": True}), headers=headers)
+            
         chat_id = message.get("chat", {}).get("id")
         text = message.get("text", "")
         user_name = message.get("from", {}).get("first_name", "Trader")
@@ -454,37 +460,82 @@ async def handle_telegram_webhook(request, env, headers):
         if not chat_id or not text:
             return Response.new(json.dumps({"ok": True}), headers=headers)
         
-        # Handle /start command
+        # ============ COMMAND HANDLING ============
+        
+        # /start command
         if text.startswith("/start"):
-            reply = f"""🧠 <b>SENTINEL AI</b> Online!
+            reply = f"""🦅 <b>ANTIGRAVITY TERMINAL</b> Online!
 
-Hello {user_name}! I'm your expert trading assistant.
+مرحباً {user_name}! أنا Sentinel AI - مساعدك الذكي للتداول.
 
-<b>Commands:</b>
-• Analyze AAPL - Get news & sentiment
-• Show SPY chart - Load chart
-• Buy 5 TSLA - Execute trade
-• What's happening with gold?
+<b>📋 الأوامر المتاحة:</b>
+• /balance - عرض رصيد المحفظة
+• /positions - المراكز المفتوحة
+• Analyze AAPL - تحليل سهم
+• Buy 5 TSLA - تنفيذ صفقة
+• أي سؤال - سأجيبك!
 
-Send any message to start!"""
+<b>🔗 Dashboard:</b> trading-brain-v1.amrikyy.workers.dev"""
             await send_telegram_reply(env, chat_id, reply)
             return Response.new(json.dumps({"ok": True}), headers=headers)
         
-        # Process via MoE
+        # /balance command
+        if text.startswith("/balance"):
+            account = await get_alpaca_account_data(env)
+            reply = f"""💰 <b>Portfolio Status</b>
+
+📊 Equity: ${float(account.get('equity', 0)):,.2f}
+💵 Cash: ${float(account.get('cash', 0)):,.2f}
+🔋 Buying Power: ${float(account.get('buying_power', 0)):,.2f}
+
+🟢 System: Healthy"""
+            await send_telegram_reply(env, chat_id, reply)
+            return Response.new(json.dumps({"ok": True}), headers=headers)
+        
+        # /positions command
+        if text.startswith("/positions"):
+            positions = await get_alpaca_positions_data(env)
+            if positions:
+                pos_text = "\n".join([f"• {p.get('symbol')}: {p.get('qty')} @ ${float(p.get('current_price', 0)):,.2f}" for p in positions[:5]])
+                reply = f"📈 <b>Open Positions:</b>\n\n{pos_text}"
+            else:
+                reply = "📭 No open positions."
+            await send_telegram_reply(env, chat_id, reply)
+            return Response.new(json.dumps({"ok": True}), headers=headers)
+        
+        # Process via MoE Router
         intent_data = await route_intent(text, env)
         intent_type = intent_data.get("type", "CHAT")
         
-        if intent_type == "RESEARCH":
+        if intent_type == "RESEARCH" or intent_type == "ANALYZE":
             symbol = intent_data.get("symbol", "SPY").upper()
+            await send_telegram_reply(env, chat_id, f"🔍 جاري تحليل {symbol}...")
             news_text = await fetch_yahoo_news(symbol)
             price_data = await fetch_alpaca_snapshot(symbol, env)
             ai_response = await analyze_with_gemini_rag(symbol, news_text, price_data, env)
+            
+        elif intent_type == "TRADE":
+            symbol = intent_data.get("symbol", "AAPL").upper()
+            side = intent_data.get("side", "buy")
+            qty = intent_data.get("qty", 1)
+            
+            # Execute trade
+            result = await execute_alpaca_trade(env, symbol, side, qty)
+            if result.get("status") == "success":
+                await log_trade(env, symbol, side, qty, result.get("price", 0))
+                ai_response = f"✅ تم تنفيذ الصفقة!\n\n{side.upper()} {qty} {symbol}"
+            else:
+                ai_response = f"⚠️ فشل التنفيذ: {result.get('error', 'Unknown')}"
+                
         else:
-            ai_response = await call_gemini_chat(text, user_name, env)
+            # General chat
+            ai_response = await call_groq_chat(text, env)
         
         await send_telegram_reply(env, chat_id, ai_response)
         return Response.new(json.dumps({"ok": True}), headers=headers)
+        
     except Exception as e:
+        # Always return OK to prevent Telegram retries
         return Response.new(json.dumps({"ok": True, "error": str(e)}), headers=headers)
 
 
@@ -803,6 +854,47 @@ async def get_positions(env, headers):
         return Response.new(json.dumps([]), headers=headers)
     except:
         return Response.new(json.dumps([]), headers=headers)
+
+
+# Helper functions for Telegram (return dict, not Response)
+async def get_alpaca_account_data(env):
+    """Get Alpaca account data as dict"""
+    try:
+        alpaca_key = str(getattr(env, 'ALPACA_KEY', ''))
+        alpaca_secret = str(getattr(env, 'ALPACA_SECRET', ''))
+        
+        req_headers = Headers.new({
+            "APCA-API-KEY-ID": alpaca_key,
+            "APCA-API-SECRET-KEY": alpaca_secret
+        }.items())
+        
+        response = await fetch(f"{ALPACA_API_URL}/account", method="GET", headers=req_headers)
+        
+        if response.ok:
+            return json.loads(await response.text())
+        return {"equity": "100000", "cash": "100000", "buying_power": "200000"}
+    except:
+        return {"equity": "100000", "cash": "100000", "buying_power": "200000"}
+
+
+async def get_alpaca_positions_data(env):
+    """Get Alpaca positions as list"""
+    try:
+        alpaca_key = str(getattr(env, 'ALPACA_KEY', ''))
+        alpaca_secret = str(getattr(env, 'ALPACA_SECRET', ''))
+        
+        req_headers = Headers.new({
+            "APCA-API-KEY-ID": alpaca_key,
+            "APCA-API-SECRET-KEY": alpaca_secret
+        }.items())
+        
+        response = await fetch(f"{ALPACA_API_URL}/positions", method="GET", headers=req_headers)
+        
+        if response.ok:
+            return json.loads(await response.text())
+        return []
+    except:
+        return []
 
 
 # ==========================================
