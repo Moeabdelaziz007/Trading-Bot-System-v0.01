@@ -15,8 +15,8 @@ export const metadata: Metadata = {
         title: "Antigravity",
     },
     icons: {
-        icon: "/logo.png",
-        apple: "/logo.png",
+        icon: "/icon.png",
+        apple: "/icon.png",
     },
 };
 
@@ -36,7 +36,7 @@ export default function RootLayout({
     return (
         <html lang="en" className="dark">
             <head>
-                <link rel="apple-touch-icon" href="/logo.png" />
+                <link rel="apple-touch-icon" href="/icon.png" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta name="mobile-web-app-capable" content="yes" />
             </head>

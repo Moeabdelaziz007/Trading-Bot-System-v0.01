@@ -103,6 +103,18 @@ async def on_fetch(request, env):
         }
         return Response.new(json.dumps(result), headers=headers)
     
+    # ☢️ PANIC PROTOCOL - Liquidate All Positions
+    if "api/trade/panic" in url or "api/panic" in url:
+        try:
+            result = await execute_panic_protocol(env)
+            
+            # Send Telegram alert
+            await send_telegram_alert(env, "🚨 **PANIC PROTOCOL ACTIVATED**\nAll positions are being liquidated immediately!")
+            
+            return Response.new(json.dumps(result), headers=headers)
+        except Exception as e:
+            return Response.new(json.dumps({"error": str(e), "status": "FAILED"}), headers=headers)
+    
     # Trade Execution
     if "api/trade" in url:
         params = dict(p.split("=") for p in url.split("?")[1].split("&")) if "?" in url else {}
@@ -809,6 +821,40 @@ async def execute_alpaca_trade(env, symbol, side, qty):
             return {"status": "error", "error": str(response_text)}
     except Exception as e:
         return {"status": "error", "error": str(e)}
+
+
+async def execute_panic_protocol(env):
+    """☢️ PANIC PROTOCOL - Liquidate ALL positions immediately"""
+    try:
+        alpaca_key = str(getattr(env, 'ALPACA_KEY', ''))
+        alpaca_secret = str(getattr(env, 'ALPACA_SECRET', ''))
+        
+        # Alpaca DELETE /v2/positions closes ALL positions and cancels pending orders
+        url = f"{ALPACA_API_URL}/positions?cancel_orders=true"
+        
+        req_headers = Headers.new({
+            "APCA-API-KEY-ID": alpaca_key,
+            "APCA-API-SECRET-KEY": alpaca_secret
+        }.items())
+        
+        response = await fetch(url, method="DELETE", headers=req_headers)
+        response_text = await response.text()
+        
+        # 207 = Multi-Status (some orders placed), 200 = Success
+        if response.status in [200, 207, 204]:
+            return {
+                "status": "LIQUIDATING",
+                "message": "🚨 Panic Protocol executed. Sell orders placed for all positions.",
+                "details": str(response_text)[:500] if response_text else "No positions to close"
+            }
+        else:
+            return {
+                "status": "ERROR",
+                "message": f"Failed to execute panic protocol (HTTP {response.status})",
+                "details": str(response_text)[:500]
+            }
+    except Exception as e:
+        return {"status": "ERROR", "message": str(e)}
 
 
 async def get_account(env, headers):

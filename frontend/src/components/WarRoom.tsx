@@ -55,7 +55,7 @@ export function WarRoom({ globalTimeframe, onTimeframeChange }: WarRoomProps) {
         return () => clearInterval(interval);
     }, [fetchMarketData]);
 
-    // Panic Button Handler
+    // Panic Button Handler - REAL LIQUIDATION
     const handlePanic = async () => {
         if (!panicConfirm) {
             setPanicConfirm(true);
@@ -63,17 +63,22 @@ export function WarRoom({ globalTimeframe, onTimeframeChange }: WarRoomProps) {
             return;
         }
 
-        // Execute panic sell
+        // Execute panic sell via API
         try {
-            const res = await fetch(`${API_BASE}/api/chat`, {
+            const res = await fetch(`${API_BASE}/api/trade/panic`, {
                 method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ message: 'Sell all positions immediately' })
+                headers: getHeaders()
             });
             const data = await res.json();
-            alert(`🚨 PANIC PROTOCOL: ${data.reply || 'Executed'}`);
-        } catch {
-            alert('⚠️ Panic protocol failed');
+
+            if (data.status === 'LIQUIDATING') {
+                alert(`🚨 PANIC PROTOCOL EXECUTED!\n\n${data.message}\n\nCheck Telegram for confirmation.`);
+            } else {
+                alert(`⚠️ Panic Protocol Status: ${data.status}\n\n${data.message || data.error || 'Unknown error'}`);
+            }
+        } catch (error) {
+            alert('⚠️ Panic protocol failed - network error');
+            console.error('Panic error:', error);
         }
         setPanicConfirm(false);
     };

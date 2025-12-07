@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { TradingChart } from '@/components/TradingChart';
 import { WarRoom } from '@/components/WarRoom';
+import PriceAlerts from '@/components/PriceAlerts';
 
 // 🔗 Backend API Configuration
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://trading-brain-v1.amrikyy.workers.dev";
@@ -278,32 +279,40 @@ export default function Dashboard() {
                         )}
                     </div>
 
-                    {/* 📰 News Ticker (Google News) */}
-                    <div className="h-44 glass-card p-4 overflow-hidden hover-glow-border">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wider">
-                                <Newspaper size={14} className="text-cyan-400" />
-                                Market Intelligence ({activeSymbol})
+                    {/* 📰 News + 🔔 Alerts Split Row */}
+                    <div className="flex gap-4 h-52">
+                        {/* News Ticker */}
+                        <div className="flex-1 glass-card p-4 overflow-hidden hover-glow-border">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wider">
+                                    <Newspaper size={14} className="text-cyan-400" />
+                                    Market Intel ({activeSymbol})
+                                </div>
+                                <button
+                                    onClick={() => fetchNews(activeSymbol)}
+                                    className="p-1 hover:bg-white/5 rounded transition-colors"
+                                >
+                                    <RefreshCw size={14} className="text-gray-500 hover:text-cyan-400" />
+                                </button>
                             </div>
-                            <button
-                                onClick={() => fetchNews(activeSymbol)}
-                                className="p-1 hover:bg-white/5 rounded transition-colors"
-                            >
-                                <RefreshCw size={14} className="text-gray-500 hover:text-cyan-400" />
-                            </button>
+                            <div className="overflow-y-auto h-32 pr-2 custom-scrollbar">
+                                {news ? (
+                                    <div className="text-sm text-gray-300 leading-relaxed whitespace-pre-line animate-fade-in">
+                                        {news}
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-2">
+                                        <div className="h-3 bg-white/5 rounded w-3/4 animate-pulse"></div>
+                                        <div className="h-3 bg-white/5 rounded w-1/2 animate-pulse"></div>
+                                        <div className="h-3 bg-white/5 rounded w-2/3 animate-pulse"></div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        <div className="overflow-y-auto h-28 pr-2 custom-scrollbar">
-                            {news ? (
-                                <div className="text-sm text-gray-300 leading-relaxed whitespace-pre-line animate-fade-in">
-                                    {news}
-                                </div>
-                            ) : (
-                                <div className="flex flex-col gap-2">
-                                    <div className="h-3 bg-white/5 rounded w-3/4 animate-pulse"></div>
-                                    <div className="h-3 bg-white/5 rounded w-1/2 animate-pulse"></div>
-                                    <div className="h-3 bg-white/5 rounded w-2/3 animate-pulse"></div>
-                                </div>
-                            )}
+
+                        {/* 🔔 Price Alerts Widget */}
+                        <div className="w-80">
+                            <PriceAlerts />
                         </div>
                     </div>
                 </div>
