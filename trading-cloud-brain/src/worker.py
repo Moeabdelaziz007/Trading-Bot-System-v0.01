@@ -952,35 +952,43 @@ async def get_market_snapshot(request, env, headers):
                     crypto_data = data.get("snapshots", {}).get(crypto_symbol, {})
                     daily = crypto_data.get("dailyBar", {})
                     prev = crypto_data.get("prevDailyBar", {})
-                    current_price = float(daily.get("c", 0))
-                    prev_close = float(prev.get("c", current_price))
                 else:
                     # Parse stock response
                     daily = data.get("dailyBar", {})
                     prev = data.get("prevDailyBar", {})
-                    current_price = float(daily.get("c", 0))
-                    prev_close = float(prev.get("c", current_price))
                 
-                # Calculate change
-                if prev_close > 0:
-                    change_percent = ((current_price - prev_close) / prev_close) * 100
+                # 🟢 Weekend/Closed Market Fix:
+                # If no trading today (volume=0 or empty), use previous close
+                is_market_closed = not daily or daily.get("v", 0) == 0
+                
+                if is_market_closed and prev:
+                    current_price = float(prev.get("c", 0))
+                    change_percent = 0.0  # No change when market closed
+                    volume = prev.get("v", 0)
                 else:
-                    change_percent = 0.0
+                    current_price = float(daily.get("c", 0)) if daily else 0
+                    prev_close = float(prev.get("c", current_price)) if prev else current_price
+                    if prev_close > 0:
+                        change_percent = ((current_price - prev_close) / prev_close) * 100
+                    else:
+                        change_percent = 0.0
+                    volume = daily.get("v", 0) if daily else 0
                 
                 results.append({
                     "symbol": symbol,
                     "price": round(current_price, 2),
-                    "prev_close": round(prev_close, 2),
-                    "change": round(current_price - prev_close, 2),
                     "change_percent": round(change_percent, 2),
-                    "volume": daily.get("v", 0)
+                    "volume": volume,
+                    "is_closed": is_market_closed
                 })
             else:
+                # Fallback: use existing snapshot function
+                snapshot = await fetch_alpaca_snapshot(symbol.replace("/USD", "").replace("USD", ""), env)
                 results.append({
                     "symbol": symbol,
-                    "price": 0,
-                    "change_percent": 0,
-                    "error": "Data unavailable"
+                    "price": float(snapshot.get("price", 0)) if snapshot.get("price") != "N/A" else 0,
+                    "change_percent": float(snapshot.get("change_percent", 0)),
+                    "is_closed": True
                 })
         except Exception as e:
             results.append({
