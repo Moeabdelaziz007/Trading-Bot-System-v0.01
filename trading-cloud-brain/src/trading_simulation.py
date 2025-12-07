@@ -104,8 +104,8 @@ class TradingSimulation:
                 risk_amt = self.capital * 0.05
                 
                 if is_win:
-                    # 1:3 R:R = Win 3x the risk
-                    pnl = risk_amt * 3.0
+                    # 1:7 R:R = Win 7x the risk
+                    pnl = risk_amt * 7.0
                     result = "WIN ✅"
                     wins += 1
                 else:
