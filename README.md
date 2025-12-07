@@ -25,7 +25,7 @@
 
 ---
 
-## 🆕 What's New in v4.0 | الجديد في الإصدار 4.0
+## 🆕 What's New in v0.9 "Spider Web" | الجديد في إصدار 0.9
 
 <table>
 <tr>
@@ -33,24 +33,24 @@
 
 ### 🇺🇸 English
 
-- 🤖 **AI Trading Bots** — Automated Forex strategies
-- 💰 **Capital.com Integration** — Real-money Forex/Gold trading
-- 🧠 **DeepSeek AI Chat** — Ask questions, get market insights
-- 📱 **Telegram Widget** — Signals directly in dashboard
-- 🎨 **Premium Dashboard** — Dribbble-inspired design
-- 🔄 **Testing/Live Mode Toggle** — Easy switching
+- 🕷️ **Spider Web Architecture** — Modular AI brain system
+- 🆓 **Workers AI** — FREE LLMs (10K neurons/day)
+- 🧠 **DeepSeek V3.2** — 128K context reasoning
+- 🛡️ **Risk Guardian** — AI-powered trade validation
+- 📡 **Data Collector** — Real-time market context
+- 💰 **Capital.com + Alpaca** — Dual broker support
 
 </td>
 <td width="50%">
 
 ### 🇸🇦 العربية
 
-- 🤖 **بوتات تداول ذكية** — استراتيجيات فوركس آلية
-- 💰 **ربط Capital.com** — تداول حقيقي على الفوركس والذهب
-- 🧠 **دردشة DeepSeek** — اسأل واحصل على تحليلات السوق
-- 📱 **ويدجت Telegram** — الإشارات مباشرة في اللوحة
-- 🎨 **لوحة تحكم فاخرة** — تصميم مستوحى من Dribbble
-- 🔄 **تبديل الوضع** — اختبار أو حقيقي بضغطة
+- 🕷️ **هيكل شبكة العنكبوت** — نظام دماغ ذكاء اصطناعي معياري
+- 🆓 **Workers AI** — نماذج LLM مجانية
+- 🧠 **DeepSeek V3.2** — تحليل عميق 128K
+- 🛡️ **حارس المخاطر** — موافقة ذكية على الصفقات
+- 📡 **جامع البيانات** — سياق السوق الحي
+- 💰 **Capital.com + Alpaca** — دعم وسيطين
 
 </td>
 </tr>
@@ -161,12 +161,14 @@ flowchart LR
     H --> J[Telegram Alert]
 ```
 
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| 🧠 **DeepSeek Chat** | Groq deepseek-r1-70b | Interactive market Q&A |
-| 🔬 **Analyst** | Groq Llama 3.3 | Signal validation |
+| Spider Agent | Model | Purpose |
+|--------------|-------|---------|
+| 🕸️ **Core Hub** | Cloudflare Worker | Dispatcher & Orchestrator |
+| 🕷️ **Reflex** | Workers AI (Llama 3.1) | Fast pattern matching (FREE) |
+| 🧠 **Analyst** | DeepSeek V3.2 | Deep reasoning & strategy |
+| 🛡️ **Guardian** | Workers AI | Risk validation (FREE) |
+| 📡 **Collector** | APIs (Finnhub) | Data aggregation |
 | 📰 **Journalist** | Gemini Flash | Daily briefings |
-| 🛡️ **Router** | Groq Fast | Intent classification |
 
 ---
 
@@ -313,6 +315,21 @@ MIT License © 2025 Mohamed Hossameldin Abdelaziz
 
 *"من الإشارات إلى التنفيذ."*
 
-🚀 **v4.0 — Premium Trading Edition**
+🚀 **v0.9 — Spider Web Edition**
+
+---
+
+## 🤖 Telegram Bot
+
+| Command | Description | AI |
+|---------|-------------|----|
+| `/start` | Welcome message | - |
+| `/status` | System status | - |
+| `/ai [text]` | Quick AI chat | Workers AI (FREE) |
+| `/analyze [type] [text]` | Deep analysis | DeepSeek |
+| `/stoptrade` | Kill switch ON | - |
+| `/starttrade` | Resume trading | - |
+
+📖 Full setup guide: `docs/telegram_bot_setup.md`
 
 </div>
