@@ -1882,106 +1882,145 @@ async def send_daily_briefing(env):
 # 🧠 ANALYST AGENT (Smart Signal Filter)
 # ==========================================
 
+# Confidence threshold - reject signals below this
+MIN_CONFIDENCE_THRESHOLD = 75  # Best practice: 75% minimum
+
 async def consult_the_analyst(market_data, env):
     """
-    🧠 The Analyst Agent - Smart Signal Filter
+    🧠 The Analyst Agent - Smart Signal Filter with Confidence Scoring
     
-    This agent acts as an intelligent filter between raw math signals
-    and human-facing alerts. It validates anomalies and adds context.
-    
-    Features:
-    - Prevents weak/conflicting signals from being broadcast
-    - Adds quality tier (S-TIER, A-TIER, B-TIER)
-    - Provides human-readable analyst brief
+    RESEARCH-BASED IMPLEMENTATION:
+    1. Structured JSON output with confidence field (0-100)
+    2. Chain-of-Thought reasoning in "reasoning" field
+    3. Threshold validation (reject if confidence < 75%)
+    4. Logs rejected signals for analysis
     
     Cost: Uses Groq API (FREE - 14,400 req/day)
     """
     
-    # 1. Build Analyst Context Prompt
+    # 1. Build Analyst Context Prompt with Structured Output Schema
     prompt = f"""ROLE: Senior Market Analyst for 'Axiom Antigravity Signal Hub'.
-OBJECTIVE: Validate a potential market anomaly detected by mathematical algorithms.
+OBJECTIVE: Validate a potential market anomaly and provide confidence assessment.
 
 INPUT DATA:
 - Asset: {market_data.get('symbol', 'UNKNOWN')}
 - Current Price: ${market_data.get('price', 0):.2f}
 - AEXI Score (Exhaustion): {market_data.get('aexi', 0):.1f}/100 
-  (>80 = potential reversal DOWN, <20 = potential reversal UP)
 - Dream Score (Chaos): {market_data.get('dream', 0):.1f}/100 
-  (>70 = high complexity = opportunity window)
 - RSI: {market_data.get('rsi', 50):.1f}
-- Z-Score: {market_data.get('z_score', 0):.2f} sigma from mean
-
-TASK:
-Analyze the combination of statistical Exhaustion (AEXI) and market Chaos (Dream).
-Determine if this setup justifies sending an alert to human traders.
+- Z-Score: {market_data.get('z_score', 0):.2f}σ
 
 DECISION CRITERIA:
-- S-TIER: AEXI > 85 AND Dream > 75 AND extreme RSI (<25 or >75)
-- A-TIER: AEXI > 80 AND Dream > 70
-- B-TIER: Either AEXI > 80 OR Dream > 70, but not both
-- REJECT: Conflicting signals or low confidence
+- S-TIER: AEXI > 85 AND Dream > 75 AND extreme RSI (<25 or >75) → confidence 90-100
+- A-TIER: AEXI > 80 AND Dream > 70 → confidence 75-89
+- B-TIER: Either AEXI > 80 OR Dream > 70 → confidence 50-74
+- REJECT: Conflicting signals or low setup quality → confidence < 50
 
-OUTPUT JSON FORMAT ONLY:
+INSTRUCTIONS:
+1. First, analyze the data in the "reasoning" field (Chain-of-Thought)
+2. Then, provide your confidence score (0-100)
+3. Finally, decide if this should be broadcast
+
+OUTPUT JSON SCHEMA (strict):
 {{
+  "reasoning": "Step-by-step analysis explaining WHY this signal is strong or weak",
+  "confidence": 85,
   "broadcast_alert": true,
-  "signal_quality": "S-TIER",
+  "signal_quality": "A-TIER",
   "direction": "BULLISH",
-  "analyst_brief": "One sharp sentence explaining the WHY."
+  "analyst_brief": "One sharp sentence for the trader."
 }}"""
 
     # 2. Call Groq for fast inference (Llama 3.3 70B)
     try:
-        groq_key = getattr(env, 'GROQ_API_KEY', None)
+        groq_key = str(getattr(env, 'GROQ_API_KEY', ''))
         
         if not groq_key:
             # Fallback to pure math decision
+            aexi = market_data.get('aexi', 0)
+            dream = market_data.get('dream', 0)
+            rsi = market_data.get('rsi', 50)
+            
+            math_confidence = min(100, (aexi + dream) / 2) if aexi > 80 and dream > 70 else 40
+            
             return {
-                "broadcast_alert": market_data.get('aexi', 0) > 80 and market_data.get('dream', 0) > 70,
+                "reasoning": "AI unavailable, using pure mathematical calculation",
+                "confidence": int(math_confidence),
+                "broadcast_alert": math_confidence >= MIN_CONFIDENCE_THRESHOLD,
                 "signal_quality": "MATH-ONLY",
-                "direction": "BULLISH" if market_data.get('rsi', 50) < 30 else "BEARISH" if market_data.get('rsi', 50) > 70 else "NEUTRAL",
-                "analyst_brief": "AI Analyst unavailable. Signal based on pure mathematical indicators."
+                "direction": "BULLISH" if rsi < 30 else "BEARISH" if rsi > 70 else "NEUTRAL",
+                "analyst_brief": "Signal based on pure mathematical indicators."
             }
+        
+        req_headers = Headers.new({
+            "Authorization": f"Bearer {groq_key}",
+            "Content-Type": "application/json"
+        }.items())
         
         response = await fetch(GROQ_API_URL, 
             method="POST",
-            headers={
-                "Authorization": f"Bearer {groq_key}",
-                "Content-Type": "application/json"
-            },
+            headers=req_headers,
             body=json.dumps({
                 "model": "llama-3.3-70b-versatile",
                 "messages": [
-                    {"role": "system", "content": "You are a precise market analyst. Always respond in valid JSON only."},
+                    {"role": "system", "content": "You are a precise market analyst. Think step-by-step in the reasoning field before giving your final verdict. Always respond in valid JSON only."},
                     {"role": "user", "content": prompt}
                 ],
-                "temperature": 0.2,  # Low temperature for consistent reasoning
-                "max_tokens": 200,
+                "temperature": 0.1,  # Very low for consistent, deterministic output
+                "max_tokens": 400,   # Allow room for Chain-of-Thought
                 "response_format": {"type": "json_object"}
             })
         )
         
-        result = await response.json()
+        if response.ok:
+            result = json.loads(await response.text())
+            
+            if result.get("choices"):
+                content = result["choices"][0]["message"]["content"]
+                analyst_decision = json.loads(content)
+                
+                # 3. THRESHOLD VALIDATION - The key research insight
+                confidence = analyst_decision.get("confidence", 0)
+                
+                if confidence < MIN_CONFIDENCE_THRESHOLD:
+                    # Log rejection for later analysis
+                    analyst_decision["broadcast_alert"] = False
+                    analyst_decision["rejection_reason"] = f"Confidence {confidence}% below threshold ({MIN_CONFIDENCE_THRESHOLD}%)"
+                    
+                    # Store rejection in KV for debugging
+                    try:
+                        kv = env.BRAIN_MEMORY
+                        rejected_count = int(await kv.get("rejected_signals_count") or "0") + 1
+                        await kv.put("rejected_signals_count", str(rejected_count))
+                        await kv.put("last_rejected_signal", json.dumps({
+                            "symbol": market_data.get('symbol'),
+                            "confidence": confidence,
+                            "reason": analyst_decision.get("reasoning", "")[:200]
+                        }))
+                    except:
+                        pass
+                
+                return analyst_decision
         
-        if result.get("choices"):
-            content = result["choices"][0]["message"]["content"]
-            analyst_decision = json.loads(content)
-            return analyst_decision
-        
-        # Fallback if parsing fails
+        # Fallback if API call fails
         return {
-            "broadcast_alert": True,
+            "reasoning": "API response parsing failed",
+            "confidence": 50,
+            "broadcast_alert": False,
             "signal_quality": "PARSE-ERROR",
             "direction": "UNKNOWN",
-            "analyst_brief": "Response parsing failed. Broadcasting raw signal."
+            "analyst_brief": "Response parsing failed. Signal not broadcast for safety."
         }
         
     except Exception as e:
-        # In case of AI failure, rely on math only
+        # In case of AI failure, be conservative - don't broadcast
         return {
-            "broadcast_alert": True,
-            "signal_quality": "MATH-ONLY",
-            "direction": "BULLISH" if market_data.get('rsi', 50) < 30 else "BEARISH",
-            "analyst_brief": f"AI Analyst error: {str(e)[:50]}. Signal based on pure math."
+            "reasoning": f"AI error: {str(e)[:100]}",
+            "confidence": 0,
+            "broadcast_alert": False,
+            "signal_quality": "ERROR",
+            "direction": "UNKNOWN",
+            "analyst_brief": f"AI Analyst error. Signal rejected for safety."
         }
 
 
