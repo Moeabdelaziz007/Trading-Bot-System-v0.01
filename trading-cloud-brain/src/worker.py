@@ -3,6 +3,7 @@ import json
 from base64 import b64encode
 from capital_connector import CapitalConnector
 from economic_calendar import EconomicCalendar
+from deepseek_analyst import DeepSeekAnalyst
 
 # ==========================================
 # 🧠 ANTIGRAVITY MoE BRAIN v2.0
@@ -593,6 +594,97 @@ async def handle_telegram_webhook(request, env, headers):
                 await send_telegram_reply(env, chat_id, reply)
             except Exception as e:
                 await send_telegram_reply(env, chat_id, f"⚠️ خطأ: {str(e)}")
+            return Response.new(json.dumps({"ok": True}), headers=headers)
+        
+        # ============ DEEPSEEK ANALYSIS COMMANDS ============
+        
+        # /analyze - Deep analysis using DeepSeek brain
+        if text.startswith("/analyze"):
+            try:
+                # Parse command: /analyze [type] [text]
+                # Types: sentiment, signal, summary, risk
+                parts = text.split(maxsplit=2)
+                analysis_type = "sentiment"  # default
+                analysis_text = ""
+                
+                if len(parts) >= 2:
+                    if parts[1] in ["sentiment", "signal", "summary", "risk"]:
+                        analysis_type = parts[1]
+                        analysis_text = parts[2] if len(parts) > 2 else ""
+                    else:
+                        analysis_text = " ".join(parts[1:])
+                
+                if not analysis_text:
+                    await send_telegram_reply(env, chat_id, """🧠 <b>DeepSeek Analyst</b>
+
+استخدم: /analyze [نوع] [نص]
+
+<b>أنواع التحليل:</b>
+• sentiment - تحليل المشاعر
+• signal - إشارة تداول
+• summary - ملخص
+• risk - تحليل مخاطر
+
+<b>مثال:</b>
+/analyze sentiment البنك المركزي يرفع سعر الفائدة""")
+                    return Response.new(json.dumps({"ok": True}), headers=headers)
+                
+                # Send "thinking" message
+                await send_telegram_reply(env, chat_id, "🧠 <i>DeepSeek يحلل...</i>")
+                
+                # Run DeepSeek analysis
+                analyst = DeepSeekAnalyst(env)
+                result = await analyst.analyze_financial_text(analysis_text, analysis_type)
+                
+                if result.get("error"):
+                    await send_telegram_reply(env, chat_id, f"❌ خطأ: {result['error']}")
+                else:
+                    content = result.get("content", {})
+                    usage = result.get("usage", {})
+                    cost = result.get("cost_usd", 0)
+                    cached = "✓ cached" if result.get("cached") else ""
+                    
+                    # Format response based on type
+                    if analysis_type == "sentiment":
+                        reply = f"""🎯 <b>تحليل المشاعر</b> {cached}
+
+📊 المشاعر: <b>{content.get('sentiment', 'N/A')}</b>
+💪 الثقة: <b>{content.get('confidence', 0)}%</b>
+📈 تأثير السوق: {content.get('market_impact', 'N/A')}
+
+<b>العوامل الرئيسية:</b>
+{chr(10).join('• ' + f for f in content.get('key_factors', [])[:3])}
+
+<b>التفسير:</b>
+{content.get('reasoning', 'N/A')[:300]}
+
+💰 التكلفة: ${cost:.4f} | 📝 {usage.get('total_tokens', 0)} tokens"""
+                    
+                    elif analysis_type == "signal":
+                        reply = f"""📡 <b>إشارة تداول</b> {cached}
+
+🎯 الإجراء: <b>{content.get('action', 'HOLD')}</b>
+💹 الأصول: {', '.join(content.get('target_assets', ['N/A'])[:3])}
+💪 الثقة: <b>{content.get('confidence', 0)}%</b>
+⚠️ المخاطر: {content.get('risk_level', 'N/A')}
+⏰ التوقيت: {content.get('entry_timing', 'N/A')}
+
+<b>التحليل:</b>
+{content.get('reasoning', 'N/A')[:300]}
+
+💰 التكلفة: ${cost:.4f}"""
+                    
+                    else:
+                        reply = f"""📋 <b>التحليل</b> ({analysis_type}) {cached}
+
+{json.dumps(content, ensure_ascii=False, indent=2)[:800]}
+
+💰 التكلفة: ${cost:.4f} | 📝 {usage.get('total_tokens', 0)} tokens"""
+                    
+                    await send_telegram_reply(env, chat_id, reply)
+                    
+            except Exception as e:
+                await send_telegram_reply(env, chat_id, f"⚠️ خطأ DeepSeek: {str(e)}")
             return Response.new(json.dumps({"ok": True}), headers=headers)
         
         # /balance command
