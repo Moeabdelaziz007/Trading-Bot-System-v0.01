@@ -24,4 +24,11 @@ database_name = "trading-brain-db"
 # 🔑 Environment Variables
 [vars]
 ABLY_API_KEY = "-psacw.I6fnWw:m-zRcRM-3k5UwuiAKHeP8CJ3N1DWSMPQTorXy3pbLp8"
+OANDA_DEMO = "true"
+# Secrets (Set via `wrangler secret put` or Dashboard):
+# GROQ_API_KEY
+# ALPACA_KEY
+# ALPACA_SECRET
+# OANDA_API_KEY
+# OANDA_ACCOUNT_ID
 

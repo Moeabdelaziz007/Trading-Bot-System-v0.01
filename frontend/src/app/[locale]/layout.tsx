@@ -1,18 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Cairo, Orbitron } from "next/font/google";
+import { JetBrains_Mono, Cairo, Orbitron, Inter } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import "../globals.css";
-import Sidebar from "@/components/Sidebar";
 import { Providers } from "./providers";
+import ModeToggle from "@/components/ModeToggle";
+import DeepSeekPanel from "@/components/DeepSeekPanel";
+import Link from "next/link";
 
+const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: '--font-jetbrains' });
 const cairo = Cairo({ subsets: ["arabic"], variable: '--font-cairo', weight: ['400', '700'] });
 const orbitron = Orbitron({ subsets: ["latin"], variable: '--font-orbitron', weight: ['400', '700', '900'] });
 
 export const metadata: Metadata = {
-    title: "Axiom Antigravity | Trading Hub",
-    description: "AI-Powered Trading Command Hub - Your Strategic Market Intelligence Center",
+    title: "Axiom Antigravity | AI Forex Trading",
+    description: "AI-Powered Forex Trading Platform with DeepSeek Intelligence",
     manifest: "/manifest.json",
     openGraph: {
         title: "Axiom Antigravity Trading Hub",
@@ -24,7 +27,6 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Axiom Antigravity Trading Hub",
         description: "AI-Powered Market Intelligence",
-        images: ["/og-image.png"],
     },
     appleWebApp: {
         capable: true,
@@ -54,8 +56,8 @@ export default async function RootLayout({
 }) {
     const messages = await getMessages();
     const dir = locale === 'ar' ? 'rtl' : 'ltr';
-    const fontVariable = locale === 'ar' ? cairo.variable : mono.variable;
-    const fontClass = locale === 'ar' ? cairo.className : mono.className;
+    const fontVariable = locale === 'ar' ? cairo.variable : inter.variable;
+    const fontClass = locale === 'ar' ? cairo.className : inter.className;
 
     return (
         <html lang={locale} dir={dir} className="dark">
@@ -64,18 +66,56 @@ export default async function RootLayout({
                 <meta name="apple-mobile-web-app-capable" content="yes" />
                 <meta name="mobile-web-app-capable" content="yes" />
             </head>
-            <body className={`${fontClass} ${fontVariable} ${orbitron.variable} bg-void text-white h-screen flex overflow-hidden selection:bg-neon-cyan/30`}>
+            <body className={`${fontClass} ${fontVariable} ${orbitron.variable} ${mono.variable} bg-[var(--void)] text-white min-h-screen`}>
+                {/* Topographic Background */}
+                <div className="topo-bg" />
+
                 <NextIntlClientProvider messages={messages}>
                     <Providers>
-                        {/* 🧭 Sidebar - Fixed on left/right depending on dir */}
-                        <aside className="hidden md:flex flex-col w-64 flex-shrink-0 z-50">
-                            <Sidebar />
-                        </aside>
+                        {/* Premium Navigation Header */}
+                        <header className="premium-nav fixed top-0 left-0 right-0 z-40 h-16 flex items-center justify-between px-6">
+                            {/* Logo */}
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--neon-cyan)] to-[var(--neon-blue)] flex items-center justify-center">
+                                    <span className="font-orbitron font-bold text-lg">A</span>
+                                </div>
+                                <div>
+                                    <h1 className="text-sm font-bold font-orbitron tracking-wider">AXIOM</h1>
+                                    <p className="text-[10px] text-[var(--text-dim)] uppercase tracking-widest">Antigravity</p>
+                                </div>
+                            </div>
 
-                        {/* 📊 Main Content */}
-                        <main className="flex-1 flex flex-col relative overflow-hidden">
+                            {/* Nav Items */}
+                            <nav className="hidden md:flex items-center gap-1">
+                                <Link href="/" className="nav-pill active">
+                                    Dashboard
+                                </Link>
+                                <Link href="/bots" className="nav-pill">
+                                    AI Bots
+                                </Link>
+                                <Link href="/settings" className="nav-pill">
+                                    Settings
+                                </Link>
+                            </nav>
+
+                            {/* Right Side */}
+                            <div className="flex items-center gap-4">
+                                <ModeToggle />
+
+                                {/* User Avatar */}
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--neon-purple)] to-[var(--neon-magenta)] flex items-center justify-center text-sm font-bold">
+                                    U
+                                </div>
+                            </div>
+                        </header>
+
+                        {/* Main Content */}
+                        <main className="pt-20 px-4 md:px-6 pb-8 max-w-7xl mx-auto">
                             {children}
                         </main>
+
+                        {/* DeepSeek AI Chat */}
+                        <DeepSeekPanel />
                     </Providers>
                 </NextIntlClientProvider>
             </body>

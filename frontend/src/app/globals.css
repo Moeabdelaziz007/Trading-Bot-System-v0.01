@@ -3,26 +3,44 @@
 @tailwind utilities;
 
 /* ==========================================
-   🌌 AXIOM ANTIGRAVITY - Midnight Void Design System
+   🌌 AXIOM ANTIGRAVITY - Premium Dashboard v4.0
+   Inspired by AIBots Trading Dashboard
    ========================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap');
 
 :root {
-  /* The Void */
-  --void: #020204;
-  --obsidian: #0A0A0F;
-  --glass-bg: rgba(10, 10, 15, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  /* Premium Dark Theme */
+  --void: #020817;
+  --obsidian: #0a0f1a;
+  --navy-deep: #0c1222;
+  --navy-light: #111827;
+  --surface: #1a2332;
+  --surface-hover: #243044;
+  
+  /* Glass Effects */
+  --glass-bg: rgba(10, 15, 26, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-highlight: rgba(255, 255, 255, 0.03);
 
-  /* Neon System */
+  /* Neon Accent System */
   --neon-cyan: #00F0FF;
-  --neon-magenta: #FF003C;
-  --neon-green: #05FFA1;
-  --neon-gold: #FFD700;
+  --neon-blue: #3B82F6;
+  --neon-green: #10B981;
+  --neon-gold: #F59E0B;
+  --neon-orange: #F97316;
+  --neon-magenta: #EC4899;
   --neon-purple: #8B5CF6;
+  --neon-red: #EF4444;
+
+  /* Chart Colors */
+  --chart-profit: #10B981;
+  --chart-loss: #EF4444;
+  --chart-neutral: #6B7280;
 
   --foreground: #ffffff;
+  --text-muted: #9CA3AF;
+  --text-dim: #6B7280;
 }
 
 * {
@@ -35,7 +53,98 @@ body {
   color: var(--foreground);
   background: var(--void);
   font-family: 'Inter', system-ui, sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
+}
+
+/* Topographic Background Pattern */
+.topo-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: 
+    radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 240, 255, 0.05) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5c13.807 0 25 11.193 25 25S43.807 55 30 55 5 43.807 5 30 16.193 5 30 5zm0 5c-11.046 0-20 8.954-20 20s8.954 20 20 20 20-8.954 20-20-8.954-20-20-20zm0 5c8.284 0 15 6.716 15 15s-6.716 15-15 15-15-6.716-15-15 6.716-15 15-15z' fill='none' stroke='rgba(255,255,255,0.02)' stroke-width='0.5'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Premium Bento Card */
+.bento-card {
+  background: linear-gradient(145deg, var(--navy-deep) 0%, var(--obsidian) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.bento-card:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+}
+
+/* Premium Header Nav */
+.premium-nav {
+  background: linear-gradient(180deg, var(--navy-deep) 0%, transparent 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.nav-pill {
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.nav-pill:hover {
+  color: var(--foreground);
+  background: var(--glass-highlight);
+}
+
+.nav-pill.active {
+  color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+/* Mode Toggle */
+.mode-toggle {
+  display: flex;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 4px;
+  border: 1px solid var(--glass-border);
+}
+
+.mode-toggle-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-muted);
+}
+
+.mode-toggle-btn.testing {
+  background: transparent;
+}
+
+.mode-toggle-btn.testing.active {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--neon-gold);
+}
+
+.mode-toggle-btn.live {
+  background: transparent;
+}
+
+.mode-toggle-btn.live.active {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--neon-red);
 }
 
 

@@ -1,98 +1,103 @@
 "use client";
-import SignalFeed from '@/components/SignalFeed';
+import PortfolioDonut from '@/components/PortfolioDonut';
+import PLChart from '@/components/PLChart';
+import ActiveBots from '@/components/ActiveBots';
+import TelegramWidget from '@/components/TelegramWidget';
+import LivePositions from '@/components/LivePositions';
 import TwinTurboGauges from '@/components/TwinTurboGauges';
-import { Activity, Bell, TrendingUp, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-// Stats Card Component
-function StatCard({
-    label,
-    value,
-    change,
-    icon: Icon
-}: {
-    label: string;
-    value: string;
-    change?: string;
-    icon: React.ElementType;
-}) {
-    const isPositive = change?.startsWith('+');
-
-    return (
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 hover:border-white/10 transition-colors">
-            <div className="flex items-center justify-between mb-3">
-                <span className="text-[13px] text-white/40">{label}</span>
-                <Icon size={16} className="text-white/20" />
-            </div>
-            <div className="flex items-end gap-2">
-                <span className="text-2xl font-semibold text-white tracking-tight">{value}</span>
-                {change && (
-                    <span className={`text-[12px] font-medium mb-1 ${isPositive ? 'text-emerald-400' : 'text-rose-400'
-                        }`}>
-                        {change}
-                    </span>
-                )}
-            </div>
-        </div>
-    );
+interface AccountData {
+    equity: string;
+    portfolio_value: string;
+    source?: string;
 }
 
-export default function SignalHubDashboard() {
+export default function Dashboard() {
+    const [account, setAccount] = useState<AccountData | null>(null);
+
+    useEffect(() => {
+        const fetchAccount = async () => {
+            try {
+                const res = await fetch('/api/account');
+                if (res.ok) {
+                    const data = await res.json();
+                    setAccount(data);
+                }
+            } catch (e) {
+                console.error('Failed to fetch account', e);
+            }
+        };
+        fetchAccount();
+        const interval = setInterval(fetchAccount, 10000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const equity = parseFloat(account?.equity || account?.portfolio_value || '100000');
+
     return (
-        <div className="min-h-screen bg-[#09090b]">
-            {/* Header */}
-            <header className="h-14 border-b border-white/[0.06] flex items-center justify-between px-6">
+        <div className="space-y-6 animate-fade-in">
+            {/* Page Title */}
+            <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-[15px] font-semibold text-white">Signal Hub</h1>
-                    <p className="text-[12px] text-white/40">Real-time market intelligence</p>
+                    <h1 className="text-2xl font-bold text-white">My Dashboard</h1>
+                    <p className="text-sm text-[var(--text-muted)]">
+                        {account?.source ? `Connected to ${account.source}` : 'Demo Mode'}
+                    </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <button className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] transition-colors">
-                        <Bell size={18} className="text-white/60" />
-                    </button>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                        <span className="text-[12px] text-emerald-400 font-medium">Live</span>
+            </div>
+
+            {/* Bento Grid - Row 1 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Portfolio Overview (Donut) */}
+                <PortfolioDonut equity={equity} />
+
+                {/* Profit & Loss Chart */}
+                <PLChart />
+
+                {/* Active Bots */}
+                <ActiveBots />
+            </div>
+
+            {/* Bento Grid - Row 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Live Positions - Takes 2 columns */}
+                <div className="lg:col-span-2">
+                    <LivePositions />
+                </div>
+
+                {/* Telegram Widget */}
+                <TelegramWidget />
+            </div>
+
+            {/* Bento Grid - Row 3: AI Engines */}
+            <div className="grid grid-cols-1 gap-6">
+                <TwinTurboGauges />
+            </div>
+
+            {/* Bottom Stats Banner */}
+            <div className="bento-card flex items-center justify-between p-4">
+                <div className="flex items-center gap-8">
+                    <div>
+                        <p className="text-xs text-[var(--text-dim)] uppercase">Total Equity</p>
+                        <p className="text-xl font-bold font-mono text-white">${equity.toLocaleString()}</p>
+                    </div>
+                    <div className="w-px h-10 bg-[var(--glass-border)]" />
+                    <div>
+                        <p className="text-xs text-[var(--text-dim)] uppercase">Today's P/L</p>
+                        <p className="text-xl font-bold font-mono text-[var(--neon-green)]">+$1,245.00</p>
+                    </div>
+                    <div className="w-px h-10 bg-[var(--glass-border)]" />
+                    <div>
+                        <p className="text-xs text-[var(--text-dim)] uppercase">Active Trades</p>
+                        <p className="text-xl font-bold font-mono text-white">3</p>
                     </div>
                 </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="p-6 max-w-7xl mx-auto">
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <StatCard
-                        label="Signals Today"
-                        value="12"
-                        change="+3"
-                        icon={Zap}
-                    />
-                    <StatCard
-                        label="S-TIER Hits"
-                        value="4"
-                        change="+2"
-                        icon={TrendingUp}
-                    />
-                    <StatCard
-                        label="Accuracy Rate"
-                        value="78%"
-                        change="+5%"
-                        icon={Activity}
-                    />
-                    <StatCard
-                        label="Active Assets"
-                        value="6"
-                        icon={Activity}
-                    />
+                <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-[var(--neon-green)] rounded-full animate-pulse" />
+                    <span className="text-sm text-[var(--neon-green)] font-medium">Market Open</span>
                 </div>
-
-                {/* Twin-Turbo Gauges */}
-                <div className="mb-8">
-                    <TwinTurboGauges />
-                </div>
-
-                {/* Signal Feed */}
-                <SignalFeed />
-            </main>
+            </div>
         </div>
     );
 }

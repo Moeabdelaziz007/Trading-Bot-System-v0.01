@@ -1,6 +1,7 @@
 from js import Response, fetch, Headers, JSON
 import json
 from base64 import b64encode
+from oanda_connector import OandaConnector
 
 # ==========================================
 # 🧠 ANTIGRAVITY MoE BRAIN v2.0
@@ -80,11 +81,11 @@ async def on_fetch(request, env):
     
     # Account Info
     if "api/account" in url:
-        return await get_account(env, headers)
+        return await get_combined_account(env, headers)
     
     # Positions
     if "api/positions" in url:
-        return await get_positions(env, headers)
+        return await get_combined_positions(env, headers)
     
     # Market Snapshot (Real-time prices with change %)
     if "api/market" in url or "api/snapshot" in url:
@@ -129,7 +130,13 @@ async def on_fetch(request, env):
         if trades_today >= MAX_TRADES_PER_DAY:
             return Response.new(json.dumps({"error": f"Daily limit reached ({MAX_TRADES_PER_DAY})"}), headers=headers)
         
-        result = await execute_alpaca_trade(env, symbol, side, qty)
+        # Intelligent Trade Routing 🦅
+        if "/" in symbol or "_" in symbol or len(symbol) == 6 or "USD" in symbol:
+             # Likely Forex pair (EUR/USD, GBPUSD) -> OANDA
+             result = await execute_oanda_trade(env, symbol, side, qty)
+        else:
+             # Default to Alpaca for Stocks/Crypto
+             result = await execute_alpaca_trade(env, symbol, side, qty)
         
         if result.get("status") == "success":
             await log_trade(env, symbol, side, qty, result.get("price", 0))
@@ -310,7 +317,7 @@ EXAMPLES:
 "How are you?" -> {"type": "CHAT", "symbol": null, "reply": "I'm doing great!"}"""
 
         payload = json.dumps({
-            "model": "llama-3.3-70b-versatile",
+            "model": "deepseek-r1-distill-llama-70b",
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_msg}
@@ -370,7 +377,7 @@ async def analyze_with_gemini_rag(symbol, news_text, price_data, env):
 Be concise and actionable. Use emojis sparingly."""
 
     payload = json.dumps({
-        "model": "llama-3.3-70b-versatile",
+        "model": "deepseek-r1-distill-llama-70b",
         "messages": [
             {"role": "system", "content": "You are SENTINEL, an expert Wall Street analyst providing actionable trading insights."},
             {"role": "user", "content": prompt}
@@ -450,7 +457,7 @@ async def call_groq_chat(user_message, env):
             return "⚠️ AI not configured"
         
         payload = json.dumps({
-            "model": "llama-3.3-70b-versatile",
+            "model": "deepseek-r1-distill-llama-70b",
             "messages": [
                 {"role": "system", "content": "You are SENTINEL, an expert trading AI. Be concise and insightful."},
                 {"role": "user", "content": user_message}
@@ -802,8 +809,28 @@ async def get_candles(request, env, headers):
 
 
 # ==========================================
-# 💰 TRADING FUNCTIONS
+# 💰 TRADING FUNCTIONS & ROUTING
 # ==========================================
+
+async def execute_oanda_trade(env, symbol, side, qty):
+    """Execute Trade via OANDA (Forex)"""
+    try:
+        connector = OandaConnector(env)
+        
+        # Convert qty: 1 standard lot = 100,000 units usually, but OANDA takes units directly
+        # If user says "1" (meaning 1 lot), we might need to multiply, but for safety let's assume raw units or handle logic
+        # For this MVP, we assume user sends raw units or small sizes. 
+        # DeepSeek agent should calculate exact units.
+        
+        units = int(qty)
+        if side.lower() == "sell":
+            units = -units
+            
+        result = await connector.create_market_order(symbol, units)
+        return result
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
 
 async def execute_alpaca_trade(env, symbol, side, qty):
     """Execute trade on Alpaca"""
@@ -905,6 +932,32 @@ async def get_account(env, headers):
         return Response.new(json.dumps({"portfolio_value": "100000", "buying_power": "200000", "cash": "100000"}), headers=headers)
 
 
+async def get_combined_account(env, headers):
+    """Get Combined Account Data (Alpaca + OANDA)"""
+    # 1. Alpaca Data
+    alpaca_data = await get_alpaca_account_data(env)
+    
+    # 2. OANDA Data
+    oanda_connector = OandaConnector(env)
+    oanda_data = await oanda_connector.get_account_summary()
+    
+    # Merge Logic (Display Primary or Combined?)
+    # For MVP, we emphasize the "Real Money" one if connected
+    
+    if "error" not in oanda_data and float(oanda_data.get("balance", 0)) > 0:
+        # Use OANDA as primary if active
+        return Response.new(json.dumps({
+            "portfolio_value": oanda_data.get("equity"),
+            "buying_power": oanda_data.get("margin_available"),
+            "cash": oanda_data.get("balance"),
+            "equity": oanda_data.get("equity"),
+            "source": "OANDA Live"
+        }), headers=headers)
+        
+    # Fallback to Alpaca
+    return await get_account(env, headers)
+
+
 async def get_positions(env, headers):
     """Get Alpaca positions"""
     try:
@@ -925,6 +978,25 @@ async def get_positions(env, headers):
         return Response.new(json.dumps([]), headers=headers)
     except:
         return Response.new(json.dumps([]), headers=headers)
+
+
+async def get_combined_positions(env, headers):
+    """Fetch positions from both brokers"""
+    all_positions = []
+    
+    # 1. Alpaca
+    alp_pos = await get_alpaca_positions_data(env)
+    if alp_pos: all_positions.extend(alp_pos)
+    
+    # 2. OANDA
+    try:
+        oanda = OandaConnector(env)
+        oanda_pos = await oanda.get_open_positions()
+        if oanda_pos: all_positions.extend(oanda_pos)
+    except:
+        pass
+        
+    return Response.new(json.dumps(all_positions), headers=headers)
 
 
 # Helper functions for Telegram (return dict, not Response)
