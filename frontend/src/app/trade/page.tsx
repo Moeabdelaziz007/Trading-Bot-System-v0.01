@@ -2,9 +2,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { DashboardLayout, StatCard } from '@/components/DashboardLayout';
 import { TradingChart } from '@/components/TradingChart';
-import { ArrowUp, ArrowDown, DollarSign, LineChart, Zap, AlertTriangle } from 'lucide-react';
+import { TradeModal } from '@/components/ui/TradeModal';
+import { ArrowUp, ArrowDown, DollarSign, LineChart, Zap, CheckCircle, XCircle } from 'lucide-react';
 
-const API_BASE = "https://trading-brain-v1.amrikyy.workers.dev";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://trading-brain-v1.amrikyy.workers.dev";
+const SYSTEM_KEY = process.env.NEXT_PUBLIC_SYSTEM_KEY || "";
+
+const getHeaders = () => ({
+    'Content-Type': 'application/json',
+    ...(SYSTEM_KEY && { 'X-System-Key': SYSTEM_KEY })
+});
 
 export default function TradePage() {
     const [symbol, setSymbol] = useState('SPY');
@@ -13,30 +20,52 @@ export default function TradePage() {
     const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
     const [limitPrice, setLimitPrice] = useState('');
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<string | null>(null);
+    const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [portfolio, setPortfolio] = useState<{ buying_power: string; portfolio_value: string } | null>(null);
+
+    // Modal State
+    const [isModalOpen, setModalOpen] = useState(false);
 
     const fetchPortfolio = useCallback(async () => {
         try {
-            const res = await fetch(`${API_BASE}/api/account`);
+            const res = await fetch(`${API_BASE}/api/account`, { headers: getHeaders() });
             if (res.ok) setPortfolio(await res.json());
         } catch (e) { console.error(e); }
     }, []);
 
     useEffect(() => { fetchPortfolio(); }, [fetchPortfolio]);
 
+    // Open confirmation modal
+    const initiateTrade = () => {
+        setResult(null);
+        setModalOpen(true);
+    };
+
+    // Execute after confirmation
     const executeTrade = async () => {
         setLoading(true);
         setResult(null);
         try {
-            const res = await fetch(`${API_BASE}/api/trade?symbol=${symbol}&side=${side}&qty=${qty}`);
+            const res = await fetch(`${API_BASE}/api/chat`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ message: `${side} ${qty} ${symbol}` })
+            });
             const data = await res.json();
-            setResult(data.message || JSON.stringify(data));
-            fetchPortfolio();
+
+            if (data.trade_executed?.status === 'success') {
+                setResult({ type: 'success', message: `✅ Order executed: ${side.toUpperCase()} ${qty} ${symbol}` });
+                fetchPortfolio();
+            } else if (data.trade_executed?.status === 'error') {
+                setResult({ type: 'error', message: `⚠️ ${data.trade_executed.error}` });
+            } else {
+                setResult({ type: 'success', message: data.reply || 'Order submitted' });
+            }
         } catch {
-            setResult('Trade failed');
+            setResult({ type: 'error', message: 'Trade failed - connection error' });
         }
         setLoading(false);
+        setModalOpen(false);
     };
 
     const assets = [
@@ -60,8 +89,8 @@ export default function TradePage() {
                                 key={asset.symbol}
                                 onClick={() => setSymbol(asset.symbol)}
                                 className={`px-4 py-2.5 rounded-xl transition-all flex-shrink-0 ${symbol === asset.symbol
-                                        ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 glow-cyan'
-                                        : 'glass-card text-gray-400 hover:text-white hover:border-white/10'
+                                    ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 glow-cyan'
+                                    : 'glass-card text-gray-400 hover:text-white hover:border-white/10'
                                     }`}
                             >
                                 <div className="font-mono font-semibold text-sm">{asset.symbol}</div>
@@ -112,8 +141,8 @@ export default function TradePage() {
                                 <button
                                     onClick={() => setSide('buy')}
                                     className={`py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${side === 'buy'
-                                            ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 glow-green'
-                                            : 'glass-card text-gray-400 hover:text-white'
+                                        ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 glow-green'
+                                        : 'glass-card text-gray-400 hover:text-white'
                                         }`}
                                 >
                                     <ArrowUp size={16} /> BUY
@@ -121,8 +150,8 @@ export default function TradePage() {
                                 <button
                                     onClick={() => setSide('sell')}
                                     className={`py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${side === 'sell'
-                                            ? 'bg-rose-500/20 border border-rose-500/50 text-rose-400 glow-red'
-                                            : 'glass-card text-gray-400 hover:text-white'
+                                        ? 'bg-rose-500/20 border border-rose-500/50 text-rose-400 glow-red'
+                                        : 'glass-card text-gray-400 hover:text-white'
                                         }`}
                                 >
                                     <ArrowDown size={16} /> SELL
@@ -138,8 +167,8 @@ export default function TradePage() {
                                         key={type}
                                         onClick={() => setOrderType(type)}
                                         className={`py-2.5 rounded-xl text-sm font-medium transition-all ${orderType === type
-                                                ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400'
-                                                : 'glass-card text-gray-400 hover:text-white'
+                                            ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400'
+                                            : 'glass-card text-gray-400 hover:text-white'
                                             }`}
                                     >
                                         {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -183,40 +212,41 @@ export default function TradePage() {
                             </div>
                         </div>
 
-                        {/* Execute Button */}
+                        {/* Execute Button - Opens Modal */}
                         <button
-                            onClick={executeTrade}
-                            disabled={loading}
+                            onClick={initiateTrade}
+                            disabled={loading || !symbol || !qty}
                             className={`w-full py-4 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all ${side === 'buy'
-                                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30'
-                                    : 'bg-gradient-to-r from-rose-500 to-rose-600 hover:shadow-lg hover:shadow-rose-500/30'
+                                ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30'
+                                : 'bg-gradient-to-r from-rose-500 to-rose-600 hover:shadow-lg hover:shadow-rose-500/30'
                                 } disabled:opacity-50`}
                         >
-                            {loading ? (
-                                <>Executing...</>
-                            ) : (
-                                <>
-                                    {side === 'buy' ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
-                                    {side.toUpperCase()} {qty} {symbol}
-                                </>
-                            )}
+                            {side === 'buy' ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
+                            {side.toUpperCase()} {qty} {symbol}
                         </button>
 
                         {/* Result */}
                         {result && (
-                            <div className={`p-4 rounded-xl border ${result.includes('✅')
-                                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                                    : 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400'
+                            <div className={`p-4 rounded-xl border flex items-start gap-2 ${result.type === 'success'
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
                                 }`}>
-                                <div className="flex items-start gap-2">
-                                    <AlertTriangle size={16} className="shrink-0 mt-0.5" />
-                                    <p className="text-sm">{result}</p>
-                                </div>
+                                {result.type === 'success' ? <CheckCircle size={16} /> : <XCircle size={16} />}
+                                <p className="text-sm">{result.message}</p>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+
+            {/* Trade Confirmation Modal */}
+            <TradeModal
+                isOpen={isModalOpen}
+                onClose={() => setModalOpen(false)}
+                onConfirm={executeTrade}
+                details={{ symbol, side, qty: parseInt(qty) || 0 }}
+                loading={loading}
+            />
         </DashboardLayout>
     );
 }
