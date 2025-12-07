@@ -94,3 +94,114 @@ Respond ONLY with JSON: {"approved": bool, "risk_rating": "LOW"|"MED"|"HIGH", "c
             "audit_comment": ai_comment,
             "original_signal": signal
         }
+
+    # ==================================================
+    # 📊 KELLY CRITERION (Position Sizing from Gemini Research)
+    # ==================================================
+
+    def calculate_kelly_fraction(self, win_rate: float, avg_win: float, avg_loss: float) -> dict:
+        """
+        Kelly Criterion for optimal position sizing.
+        Formula: f* = (p * b - q) / b
+        
+        Where:
+        - p = win rate (probability of winning)
+        - q = 1 - p (probability of losing)
+        - b = avg_win / avg_loss (payout ratio)
+        
+        :param win_rate: Historical win rate (0.0 to 1.0)
+        :param avg_win: Average winning trade amount
+        :param avg_loss: Average losing trade amount (positive value)
+        
+        :returns: Dict with kelly fraction and recommended position size
+        """
+        if avg_loss <= 0 or win_rate < 0 or win_rate > 1:
+            return {"kelly_fraction": 0, "error": "Invalid inputs"}
+        
+        p = win_rate
+        q = 1 - p
+        b = avg_win / avg_loss  # Payout ratio
+        
+        # Kelly Formula: f* = (p * b - q) / b
+        kelly = (p * b - q) / b if b > 0 else 0
+        
+        # Safety caps
+        # Full Kelly is aggressive; Half-Kelly is recommended
+        half_kelly = kelly / 2
+        quarter_kelly = kelly / 4
+        
+        # Never risk more than 5% even if Kelly says so
+        capped_kelly = min(kelly, 0.05)
+        safe_kelly = min(half_kelly, 0.025)
+        
+        return {
+            "full_kelly": round(kelly * 100, 2),
+            "half_kelly": round(half_kelly * 100, 2),
+            "quarter_kelly": round(quarter_kelly * 100, 2),
+            "recommended_pct": round(safe_kelly * 100, 2),
+            "payout_ratio": round(b, 2),
+            "edge": round((p * b - q) * 100, 2)  # Expected edge %
+        }
+
+    # ==================================================
+    # 🎲 CHAOS FACTOR (Human-like Behavior from Gemini Research)
+    # ==================================================
+
+    def apply_chaos_factor(self, value: float, chaos_level: str = "medium") -> dict:
+        """
+        Apply human-like randomization to values to avoid pattern detection.
+        
+        From Gemini Research:
+        - Weibull distribution for delays
+        - Value dithering (±2%)
+        - Precision variance
+        
+        :param value: Original value (e.g., trade amount)
+        :param chaos_level: "low", "medium", "high"
+        
+        :returns: Dict with chaotic value and metadata
+        """
+        import random
+        import math
+        
+        # Variance based on chaos level
+        variance_map = {
+            "low": 0.005,      # ±0.5%
+            "medium": 0.02,    # ±2%
+            "high": 0.05       # ±5%
+        }
+        variance = variance_map.get(chaos_level, 0.02)
+        
+        # 1. Value Dithering (Gaussian noise)
+        dither = random.gauss(0, variance)
+        chaotic_value = value * (1 + dither)
+        
+        # 2. Precision Variance (random decimal places)
+        decimals = random.choice([2, 3, 4, 5])
+        chaotic_value = round(chaotic_value, decimals)
+        
+        # 3. Weibull Delay (human-like reaction time)
+        # Shape 1.5 creates natural "fast rise, slow decay" curve
+        weibull_delay = random.weibullvariate(0.5, 1.5)
+        human_delay = max(0.15, weibull_delay)  # Min 150ms physiological floor
+        
+        return {
+            "original": value,
+            "chaotic": chaotic_value,
+            "dither_pct": round(dither * 100, 3),
+            "precision": decimals,
+            "human_delay_sec": round(human_delay, 3),
+            "chaos_level": chaos_level
+        }
+
+    async def engage_news_lockdown(self, events: list):
+        """
+        Emergency lockdown during high-impact news events.
+        """
+        try:
+            kv = getattr(self.env, 'BRAIN_MEMORY', None)
+            if kv:
+                await kv.put("news_lockdown", "true", expirationTtl=1800)  # 30 min
+                print(f"🔒 NEWS LOCKDOWN: {len(events)} high impact events")
+        except Exception as e:
+            print(f"Lockdown failed: {e}")

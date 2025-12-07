@@ -93,8 +93,17 @@ export default async function RootLayout({
                                 <Link href="/bots" className="nav-pill">
                                     AI Bots
                                 </Link>
+                                <Link href="/test-ai" className="nav-pill">
+                                    Test AI
+                                </Link>
                                 <Link href="/settings" className="nav-pill">
                                     Settings
+                                </Link>
+                                <Link href="/profile" className="nav-pill">
+                                    Profile
+                                </Link>
+                                <Link href="/about" className="nav-pill">
+                                    About
                                 </Link>
                             </nav>
 

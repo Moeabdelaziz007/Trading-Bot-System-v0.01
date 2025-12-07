@@ -7,19 +7,79 @@ from deepseek_analyst import DeepSeekAnalyst
 from workers_ai import WorkersAI
 from risk_manager import RiskGuardian
 from data_collector import DataCollector
+from scalping_engine import ScalpingBrain
+from long_term_engine import LongTermBrain
 
 # ==========================================
 # 🧠 ANTIGRAVITY MoE BRAIN v2.0
 # ==========================================
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-ALPACA_API_URL = "https://paper-api.alpaca.markets/v2"
-ALPACA_DATA_URL = "https://data.alpaca.markets/v2"
-TELEGRAM_API_URL = "https://api.telegram.org/bot"
-ABLY_API_URL = "https://rest.ably.io"
-MAX_TRADES_PER_DAY = 10
+# ... [rest of imports/constants] ...
 
+async def on_scheduled(event, env):
+    """
+    Cron Trigger Handler for Brain Partitions.
+    Single cron runs every minute; internal dispatch based on time.
+    """
+    import datetime
+    now = datetime.datetime.utcnow()
+    current_minute = now.minute
+    current_hour = now.hour
+    
+    print(f"⏰ Cron Triggered at {now.isoformat()}")
 
+    # 1. RISK GUARDIAN (Runs every minute)
+    # Always runs for max safety
+    risk_brain = RiskGuardian(env)
+    calendar = EconomicCalendar(env)
+    
+    # Check for upcoming high impact news
+    try:
+        high_impact = await calendar.check_impact_alerts()
+        if high_impact:
+            await risk_brain.engage_news_lockdown(high_impact)
+            return  # Stop scalping if news imminent
+    except Exception as e:
+        print(f"Risk check failed: {e}")
+
+    # 2. FAST BRAIN - SCALPER (Every 5 minutes: 0, 5, 10, 15...)
+    if current_minute % 5 == 0:
+        try:
+            collector = DataCollector(env)
+            watchlist = ["EURUSD", "GBPUSD", "XAUUSD", "BTCUSD"]
+            
+            for symbol in watchlist:
+                candles = await collector.fetch_candles(symbol, timeframe="1m", limit=300)
+                
+                if candles:
+                    scalper = ScalpingBrain(candles)
+                    decision = scalper.analyze_market_state()
+                    
+                    if decision['Action'] != 'NEUTRAL' and decision['Confidence'] >= 80:
+                        await send_telegram_alert(env, f"🚀 <b>SCALP SIGNAL: {symbol}</b>\nAction: {decision['Action']}\nConf: {decision['Confidence']}%\nAlgoScore: {decision['Metrics']['AlgoScore']}")
+        except Exception as e:
+            print(f"Scalper failed: {e}")
+
+    # 3. SLOW BRAIN - STRATEGIST (Every 4 hours: 0, 4, 8, 12, 16, 20)
+    if current_hour % 4 == 0 and current_minute == 0:
+        try:
+            collector = DataCollector(env)
+            watchlist = ["EURUSD", "GBPUSD", "XAUUSD", "BTCUSD"]
+            
+            for symbol in watchlist:
+                candles = await collector.fetch_candles(symbol, timeframe="1d", limit=300)
+                
+                if candles:
+                    strategist = LongTermBrain(candles)
+                    view = strategist.evaluate_market_health()
+                    
+                    if view['Confidence'] >= 80:
+                        await send_telegram_alert(env, f"🐋 <b>WHALE ALERT: {symbol}</b>\nView: {view['Action']}\nConfidence: {view['Confidence']}%\nEntry: {view['EntryType']}")
+        except Exception as e:
+            print(f"Strategist failed: {e}")
+
+# [Rest of on_fetch remains same...]
 async def on_fetch(request, env):
     """Main Entry Point - MoE Router with Shield Protocol 🛡️"""
     url = str(request.url)
