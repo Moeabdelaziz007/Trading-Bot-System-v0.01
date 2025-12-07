@@ -14,12 +14,13 @@ interface CandleData {
 interface TradingChartProps {
     symbol?: string;
     timeframe?: string;
+    hideControls?: boolean;
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://trading-brain-v1.amrikyy.workers.dev";
 const SYSTEM_KEY = process.env.NEXT_PUBLIC_SYSTEM_KEY || "";
 
-export function TradingChart({ symbol = "SPY", timeframe = "1H" }: TradingChartProps) {
+export function TradingChart({ symbol = "SPY", timeframe = "1H", hideControls = false }: TradingChartProps) {
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<IChartApi | null>(null);
     const [loading, setLoading] = useState(true);
@@ -158,41 +159,45 @@ export function TradingChart({ symbol = "SPY", timeframe = "1H" }: TradingChartP
 
     return (
         <div className="relative w-full h-full rounded-xl overflow-hidden bg-[#0a0a0a] border border-gray-800/50">
-            {/* Header */}
-            <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
-                <div className="bg-black/70 backdrop-blur-sm px-4 py-2 rounded-lg border border-gray-700/50 flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-cyan-400 font-bold">{symbol}</span>
-                    <span className="text-gray-500 text-sm">{timeframe}</span>
-                </div>
+            {/* Header - Hidden in War Room mode */}
+            {!hideControls && (
+                <>
+                    <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
+                        <div className="bg-black/70 backdrop-blur-sm px-4 py-2 rounded-lg border border-gray-700/50 flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-cyan-400 font-bold">{symbol}</span>
+                            <span className="text-gray-500 text-sm">{timeframe}</span>
+                        </div>
 
-                {/* Timeframe buttons */}
-                <div className="flex gap-1 bg-black/50 backdrop-blur-sm rounded-lg p-1 border border-gray-800/50">
-                    {['1m', '5m', '15m', '1H', '4H', '1D'].map((tf) => (
-                        <button
-                            key={tf}
-                            className={`px-2 py-1 text-xs rounded transition-all ${tf === timeframe
-                                ? 'bg-cyan-500/20 text-cyan-400'
-                                : 'text-gray-500 hover:text-gray-300'
-                                }`}
-                        >
-                            {tf}
-                        </button>
-                    ))}
-                </div>
-            </div>
+                        {/* Timeframe buttons */}
+                        <div className="flex gap-1 bg-black/50 backdrop-blur-sm rounded-lg p-1 border border-gray-800/50">
+                            {['1m', '5m', '15m', '1H', '4H', '1D'].map((tf) => (
+                                <button
+                                    key={tf}
+                                    className={`px-2 py-1 text-xs rounded transition-all ${tf === timeframe
+                                        ? 'bg-cyan-500/20 text-cyan-400'
+                                        : 'text-gray-500 hover:text-gray-300'
+                                        }`}
+                                >
+                                    {tf}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
-            {/* Price change badge */}
-            <div className="absolute top-4 right-4 z-10">
-                <div className={`backdrop-blur-sm px-3 py-2 rounded-lg border ${priceChange.percent >= 0
-                    ? 'bg-green-500/10 border-green-500/30'
-                    : 'bg-red-500/10 border-red-500/30'
-                    }`}>
-                    <span className={priceChange.percent >= 0 ? 'text-green-400' : 'text-red-400'}>
-                        {priceChange.percent >= 0 ? '+' : ''}{priceChange.percent.toFixed(2)}%
-                    </span>
-                </div>
-            </div>
+                    {/* Price change badge */}
+                    <div className="absolute top-4 right-4 z-10">
+                        <div className={`backdrop-blur-sm px-3 py-2 rounded-lg border ${priceChange.percent >= 0
+                            ? 'bg-green-500/10 border-green-500/30'
+                            : 'bg-red-500/10 border-red-500/30'
+                            }`}>
+                            <span className={priceChange.percent >= 0 ? 'text-green-400' : 'text-red-400'}>
+                                {priceChange.percent >= 0 ? '+' : ''}{priceChange.percent.toFixed(2)}%
+                            </span>
+                        </div>
+                    </div>
+                </>
+            )}
 
             {/* Loading state */}
             {loading && (

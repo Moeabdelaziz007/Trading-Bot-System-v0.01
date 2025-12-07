@@ -2,9 +2,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     Newspaper, Activity, ArrowUpRight, ArrowDownRight,
-    Send, Zap, RefreshCw, Wallet
+    Send, Zap, RefreshCw, Wallet, LayoutGrid, Maximize
 } from 'lucide-react';
 import { TradingChart } from '@/components/TradingChart';
+import { WarRoom } from '@/components/WarRoom';
 
 // 🔗 Backend API Configuration
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://trading-brain-v1.amrikyy.workers.dev";
@@ -43,6 +44,7 @@ export default function Dashboard() {
         { symbol: 'BTC', price: 0, change_percent: 0 },
         { symbol: 'ETH', price: 0, change_percent: 0 },
     ]);
+    const [viewMode, setViewMode] = useState<'STANDARD' | 'WAR_ROOM'>('STANDARD');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // 📡 Fetch System Data
@@ -192,53 +194,88 @@ export default function Dashboard() {
                 {/* LEFT: Market Data */}
                 <div className="flex-[2] flex flex-col gap-4 animate-slide-up delay-200">
 
-                    {/* Chart Container */}
+                    {/* 🔴 Mode Switch (Top Right) */}
+                    <div className="flex justify-end gap-2 -mb-12 z-20 relative mr-2">
+                        <button
+                            onClick={() => setViewMode('STANDARD')}
+                            className={`p-2 rounded-lg backdrop-blur border transition-all ${viewMode === 'STANDARD'
+                                ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
+                                : 'bg-black/50 border-gray-800 text-gray-500 hover:text-white'
+                                }`}
+                            title="Standard View"
+                        >
+                            <Maximize size={16} />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('WAR_ROOM')}
+                            className={`p-2 rounded-lg backdrop-blur border transition-all ${viewMode === 'WAR_ROOM'
+                                ? 'bg-red-500/20 border-red-500 text-red-400 shadow-[0_0_15px_rgba(220,38,38,0.3)]'
+                                : 'bg-black/50 border-gray-800 text-gray-500 hover:text-red-400'
+                                }`}
+                            title="Enter War Room (4 Charts)"
+                        >
+                            <LayoutGrid size={16} />
+                        </button>
+                    </div>
+
+                    {/* Chart Container - Conditional Rendering */}
                     <div className="glass-card p-0 flex-1 relative overflow-hidden hover-glow-border">
-                        {/* Chart Header - Watchlist with Real Data */}
-                        <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap">
-                            {watchlist.map(item => (
-                                <button
-                                    key={item.symbol}
-                                    onClick={() => {
-                                        setActiveSymbol(item.symbol);
-                                        fetchNews(item.symbol);
-                                    }}
-                                    className={`px-3 py-1.5 rounded-lg text-sm font-mono transition-all hover-scale ${activeSymbol === item.symbol
-                                        ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 glow-cyan'
-                                        : 'bg-black/50 text-gray-400 border border-white/10 hover:text-white'
-                                        }`}
-                                >
-                                    {item.symbol}
-                                    <span className={`ml-2 text-xs ${item.change_percent >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                        {item.change_percent >= 0 ? '+' : ''}{item.change_percent.toFixed(2)}%
+                        {viewMode === 'STANDARD' ? (
+                            <>
+                                {/* Standard Mode: Single Chart */}
+                                {/* Chart Header - Watchlist with Real Data */}
+                                <div className="absolute top-4 left-4 z-10 flex gap-2 flex-wrap">
+                                    {watchlist.map(item => (
+                                        <button
+                                            key={item.symbol}
+                                            onClick={() => {
+                                                setActiveSymbol(item.symbol);
+                                                fetchNews(item.symbol);
+                                            }}
+                                            className={`px-3 py-1.5 rounded-lg text-sm font-mono transition-all hover-scale ${activeSymbol === item.symbol
+                                                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 glow-cyan'
+                                                : 'bg-black/50 text-gray-400 border border-white/10 hover:text-white'
+                                                }`}
+                                        >
+                                            {item.symbol}
+                                            <span className={`ml-2 text-xs ${item.change_percent >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                                {item.change_percent >= 0 ? '+' : ''}{item.change_percent.toFixed(2)}%
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Timeframe Selector */}
+                                <div className="absolute top-4 right-20 z-10 flex gap-1 bg-black/50 backdrop-blur-sm rounded-lg p-1 border border-gray-800/50">
+                                    {['15m', '1H', '4H', '1D'].map((tf) => (
+                                        <button
+                                            key={tf}
+                                            onClick={() => handleTimeframeChange(tf)}
+                                            className={`px-2 py-1 text-xs rounded transition-all ${tf === activeTimeframe
+                                                ? 'bg-cyan-500/20 text-cyan-400'
+                                                : 'text-gray-500 hover:text-gray-300'
+                                                }`}
+                                        >
+                                            {tf}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="absolute top-4 right-4 z-10">
+                                    <span className="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs border border-emerald-500/30 flex items-center gap-1">
+                                        <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                                        LIVE
                                     </span>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Timeframe Selector */}
-                        <div className="absolute top-4 right-20 z-10 flex gap-1 bg-black/50 backdrop-blur-sm rounded-lg p-1 border border-gray-800/50">
-                            {['15m', '1H', '4H', '1D'].map((tf) => (
-                                <button
-                                    key={tf}
-                                    onClick={() => handleTimeframeChange(tf)}
-                                    className={`px-2 py-1 text-xs rounded transition-all ${tf === activeTimeframe
-                                        ? 'bg-cyan-500/20 text-cyan-400'
-                                        : 'text-gray-500 hover:text-gray-300'
-                                        }`}
-                                >
-                                    {tf}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="absolute top-4 right-4 z-10">
-                            <span className="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs border border-emerald-500/30 flex items-center gap-1">
-                                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                                LIVE
-                            </span>
-                        </div>
-                        <TradingChart symbol={activeSymbol} timeframe={activeTimeframe} />
+                                </div>
+                                <TradingChart symbol={activeSymbol} timeframe={activeTimeframe} />
+                            </>
+                        ) : (
+                            /* War Room Mode: 4 Charts Grid */
+                            <WarRoom
+                                globalTimeframe={activeTimeframe}
+                                onTimeframeChange={handleTimeframeChange}
+                            />
+                        )}
                     </div>
 
                     {/* 📰 News Ticker (Google News) */}
