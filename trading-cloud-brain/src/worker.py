@@ -13,7 +13,7 @@ MAX_TRADES_PER_DAY = 10
 
 
 async def on_fetch(request, env):
-    """Main Entry Point - MoE Router"""
+    """Main Entry Point - MoE Router with Shield Protocol 🛡️"""
     url = str(request.url)
     method = str(request.method)
     
@@ -21,16 +21,50 @@ async def on_fetch(request, env):
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
+        "Access-Control-Allow-Headers": "Content-Type, X-System-Key"
     }
     headers = Headers.new(cors_headers.items())
     
     if method == "OPTIONS":
         return Response.new("", headers=headers)
     
+    # ========================================
+    # 🛡️ SHIELD PROTOCOL - Security Check
+    # ========================================
+    # Public endpoints (no auth required)
+    public_paths = ["/api/status", "/api/telegram", "/telegram/webhook"]
+    is_public = any(p in url for p in public_paths)
+    
+    # Root path check
+    if url.endswith("/") or url.endswith("/api"):
+        return Response.new(json.dumps({
+            "name": "Antigravity MoE Brain",
+            "version": "2.0",
+            "status": "🔒 Secured",
+            "message": "Shield Protocol Active"
+        }), headers=headers)
+    
+    # Protected endpoints require X-System-Key
+    if not is_public:
+        client_key = None
+        try:
+            # Try to get header from request
+            client_key = request.headers.get("X-System-Key")
+        except:
+            pass
+        
+        system_secret = str(getattr(env, 'SYSTEM_ACCESS_KEY', ''))
+        
+        # If secret is configured, enforce it
+        if system_secret and (not client_key or client_key != system_secret):
+            return Response.new(json.dumps({
+                "error": "⛔ Unauthorized Access",
+                "message": "Invalid or missing X-System-Key header"
+            }), status=401, headers=headers)
+    
     # ============ ROUTES ============
     
-    # Telegram Webhook
+    # Telegram Webhook (public - has its own verification)
     if "/telegram/webhook" in url or "/api/telegram" in url:
         return await handle_telegram_webhook(request, env, headers)
     
@@ -803,43 +837,50 @@ async def get_trades_count(env):
 # ==========================================
 
 async def on_scheduled(event, env, ctx):
-    """Cron job for automated trading rules"""
+    """Cron job for automated trading rules + Database Maintenance"""
     try:
         db = env.TRADING_DB
         rules = await db.prepare("SELECT * FROM rules WHERE active = 1").all()
         
-        if not rules.results:
-            return
-        
-        for rule in rules.results:
-            ticker = rule.get("ticker", "SPY")
-            condition = rule.get("condition", "PRICE_ABOVE")
-            trigger = float(rule.get("trigger_value", 0))
-            action = rule.get("action", "BUY")
-            qty = int(rule.get("qty", 1))
-            
-            # Get current price
-            price_data = await fetch_alpaca_snapshot(ticker, env)
-            current_price = float(price_data.get("price", 0)) if price_data.get("price") != "N/A" else 0
-            
-            if current_price == 0:
-                continue
-            
-            should_execute = False
-            if condition == "PRICE_ABOVE" and current_price > trigger:
-                should_execute = True
-            elif condition == "PRICE_BELOW" and current_price < trigger:
-                should_execute = True
-            
-            if should_execute:
-                side = "buy" if action == "BUY" else "sell"
-                result = await execute_alpaca_trade(env, ticker, side, qty)
+        if rules.results:
+            for rule in rules.results:
+                ticker = rule.get("ticker", "SPY")
+                condition = rule.get("condition", "PRICE_ABOVE")
+                trigger = float(rule.get("trigger_value", 0))
+                action = rule.get("action", "BUY")
+                qty = int(rule.get("qty", 1))
                 
-                if result.get("status") == "success":
-                    await log_trade(env, ticker, side, qty, result.get("price", current_price))
-                    await send_telegram_alert(env, f"⚡ <b>AUTO TRADE</b>\n\nRule triggered: {condition} {trigger}\n{side.upper()} {qty} {ticker}")
+                # Get current price
+                price_data = await fetch_alpaca_snapshot(ticker, env)
+                current_price = float(price_data.get("price", 0)) if price_data.get("price") != "N/A" else 0
+                
+                if current_price == 0:
+                    continue
+                
+                should_execute = False
+                if condition == "PRICE_ABOVE" and current_price > trigger:
+                    should_execute = True
+                elif condition == "PRICE_BELOW" and current_price < trigger:
+                    should_execute = True
+                
+                if should_execute:
+                    side = "buy" if action == "BUY" else "sell"
+                    result = await execute_alpaca_trade(env, ticker, side, qty)
                     
-                    # Deactivate rule after execution
-                    await db.prepare("UPDATE rules SET active = 0 WHERE id = ?").bind(rule.get("id")).run()
+                    if result.get("status") == "success":
+                        await log_trade(env, ticker, side, qty, result.get("price", current_price))
+                        await send_telegram_alert(env, f"⚡ <b>AUTO TRADE</b>\n\nRule triggered: {condition} {trigger}\n{side.upper()} {qty} {ticker}")
+                        
+                        # Deactivate rule after execution
+                        await db.prepare("UPDATE rules SET active = 0 WHERE id = ?").bind(rule.get("id")).run()
+        
+        # 🧹 DATABASE MAINTENANCE - Prune old records (30+ days)
+        try:
+            await db.prepare(
+                "DELETE FROM trades WHERE timestamp < datetime('now', '-30 days')"
+            ).run()
+        except:
+            pass
+            
     except:
         pass
