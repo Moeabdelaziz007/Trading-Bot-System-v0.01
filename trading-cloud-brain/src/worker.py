@@ -28,6 +28,8 @@ from core import Logger, log, RateLimiter
 from brokers import BrokerGateway
 from strategy import TradingBrain
 from intelligence import TwinTurbo
+from state import StateManager
+from patterns import PatternScanner
 
 # Legacy imports (still needed for specific features)
 from capital_connector import CapitalConnector
@@ -83,22 +85,48 @@ async def on_scheduled(event, env):
 
     # 2. FAST BRAIN - SCALPER (Every 5 minutes)
     if current_minute % 5 == 0:
+        # Acquire cron lock to prevent duplicate execution
+        state = StateManager(env)
+        if not await state.acquire_cron_lock("scalper_5min", ttl=60):
+            log.info("Scalper already running, skipping")
+            return
+        
         try:
             collector = DataCollector(env)
             watchlist = ["EURUSD", "GBPUSD", "XAUUSD", "BTCUSD"]
             
             for symbol in watchlist:
-                candles = await collector.fetch_candles(symbol, timeframe="1m", limit=300)
+                # Check if we already have a position
+                if await state.has_open_position(symbol):
+                    log.info(f"Already have position in {symbol}, skipping")
+                    continue
                 
-                if candles:
-                    # Use consolidated TradingBrain with SCALP mode
-                    brain = TradingBrain(candles, mode="SCALP")
-                    decision = brain.analyze()
+                # Acquire symbol lock
+                if not await state.acquire_lock(symbol):
+                    log.info(f"{symbol} is locked by another process")
+                    continue
+                
+                try:
+                    candles = await collector.fetch_candles(symbol, timeframe="1m", limit=300)
                     
-                    if decision.get('signal') not in ['NEUTRAL', 'NO_DATA']:
-                        await send_telegram_alert(env, f"🚀 <b>SCALP: {symbol}</b>\nSignal: {decision['signal']}\nDirection: {decision.get('direction', 'N/A')}\nR:R: {decision.get('rr_ratio', 'N/A')}")
+                    if candles:
+                        # Use consolidated TradingBrain with SCALP mode
+                        brain = TradingBrain(candles, mode="SCALP")
+                        decision = brain.analyze()
+                        
+                        # Also scan for patterns
+                        scanner = PatternScanner(candles)
+                        patterns = scanner.scan_all()
+                        
+                        if decision.get('signal') not in ['NEUTRAL', 'NO_DATA']:
+                            pattern_info = f" | Patterns: {len(patterns)}" if patterns else ""
+                            await send_telegram_alert(env, f"🚀 <b>SCALP: {symbol}</b>\nSignal: {decision['signal']}\nDirection: {decision.get('direction', 'N/A')}{pattern_info}")
+                finally:
+                    await state.release_lock(symbol)
         except Exception as e:
             log.error(f"Scalper failed: {e}")
+        finally:
+            await state.release_cron_lock("scalper_5min")
 
     # 3. SLOW BRAIN - SWING (Every 4 hours)
     if current_hour % 4 == 0 and current_minute == 0:
