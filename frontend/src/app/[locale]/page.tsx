@@ -5,6 +5,10 @@ import ActiveBots from '@/components/ActiveBots';
 import TelegramWidget from '@/components/TelegramWidget';
 import LivePositions from '@/components/LivePositions';
 import TwinTurboGauges from '@/components/TwinTurboGauges';
+import SentimentPanel from '@/components/SentimentPanel';
+import PatternAlerts from '@/components/PatternAlerts';
+import NewsImpactBadge from '@/components/NewsImpactBadge';
+import SignalFeed from '@/components/SignalFeed';
 import { useEffect, useState } from 'react';
 
 interface AccountData {
@@ -37,46 +41,46 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            {/* Page Title */}
-            <div className="flex items-center justify-between">
+            {/* Page Title + News Impact */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-white">My Dashboard</h1>
                     <p className="text-sm text-[var(--text-muted)]">
                         {account?.source ? `Connected to ${account.source}` : 'Demo Mode'}
                     </p>
                 </div>
+                <NewsImpactBadge />
             </div>
 
             {/* Bento Grid - Row 1 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Portfolio Overview (Donut) */}
                 <PortfolioDonut equity={equity} />
-
-                {/* Profit & Loss Chart */}
                 <PLChart />
-
-                {/* Active Bots */}
                 <ActiveBots />
             </div>
 
-            {/* Bento Grid - Row 2 */}
+            {/* Bento Grid - Row 2: AI Intelligence */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Live Positions - Takes 2 columns */}
+                <SentimentPanel />
+                <PatternAlerts />
+                <SignalFeed />
+            </div>
+
+            {/* Bento Grid - Row 3: Positions */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                     <LivePositions />
                 </div>
-
-                {/* Telegram Widget */}
                 <TelegramWidget />
             </div>
 
-            {/* Bento Grid - Row 3: AI Engines */}
+            {/* Bento Grid - Row 4: AI Engines */}
             <div className="grid grid-cols-1 gap-6">
                 <TwinTurboGauges />
             </div>
 
             {/* Bottom Stats Banner */}
-            <div className="bento-card flex items-center justify-between p-4">
+            <div className="bento-card flex flex-col md:flex-row items-center justify-between p-4 gap-4">
                 <div className="flex items-center gap-8">
                     <div>
                         <p className="text-xs text-[var(--text-dim)] uppercase">Total Equity</p>
@@ -101,3 +105,4 @@ export default function Dashboard() {
         </div>
     );
 }
+
