@@ -400,3 +400,309 @@ class OandaConnector:
             "base_url": self.base_url,
             "account_id": self.account_id[:8] + "..." if self.account_id else None
         }
+
+    # ==========================================
+    # 🚀 SCALPING METHODS (100% Weekly ROI)
+    # ==========================================
+
+    async def get_scalping_candles(
+        self, 
+        instrument: str, 
+        timeframe: str = "M1",
+        count: int = 100
+    ) -> list:
+        """
+        Get candles optimized for scalping (1M/5M/15M).
+        
+        Args:
+            instrument: Instrument name (e.g., "EUR_USD")
+            timeframe: M1, M5, M15 for scalping
+            count: Number of candles
+        
+        Returns:
+            list: Candles in standard format for ScalpingBrain
+        """
+        return await self.get_candles(instrument, timeframe, count)
+
+    async def scalp_order(
+        self,
+        instrument: str,
+        units: int,
+        stop_loss_price: float,
+        take_profit_price: float,
+        leverage: int = 50
+    ) -> dict:
+        """
+        Place a scalping order with exact price SL/TP.
+        
+        Args:
+            instrument: Trading pair (e.g., "EUR_USD")
+            units: Position size (positive=BUY, negative=SELL)
+            stop_loss_price: Exact stop loss price
+            take_profit_price: Exact take profit price
+            leverage: Not used directly (OANDA uses margin rate)
+        
+        Returns:
+            dict: Order execution result
+        """
+        order = {
+            "order": {
+                "type": "MARKET",
+                "instrument": instrument,
+                "units": str(units),
+                "timeInForce": "FOK",
+                "positionFill": "DEFAULT",
+                "stopLossOnFill": {
+                    "price": str(round(stop_loss_price, 5))
+                },
+                "takeProfitOnFill": {
+                    "price": str(round(take_profit_price, 5))
+                }
+            }
+        }
+
+        result = await self._request(
+            f"/v3/accounts/{self.account_id}/orders",
+            method="POST",
+            body=order
+        )
+
+        if "error" not in result:
+            transaction = result.get("orderFillTransaction", {})
+            return {
+                "success": True,
+                "trade_id": transaction.get("tradeOpened", {}).get("tradeID"),
+                "instrument": instrument,
+                "units": units,
+                "side": "LONG" if units > 0 else "SHORT",
+                "entry_price": float(transaction.get("price", 0)),
+                "stop_loss": stop_loss_price,
+                "take_profit": take_profit_price,
+                "leverage": leverage
+            }
+
+        return {"success": False, **result}
+
+    async def execute_scalp_signal(
+        self,
+        signal: dict,
+        account_risk_pct: float = 0.20,
+        leverage: int = 50
+    ) -> dict:
+        """
+        Execute a scalping signal from MultiTimeframeScalper.
+        
+        Args:
+            signal: Signal dict from MTF Scalper
+                - signal: 'LONG' or 'SHORT'
+                - entry: float
+                - stop_loss: float
+                - take_profit: float
+                - confidence: int
+            account_risk_pct: Percentage of account to risk
+            leverage: Target leverage (for position sizing)
+        
+        Returns:
+            dict: Execution result
+        """
+        if signal.get("signal") == "NEUTRAL":
+            return {"success": False, "reason": "No signal"}
+        
+        # Get account balance
+        account = await self.get_account_summary()
+        if "error" in account:
+            return {"success": False, "reason": "Failed to get account"}
+        
+        balance = account.get("balance", 0)
+        
+        # Calculate position size
+        risk_amount = balance * account_risk_pct
+        
+        # Get current price
+        entry_price = signal.get("entry", 0)
+        stop_loss = signal.get("stop_loss", 0)
+        
+        if entry_price == 0 or stop_loss == 0:
+            return {"success": False, "reason": "Invalid signal prices"}
+        
+        # Calculate units based on risk
+        pips_at_risk = abs(entry_price - stop_loss)
+        pip_value = 0.0001  # Standard for most pairs
+        
+        # units = risk_amount / (pips_at_risk / pip_value)
+        units = int(risk_amount / (pips_at_risk * 10000))
+        
+        if signal.get("signal") == "SHORT":
+            units = -units
+        
+        # Execute order
+        return await self.scalp_order(
+            instrument=signal.get("instrument", "EUR_USD"),
+            units=units,
+            stop_loss_price=stop_loss,
+            take_profit_price=signal.get("take_profit", entry_price),
+            leverage=leverage
+        )
+
+    async def get_multi_timeframe_data(
+        self, 
+        instrument: str
+    ) -> dict:
+        """
+        Get 1M, 5M, 15M candles for Multi-Timeframe analysis.
+        
+        Returns:
+            dict: {
+                "1m": [...candles...],
+                "5m": [...candles...],
+                "15m": [...candles...]
+            }
+        """
+        # Fetch all timeframes concurrently would be ideal
+        # For now, sequential calls
+        data_1m = await self.get_candles(instrument, "M1", 100)
+        data_5m = await self.get_candles(instrument, "M5", 100)
+        data_15m = await self.get_candles(instrument, "M15", 100)
+        
+        return {
+            "1m": data_1m,
+            "5m": data_5m,
+            "15m": data_15m,
+            "instrument": instrument
+        }
+
+    # ==========================================
+    # 📡 STREAMING / WEBSOCKET METHODS
+    # ==========================================
+
+    def get_stream_url(self, instruments: list) -> str:
+        """
+        Get streaming URL for real-time prices.
+        
+        Note: Cloudflare Workers don't support persistent WebSocket
+        connections. Use this URL with client-side JS or external service.
+        
+        Args:
+            instruments: List of instruments to stream
+        
+        Returns:
+            str: Streaming endpoint URL
+        """
+        instruments_str = ",".join(instruments)
+        return f"{self.stream_url}/v3/accounts/{self.account_id}/pricing/stream?instruments={instruments_str}"
+
+    def get_stream_headers(self) -> dict:
+        """Get headers for streaming connection."""
+        return self._get_headers()
+
+
+class OandaStreamHandler:
+    """
+    WebSocket-like handler for OANDA price streaming.
+    
+    Note: This is designed for use outside Cloudflare Workers
+    (e.g., in a Node.js service or frontend).
+    """
+    
+    def __init__(self, api_key: str, account_id: str, is_live: bool = False):
+        self.api_key = api_key
+        self.account_id = account_id
+        self.stream_url = OANDA_LIVE_STREAM if is_live else OANDA_PRACTICE_STREAM
+        self.callbacks = {}
+    
+    def on_price(self, callback):
+        """Register callback for price updates."""
+        self.callbacks["price"] = callback
+    
+    def on_heartbeat(self, callback):
+        """Register callback for heartbeat."""
+        self.callbacks["heartbeat"] = callback
+    
+    def get_connection_params(self, instruments: list) -> dict:
+        """
+        Get connection parameters for streaming.
+        
+        Use these with requests or aiohttp for streaming connection.
+        """
+        return {
+            "url": f"{self.stream_url}/v3/accounts/{self.account_id}/pricing/stream",
+            "params": {
+                "instruments": ",".join(instruments)
+            },
+            "headers": {
+                "Authorization": f"Bearer {self.api_key}",
+                "Accept-Datetime-Format": "UNIX"
+            }
+        }
+    
+    async def process_line(self, line: str):
+        """
+        Process a single line from the stream.
+        
+        Call this for each line received from the stream.
+        """
+        if not line.strip():
+            return
+        
+        try:
+            data = json.loads(line)
+            
+            if data.get("type") == "PRICE":
+                if "price" in self.callbacks:
+                    price_data = {
+                        "instrument": data.get("instrument"),
+                        "time": data.get("time"),
+                        "bid": float(data.get("bids", [{}])[0].get("price", 0)),
+                        "ask": float(data.get("asks", [{}])[0].get("price", 0)),
+                        "tradeable": data.get("tradeable", False)
+                    }
+                    await self.callbacks["price"](price_data)
+                    
+            elif data.get("type") == "HEARTBEAT":
+                if "heartbeat" in self.callbacks:
+                    await self.callbacks["heartbeat"](data)
+                    
+        except json.JSONDecodeError:
+            pass  # Ignore malformed lines
+
+
+# ==========================================
+# 📋 BYBIT API KEYS GUIDE
+# ==========================================
+"""
+🔑 HOW TO GET BYBIT API KEYS:
+
+1. Go to https://www.bybit.com/ (or https://testnet.bybit.com for testnet)
+
+2. Create an account (email only, no KYC needed for trading)
+
+3. Go to: Profile → API Management → Create New Key
+
+4. Settings:
+   - Key Name: "AXIOM Trading Bot"
+   - Permissions: 
+     ✅ Read-Write (for trading)
+     ✅ Derivatives (required)
+     ✅ Exchange (optional)
+   - IP Restriction: None (or add your server IP for security)
+
+5. Save your keys:
+   - API Key: xxxxxxxxx
+   - API Secret: xxxxxxxxx (shown only once!)
+
+6. Add to Cloudflare Worker secrets:
+   npx wrangler secret put BYBIT_API_KEY
+   npx wrangler secret put BYBIT_API_SECRET
+
+7. Or add to .dev.vars for local testing:
+   BYBIT_API_KEY=your_key_here
+   BYBIT_API_SECRET=your_secret_here
+
+⚠️ TESTNET RECOMMENDED FIRST:
+- Testnet URL: https://testnet.bybit.com
+- Get free testnet USDT from faucet
+- Same API structure, no real money risk
+
+📱 2FA Required for API creation (use Google Authenticator)
+"""
+
