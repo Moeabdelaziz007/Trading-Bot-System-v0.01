@@ -4,7 +4,7 @@ Tests the exception hierarchy and formatting.
 """
 
 import unittest
-from exceptions import (
+from core import (
     AntigravityError,
     TradingError, InsufficientBalanceError, PositionNotFoundError, 
     TradeExecutionError, TradeLimitExceededError,

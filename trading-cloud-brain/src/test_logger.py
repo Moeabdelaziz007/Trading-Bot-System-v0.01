@@ -6,7 +6,7 @@ Tests the structured logging functionality.
 import unittest
 from io import StringIO
 import sys
-from logger import Logger, LogLevel, log, get_logger
+from core import Logger, LogLevel, log, get_logger
 
 
 class TestLogger(unittest.TestCase):
