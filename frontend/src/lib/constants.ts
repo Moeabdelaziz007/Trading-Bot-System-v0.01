@@ -1,5 +1,7 @@
 import { BotScore, Transaction, TrendingTopic, Pattern, ChartPoint } from './types';
 
+// Default fallback data when API is loading or unavailable
+
 export const BOT_SCORES: BotScore[] = [
   { name: 'Alpha Bot', score: 84, color: '#00FF88' }, // Green
   { name: 'Quantum Core', score: 95, color: '#00D9FF' }, // Cyan
@@ -29,9 +31,15 @@ export const CHART_DATA: ChartPoint[] = Array.from({ length: 40 }, (_, i) => {
   const base = 98000;
   const random = Math.random() * 800 - 400;
   // Make it look like a trend
-  const trend = i * 20; 
+  const trend = i * 20;
   return {
-    time: `${14 + Math.floor(i/4)}:${(i%4)*15}`,
+    time: `${14 + Math.floor(i / 4)}:${(i % 4) * 15}`,
     value: base + trend + random
   };
 });
+
+// API Configuration
+export const API_CONFIG = {
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://trading-brain-v1.amrikyy1.workers.dev',
+  REFRESH_INTERVAL: 5000,
+};

@@ -12,13 +12,25 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         <button onClick={toggleSidebar} className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 lg:hidden">
           <Menu className="w-5 h-5" />
         </button>
-        
+
+        {/* Logo */}
+        <div className="hidden lg:flex items-center gap-2">
+          <img src="/logo.png" alt="AXIOM" className="w-8 h-8 rounded" />
+          <span className="font-bold text-lg text-white">Smart Dashboard</span>
+        </div>
+
+        {/* System Status */}
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-axiom-primary/10 border border-axiom-primary/30">
+          <span className="w-2 h-2 bg-axiom-primary rounded-full animate-pulse"></span>
+          <span className="text-xs font-medium text-axiom-primary">SYSTEM ONLINE</span>
+        </div>
+
         {/* Search */}
         <div className="relative hidden md:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-          <input 
-            type="text" 
-            placeholder="Search markets..." 
+          <input
+            type="text"
+            placeholder="Search markets..."
             className="bg-[#13131F] border border-white/5 rounded-full py-2 pl-10 pr-4 text-sm text-gray-300 focus:outline-none focus:border-axiom-secondary/50 focus:ring-1 focus:ring-axiom-secondary/50 w-64 transition-all"
           />
         </div>
@@ -38,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         </div>
 
         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-gray-700 to-gray-600 border border-white/20 overflow-hidden cursor-pointer hover:border-axiom-primary transition-colors">
-            <img src="https://picsum.photos/100/100" alt="User" className="w-full h-full object-cover opacity-80 hover:opacity-100" />
+          <img src="https://picsum.photos/100/100" alt="User" className="w-full h-full object-cover opacity-80 hover:opacity-100" />
         </div>
       </div>
     </header>

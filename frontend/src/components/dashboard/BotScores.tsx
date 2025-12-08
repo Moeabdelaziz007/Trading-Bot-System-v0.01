@@ -1,4 +1,4 @@
-like button or othersimport React from 'react';
+import React from 'react';
 import { BOT_SCORES } from '@/lib/constants';
 import { BotScore } from '@/lib/types';
 
