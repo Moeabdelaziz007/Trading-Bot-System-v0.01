@@ -2661,6 +2661,80 @@ async def handle_mcp_request(request, env, headers):
                 },
                 "message": "Smart MCP Operational 🧠"
             }), headers=headers)
+        
+        # ============================================
+        # 📊 SIGNAL DASHBOARD: Fetch Stored Signals
+        # ============================================
+        if "signals" in url and "dashboard" not in url:
+            try:
+                db = env.TRADING_DB
+                
+                # Parse limit from query (default 50)
+                params = {}
+                if "?" in url:
+                    query_str = url.split("?")[1]
+                    for pair in query_str.split("&"):
+                        if "=" in pair:
+                            k, v = pair.split("=", 1)
+                            params[k] = v
+                
+                limit = int(params.get("limit", 50))
+                symbol_filter = params.get("symbol", None)
+                
+                # Build query
+                if symbol_filter:
+                    stmt = db.prepare("""
+                        SELECT id, symbol, asset_type, signal_direction, 
+                               ROUND(signal_confidence, 2) as confidence,
+                               ROUND(price_at_signal, 2) as price,
+                               source, factors,
+                               datetime(timestamp/1000, 'unixepoch') as time
+                        FROM signal_events
+                        WHERE symbol = ?
+                        ORDER BY timestamp DESC
+                        LIMIT ?
+                    """).bind(symbol_filter.upper(), limit)
+                else:
+                    stmt = db.prepare("""
+                        SELECT id, symbol, asset_type, signal_direction, 
+                               ROUND(signal_confidence, 2) as confidence,
+                               ROUND(price_at_signal, 2) as price,
+                               source, factors,
+                               datetime(timestamp/1000, 'unixepoch') as time
+                        FROM signal_events
+                        ORDER BY timestamp DESC
+                        LIMIT ?
+                    """).bind(limit)
+                
+                result = await stmt.all()
+                signals = result.results if hasattr(result, 'results') else []
+                
+                # Convert to list of dicts
+                signal_list = []
+                for row in signals:
+                    signal_list.append({
+                        "id": row.id,
+                        "symbol": row.symbol,
+                        "asset_type": row.asset_type,
+                        "direction": row.signal_direction,
+                        "confidence": row.confidence,
+                        "price": row.price,
+                        "source": row.source,
+                        "factors": row.factors,
+                        "time": row.time
+                    })
+                
+                return Response.new(json.dumps({
+                    "status": "success",
+                    "count": len(signal_list),
+                    "signals": signal_list
+                }), headers=headers)
+                
+            except Exception as e:
+                return Response.new(json.dumps({
+                    "status": "error",
+                    "message": str(e)
+                }), status=500, headers=headers)
             
         # ============================================
         # 🎯 FINAGE API ROUTES (Stock/Forex/Crypto)
