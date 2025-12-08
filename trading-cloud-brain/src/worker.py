@@ -1,14 +1,41 @@
+"""
+🧠 ANTIGRAVITY MoE BRAIN v2.0
+Cloudflare Worker - Main Entry Point
+
+This is the central orchestrator for the Antigravity Trading System.
+It handles HTTP requests, Telegram webhooks, scheduled cron jobs,
+and routes to appropriate AI agents (Groq, Gemini, DeepSeek).
+
+Architecture:
+    - on_fetch(): HTTP request handler (REST API)
+    - on_scheduled(): Cron trigger handler (Scalper + Strategist)
+    - MoE Router: Intelligent intent classification
+    - Shield Protocol: Security and rate limiting
+
+Consolidated Packages:
+    - core: Logger, Exceptions, RateLimiter
+    - brokers: BrokerGateway (OANDA, Capital)
+    - strategy: TradingBrain (Scalping, Swing)
+    - intelligence: TwinTurbo (AEXI, Dream)
+"""
+
 from js import Response, fetch, Headers, JSON
 import json
 from base64 import b64encode
+
+# Consolidated package imports
+from core import Logger, log, RateLimiter
+from brokers import BrokerGateway
+from strategy import TradingBrain
+from intelligence import TwinTurbo
+
+# Legacy imports (still needed for specific features)
 from capital_connector import CapitalConnector
 from economic_calendar import EconomicCalendar
 from deepseek_analyst import DeepSeekAnalyst
 from workers_ai import WorkersAI
 from risk_manager import RiskGuardian
 from data_collector import DataCollector
-from scalping_engine import ScalpingBrain
-from long_term_engine import LongTermBrain
 
 # ==========================================
 # 🧠 ANTIGRAVITY MoE BRAIN v2.0
@@ -20,30 +47,41 @@ GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 async def on_scheduled(event, env):
     """
     Cron Trigger Handler for Brain Partitions.
-    Single cron runs every minute; internal dispatch based on time.
+    
+    Runs every minute via Cloudflare cron. Dispatches to different
+    trading brains based on time:
+    
+    - RiskGuardian: Every minute (safety first)
+    - TradingBrain[SCALP]: Every 5 minutes
+    - TradingBrain[SWING]: Every 4 hours
+    
+    Args:
+        event: Cloudflare scheduled event object
+        env: Worker environment with secrets and bindings
+    
+    Returns:
+        None (sends Telegram alerts on signals)
     """
     import datetime
     now = datetime.datetime.utcnow()
     current_minute = now.minute
     current_hour = now.hour
     
-    print(f"⏰ Cron Triggered at {now.isoformat()}")
+    log.info(f"⏰ Cron Triggered at {now.isoformat()}")
 
     # 1. RISK GUARDIAN (Runs every minute)
-    # Always runs for max safety
     risk_brain = RiskGuardian(env)
     calendar = EconomicCalendar(env)
     
-    # Check for upcoming high impact news
     try:
         high_impact = await calendar.check_impact_alerts()
         if high_impact:
             await risk_brain.engage_news_lockdown(high_impact)
-            return  # Stop scalping if news imminent
+            return
     except Exception as e:
-        print(f"Risk check failed: {e}")
+        log.error(f"Risk check failed: {e}")
 
-    # 2. FAST BRAIN - SCALPER (Every 5 minutes: 0, 5, 10, 15...)
+    # 2. FAST BRAIN - SCALPER (Every 5 minutes)
     if current_minute % 5 == 0:
         try:
             collector = DataCollector(env)
@@ -53,15 +91,16 @@ async def on_scheduled(event, env):
                 candles = await collector.fetch_candles(symbol, timeframe="1m", limit=300)
                 
                 if candles:
-                    scalper = ScalpingBrain(candles)
-                    decision = scalper.analyze_market_state()
+                    # Use consolidated TradingBrain with SCALP mode
+                    brain = TradingBrain(candles, mode="SCALP")
+                    decision = brain.analyze()
                     
-                    if decision['Action'] != 'NEUTRAL' and decision['Confidence'] >= 80:
-                        await send_telegram_alert(env, f"🚀 <b>SCALP SIGNAL: {symbol}</b>\nAction: {decision['Action']}\nConf: {decision['Confidence']}%\nAlgoScore: {decision['Metrics']['AlgoScore']}")
+                    if decision.get('signal') not in ['NEUTRAL', 'NO_DATA']:
+                        await send_telegram_alert(env, f"🚀 <b>SCALP: {symbol}</b>\nSignal: {decision['signal']}\nDirection: {decision.get('direction', 'N/A')}\nR:R: {decision.get('rr_ratio', 'N/A')}")
         except Exception as e:
-            print(f"Scalper failed: {e}")
+            log.error(f"Scalper failed: {e}")
 
-    # 3. SLOW BRAIN - STRATEGIST (Every 4 hours: 0, 4, 8, 12, 16, 20)
+    # 3. SLOW BRAIN - SWING (Every 4 hours)
     if current_hour % 4 == 0 and current_minute == 0:
         try:
             collector = DataCollector(env)
@@ -71,17 +110,43 @@ async def on_scheduled(event, env):
                 candles = await collector.fetch_candles(symbol, timeframe="1d", limit=300)
                 
                 if candles:
-                    strategist = LongTermBrain(candles)
-                    view = strategist.evaluate_market_health()
+                    # Use consolidated TradingBrain with SWING mode
+                    brain = TradingBrain(candles, mode="SWING")
+                    view = brain.analyze()
                     
-                    if view['Confidence'] >= 80:
-                        await send_telegram_alert(env, f"🐋 <b>WHALE ALERT: {symbol}</b>\nView: {view['Action']}\nConfidence: {view['Confidence']}%\nEntry: {view['EntryType']}")
+                    if view.get('signal') not in ['NEUTRAL', 'NO_DATA']:
+                        await send_telegram_alert(env, f"🐋 <b>SWING: {symbol}</b>\nSignal: {view['signal']}\nRecommendation: {view.get('recommendation', 'N/A')}")
         except Exception as e:
-            print(f"Strategist failed: {e}")
+            log.error(f"Swing failed: {e}")
 
 # [Rest of on_fetch remains same...]
 async def on_fetch(request, env):
-    """Main Entry Point - MoE Router with Shield Protocol 🛡️"""
+    """
+    Main HTTP Entry Point - MoE Router with Shield Protocol.
+    
+    Handles all incoming HTTP requests to the Cloudflare Worker.
+    Routes to appropriate handlers based on URL path.
+    
+    Args:
+        request: Cloudflare Request object with url, method, headers
+        env: Worker environment with secrets and KV bindings
+    
+    Returns:
+        Response: JSON response with CORS headers
+    
+    Routes:
+        GET /api/status: Health check
+        POST /api/telegram: Telegram webhook
+        POST /api/chat: MoE AI chat
+        GET /api/account: Broker account data
+        GET /api/positions: Open positions
+        GET /api/market: Real-time prices
+        GET /api/candles: OHLCV chart data
+    
+    Raises:
+        401: Unauthorized (missing X-System-Key)
+        500: Internal server error
+    """
     url = str(request.url)
     method = str(request.method)
     
