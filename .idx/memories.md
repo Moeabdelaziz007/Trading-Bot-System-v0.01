@@ -4,17 +4,22 @@
 
 ## 📅 سجل الجلسات
 
-### الجلسة: 8 ديسمبر 2025 (مُحدّث 08:09)
+### الجلسة: 8 ديسمبر 2025 (مُحدّث 09:55)
 
 **الإنجازات:**
 
 - ✅ Phase 24 (Auth): Clerk integration complete.
 - ✅ Phase 25 (Data Layer): `/api/dashboard` + `useMarketStream` hook.
-- ✅ Backend deployed: `https://trading-brain-v1.amrikyy1.workers.dev`
-- ✅ Frontend deployed: `https://aitrading.axiomid.app` (Vercel - axiomid team)
-- ✅ Phase 29: MCP/API Research complete (CoinAPI, Alpha Vantage, Finnhub).
-- ✅ Localization: Arabic versions for all `.idx/` files.
-- ✅ Skill System: Level 3 achieved (Learned from superpowers + skills repos).
+- ✅ Phase 29: MCP/API Research complete.
+- ✅ Phase 30: **100% Weekly ROI Implementation:**
+  - Fast RSI (7-period) + EMA 9/21 Crossover
+  - MultiTimeframeScalper class (1M/5M/15M alignment)
+  - HighLeverageRiskManager (100x support)
+  - Bybit Perpetuals Connector (NEW)
+  - OANDA Scalping Enhancement
+  - 9 new tests passing
+- ✅ Skill System: Level 4 achieved (Expert)
+- ✅ Git pushed: c48d566
 
 **القرارات التقنية:**
 
