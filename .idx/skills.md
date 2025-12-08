@@ -4,9 +4,9 @@
 
 ## 📊 لوحة الحالة
 
-- **المستوى:** 4 (خبير - Expert) ⬆️⬆️⬆️
-- **إجمالي المهارات:** 24
-- **التقدم:** Deep Research Complete (Dec 8, 2025)
+- **المستوى:** 5 (Master) ⬆️⬆️⬆️⬆️
+- **إجمالي المهارات:** 28
+- **التقدم:** Smart MCP Intelligence Complete (Dec 8, 2025)
 
 ---
 
@@ -56,6 +56,8 @@
 | **Zero-Cost Architect** | Gen 3 | █████████░ | "Free tier", "Zero cost" |
 | **Auth-in-a-Box** | Gen 2 | ███████░░░ | "Add Clerk", "Secure app" |
 | **Unified API Design** | Gen 2 | ██████░░░░ | "Single endpoint", "Dashboard API" |
+| **Dual-Layer Caching** | Gen 1 | ████░░░░░░ | "KV + D1", "Hot/Cold Cache" |
+| **Rate Limit Engineering** | Gen 1 | ████░░░░░░ | "Token Bucket", "Credit Manager" |
 
 ### 🧪 Testing & Quality
 

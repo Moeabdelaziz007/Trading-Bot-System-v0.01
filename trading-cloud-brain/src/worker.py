@@ -208,7 +208,8 @@ async def on_fetch(request, env):
         "/api/positions", # Open positions
         "/api/market",    # Market data
         "/api/candles",   # Chart data
-        "/api/dashboard"  # Unified dashboard snapshot
+        "/api/dashboard", # Unified dashboard snapshot
+        "/api/mcp"        # Smart MCP Intelligence
     ]
     is_public = any(p in url for p in public_paths)
     
@@ -268,6 +269,10 @@ async def on_fetch(request, env):
     # 🎯 UNIFIED DASHBOARD SNAPSHOT (Expert Level API)
     if "api/dashboard" in url:
         return await get_dashboard_snapshot(env, headers)
+    
+    # 🧠 SMART MCP INTELLIGENCE (Zero-Cost AI Signals)
+    if "api/mcp" in url:
+        return await handle_mcp_request(request, env, headers)
     
     # Status
     if "api/status" in url:
@@ -2621,6 +2626,297 @@ async def scan_for_signals(env, symbols=None):
             continue
     
     return signals_found
+
+
+# ==========================================
+# 🧠 SMART MCP HANDLER (Zero-Cost Intelligence)
+# ==========================================
+
+async def handle_mcp_request(request, env, headers):
+    """
+    Smart MCP Intelligence Endpoint.
+    Inline implementation to avoid module import issues.
+    
+    Routes:
+        GET /api/mcp/intelligence?symbol=AAPL - Get full market intelligence
+        GET /api/mcp/health - Check API credits remaining
+    """
+    url = str(request.url)
+    
+    try:
+        # Route: /api/mcp/health
+        if "health" in url:
+            # Check credits from KV
+            kv = env.BRAIN_MEMORY
+            finnhub_used = await kv.get("credits:finnhub:" + __import__('datetime').datetime.utcnow().strftime("%Y-%m-%d")) or "0"
+            alpha_used = await kv.get("credits:alpha_vantage:" + __import__('datetime').datetime.utcnow().strftime("%Y-%m-%d")) or "0"
+            news_used = await kv.get("credits:news_data:" + __import__('datetime').datetime.utcnow().strftime("%Y-%m-%d")) or "0"
+            
+            return Response.new(json.dumps({
+                "status": "ok",
+                "credits": {
+                    "finnhub": max(0, 60 - int(finnhub_used)),
+                    "alpha_vantage": max(0, 25 - int(alpha_used)),
+                    "news_data": max(0, 200 - int(news_used))
+                },
+                "message": "Smart MCP Operational 🧠"
+            }), headers=headers)
+            
+        # ============================================
+        # 🎯 FINAGE API ROUTES (Stock/Forex/Crypto)
+        # ============================================
+        if "finage" in url:
+            try:
+                from mcp.brokers.finage import FinageConnector
+                finage_key = str(getattr(env, 'FINAGE_API_KEY', ''))
+                finage = FinageConnector(finage_key)
+                
+                # Parse symbol from query
+                params = {}
+                if "?" in url:
+                    query_str = url.split("?")[1]
+                    for pair in query_str.split("&"):
+                        if "=" in pair:
+                            k, v = pair.split("=", 1)
+                            params[k] = v
+                
+                symbol = params.get("symbol", "AAPL")
+                
+                if "stock" in url:
+                    result = await finage.get_stock_price(symbol)
+                    return Response.new(json.dumps(result), headers=headers)
+                elif "forex" in url:
+                    result = await finage.get_forex_price(symbol)
+                    return Response.new(json.dumps(result), headers=headers)
+                elif "crypto" in url:
+                    result = await finage.get_crypto_price(symbol)
+                    return Response.new(json.dumps(result), headers=headers)
+                    
+            except Exception as e:
+                return Response.new(json.dumps({"status": "error", "error": str(e)}), status=500, headers=headers)
+            
+        # ============================================
+        # 🏦 CAPITAL.COM ROUTES (New Integration)
+        # ============================================
+        if "capital" in url:
+            # Inline class definition to avoid "cannot import" errors in some CF environments
+            # or ensure module is reachable. For now, let's keep the import but wrap in try-except
+            try:
+                from mcp.brokers.capital_com import CapitalConnector
+                cap = CapitalConnector(env)
+                
+                if "session" in url:
+                    session_result = await cap.create_session()
+                    return Response.new(json.dumps(session_result), headers=headers)
+                
+                if "account" in url:
+                    acc_info = await cap.get_account_info()
+                    return Response.new(json.dumps(acc_info), headers=headers)
+                    
+                if "search" in url:
+                    # Parse query
+                    params = {}
+                    if "?" in url:
+                        query_str = url.split("?")[1]
+                        for pair in query_str.split("&"):
+                            if "=" in pair:
+                                k, v = pair.split("=", 1)
+                                params[k] = v
+                    term = params.get("q", "GOLD")
+                    market_info = await cap.search_market(term)
+                    return Response.new(json.dumps(market_info), headers=headers)
+            except Exception as e:
+                return Response.new(json.dumps({"status": "error", "error": f"Capital Import/Exec Error: {str(e)}"}), status=500, headers=headers)
+
+        # Route: /api/mcp/intelligence?symbol=XXX
+        if "intelligence" in url or "symbol=" in url:
+            # Parse symbol from query
+            params = {}
+            if "?" in url:
+                query = url.split("?")[1]
+                for pair in query.split("&"):
+                    if "=" in pair:
+                        k, v = pair.split("=", 1)
+                        params[k] = v
+            
+            symbol = params.get("symbol", "BTCUSDT").upper()
+            
+            # ============================================
+            # 🧠 SMART ROUTING: Stock vs Crypto Detection
+            # ============================================
+            
+            # Crypto patterns: ends with USDT, PERP, USD, or known cryptos
+            crypto_patterns = ["USDT", "PERP", "BTC", "ETH", "SOL", "XRP", "DOGE", "ADA"]
+            is_crypto = any(pattern in symbol for pattern in crypto_patterns)
+            
+            price_data = {"current": 0, "change_pct": 0, "source": "unknown"}
+            
+            if is_crypto:
+                # ========== CRYPTO: Use Bybit (Unlimited) ==========
+                bybit_url = f"https://api.bybit.com/v5/market/tickers?category=linear&symbol={symbol}"
+                bybit_resp = await fetch(bybit_url)
+                bybit_data = json.loads(await bybit_resp.text())
+                
+                if bybit_data.get("retCode") == 0 and bybit_data.get("result", {}).get("list"):
+                    ticker = bybit_data["result"]["list"][0]
+                    price_data = {
+                        "current": float(ticker.get("lastPrice", 0)),
+                        "change_pct": float(ticker.get("price24hPcnt", 0)),
+                        "high_24h": float(ticker.get("highPrice24h", 0)),
+                        "low_24h": float(ticker.get("lowPrice24h", 0)),
+                        "volume_24h": float(ticker.get("volume24h", 0)),
+                        "source": "bybit"
+                    }
+            else:
+                # ========== STOCK/FOREX: Use Finage (Unified API) ==========
+                try:
+                    from mcp.brokers.finage import FinageConnector
+                    finage_key = str(getattr(env, 'FINAGE_API_KEY', ''))
+                    finage = FinageConnector(finage_key)
+                    
+                    # Auto-detect: Forex pairs (e.g., EURUSD) vs Stocks (e.g., AAPL)
+                    is_forex = len(symbol) == 6 and symbol.isalpha()  # EURUSD, GBPUSD pattern
+                    
+                    if is_forex:
+                        result = await finage.get_forex_price(symbol)
+                    else:
+                        result = await finage.get_stock_price(symbol)
+                    
+                    if result.get("status") == "success":
+                        # Calculate change_pct if missing
+                        current = result.get("price", 0)
+                        bid = result.get("bid", current)
+                        ask = result.get("ask", current)
+                        mid = (bid + ask) / 2 if bid and ask else current
+                        
+                        price_data = {
+                            "current": mid if mid else current,
+                            "change_pct": 0.0,  # Finage doesn't provide % change directly
+                            "bid": bid,
+                            "ask": ask,
+                            "source": "finage"
+                        }
+                    else:
+                        price_data["source"] = "finage_error"
+                        price_data["error"] = result.get("message", "Unknown error")
+                        
+                except Exception as e:
+                    price_data["source"] = "finage_exception"
+                    price_data["error"] = str(e)
+            
+            # ============================================
+            # 🧪 SIGNAL SYNTHESIS (Enhanced)
+            # ============================================
+            change = price_data.get("change_pct", 0)
+            
+            # Thresholds differ for Stocks vs Crypto
+            if is_crypto:
+                strong_threshold = 0.03  # 3% for crypto
+                weak_threshold = 0.01    # 1% for crypto
+            else:
+                strong_threshold = 0.02  # 2% for stocks
+                weak_threshold = 0.005   # 0.5% for stocks
+            
+            if change > strong_threshold:
+                signal = {"direction": "STRONG_BUY", "confidence": 0.85, "factors": ["Strong Momentum"]}
+            elif change > weak_threshold:
+                signal = {"direction": "BUY", "confidence": 0.65, "factors": ["Positive Trend"]}
+            elif change < -strong_threshold:
+                signal = {"direction": "STRONG_SELL", "confidence": 0.85, "factors": ["Sharp Decline"]}
+            elif change < -weak_threshold:
+                signal = {"direction": "SELL", "confidence": 0.65, "factors": ["Negative Trend"]}
+            else:
+                signal = {"direction": "NEUTRAL", "confidence": 0.5, "factors": ["Range-Bound"]}
+            
+            # ============================================
+            # 💎 DATA LEARNING LOOP: Capture Every Signal
+            # ============================================
+            try:
+                timestamp = int(__import__('time').time() * 1000)  # milliseconds
+                db = env.TRADING_DB
+                
+                # Log signal event to D1 for learning
+                insert_stmt = db.prepare("""
+                    INSERT INTO signal_events (
+                        timestamp, symbol, asset_type,
+                        price_at_signal, bid, ask, source,
+                        signal_direction, signal_confidence, factors,
+                        momentum_score, rsi_score, sentiment_score, volume_score
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """).bind(
+                    timestamp,
+                    symbol,
+                    "crypto" if is_crypto else "stock",
+                    price_data.get("current", 0),
+                    price_data.get("bid") or 0.0,
+                    price_data.get("ask") or 0.0,
+                    price_data.get("source", "unknown"),
+                    signal["direction"],
+                    signal["confidence"],
+                    json.dumps(signal.get("factors", [])),
+                    # Component scores (for future ML analysis)
+                    price_data.get("change_pct", 0),  # momentum proxy
+                    0.0,  # RSI TBD
+                    0.0,  # sentiment TBD
+                    price_data.get("volume_24h") or 0.0  # volume if available
+                )
+                
+                await insert_stmt.run()
+            except Exception as db_error:
+                # Don't fail the request if logging fails
+                log.error(f"Signal logging failed: {db_error}")
+            
+            # ============================================
+            # 📱 TELEGRAM ALERT FOR STRONG SIGNALS
+            # ============================================
+            if signal["direction"] in ["STRONG_BUY", "STRONG_SELL"]:
+                try:
+                    emoji = "🚀" if signal["direction"] == "STRONG_BUY" else "💥"
+                    direction_text = "BUY" if "BUY" in signal["direction"] else "SELL"
+                    asset_emoji = "🪙" if is_crypto else "📊"
+                    
+                    alert_msg = f"""{emoji} <b>Smart MCP Alert</b> {emoji}
+
+{asset_emoji} <b>{symbol}</b> ({data.asset_type if 'data' in dir() else 'crypto' if is_crypto else 'stock'})
+💰 Price: ${price_data.get('current', 0):,.2f}
+📈 Change: {priceChange:.2f}%
+🎯 Signal: <b>{signal['direction'].replace('_', ' ')}</b>
+✨ Confidence: {int(signal['confidence'] * 100)}%
+
+<i>Source: {price_data.get('source', 'unknown')} | Zero-Cost MCP</i>"""
+                    
+                    await send_telegram_alert(env, alert_msg)
+                except Exception as tg_error:
+                    # Don't fail the request if Telegram fails
+                    log.error(f"Telegram alert failed: {tg_error}")
+            
+            return Response.new(json.dumps({
+                "status": "success",
+                "data": {
+                    "symbol": symbol,
+                    "asset_type": "crypto" if is_crypto else "stock",
+                    "is_stale": price_data.get("is_stale", False),
+                    "price": price_data,
+                    "composite_signal": signal
+                }
+            }), headers=headers)
+        
+        # Default: Return MCP info
+        return Response.new(json.dumps({
+            "name": "Smart MCP",
+            "version": "1.0",
+            "endpoints": [
+                "/api/mcp/intelligence?symbol=BTCUSDT",
+                "/api/mcp/health"
+            ],
+            "description": "Zero-Cost Intelligence Layer 🧠"
+        }), headers=headers)
+    
+    except Exception as e:
+        return Response.new(json.dumps({
+            "status": "error",
+            "error": str(e)
+        }), status=500, headers=headers)
 
 
 # ==========================================
