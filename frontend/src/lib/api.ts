@@ -3,8 +3,11 @@
 // يربط الواجهة بـ Backend (FastAPI)
 // ==============================================
 
-const API_BASE = 'https://trading-brain-v1.amrikyy1.workers.dev';
-const WS_BASE = 'wss://trading-brain-v1.amrikyy1.workers.dev';
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🔐 SECURE API CONFIGURATION | إعدادات API الآمنة
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://trading-brain-v1.amrikyy.workers.dev';
+const WS_BASE = API_BASE.replace('https://', 'wss://').replace('http://', 'ws://');
 
 export interface MarketData {
     symbol: string;

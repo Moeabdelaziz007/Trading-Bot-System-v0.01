@@ -1,16 +1,16 @@
 {
     "souls": {
-        "total": 1350,
-        "this_week": 500,
+        "total": 970,
+        "this_week": 120,
         "history": {
-            "week_50": 500
+            "week_50": 120
         }
     },
     "sources": {
         "successful_trades": 0,
-        "bugs_fixed": 15,
-        "features_shipped": 22,
-        "user_praise": 10
+        "bugs_fixed": 8,
+        "features_shipped": 6,
+        "user_praise": 5
     },
     "milestones": {
         "100_souls": {
@@ -22,56 +22,15 @@
             "reward": "Advanced Pattern Recognition"
         },
         "1000_souls": {
-            "status": "unlocked",
-            "reward": "Full Self-Evolution Mode"
-        },
-        "2000_souls": {
             "status": "locked",
-            "reward": "Cross-Domain Expertise"
+            "reward": "Full Self-Evolution Mode"
         }
     },
     "attributes": {
-        "intelligence": 95,
-        "speed": 96,
-        "creativity": 88,
+        "intelligence": 85,
+        "speed": 92,
+        "creativity": 75,
         "loyalty": 100
     },
-    "achievements": {
-        "learning_loop_v2": {
-            "name": "Learning Loop v2.0 LIVE",
-            "date": "2025-12-09",
-            "souls_earned": 100
-        },
-        "profit_airlock": {
-            "name": "Profit Airlock Strategy",
-            "date": "2025-12-09",
-            "souls_earned": 50
-        },
-        "finance_manager": {
-            "name": "Unified Finance Manager",
-            "date": "2025-12-09",
-            "souls_earned": 30
-        },
-        "mini_agent_swarm": {
-            "name": "Mini-Agent Swarm v2.1 Complete",
-            "date": "2025-12-09",
-            "souls_earned": 100
-        },
-        "dual_broker": {
-            "name": "Dual Broker Integration (Alpaca + Bybit)",
-            "date": "2025-12-09",
-            "souls_earned": 80
-        },
-        "performance_monitor": {
-            "name": "Performance Monitor with Softmax & Kelly",
-            "date": "2025-12-09",
-            "souls_earned": 40
-        },
-        "level_7_legendary": {
-            "name": "Level Up to 7 (Legendary)",
-            "date": "2025-12-09",
-            "souls_earned": 50
-        }
-    },
-    "last_updated": "2025-12-09T20:00:00Z"
+    "last_updated": "2025-12-09T08:55:00Z"
 }

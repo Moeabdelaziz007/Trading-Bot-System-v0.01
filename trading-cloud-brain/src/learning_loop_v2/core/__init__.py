@@ -22,26 +22,6 @@ from .weighted_consensus import (
     ConsensusResult
 )
 
-# Import core classes from causal inference module
-from .causal_inference import (
-    CausalInferenceEngine,
-    CausalGraph,
-    CausalVariable,
-    CausalEdge,
-    CausalEffect,
-    CounterfactualResult
-)
-
-# Import core classes from causal bridge module (Telegram + MCP integration)
-from .causal_bridge import (
-    CausalLearningBridge,
-    ToolCall,
-    CausalDecision,
-    DecisionOutcome,
-    ToolCategory,
-    DecisionType
-)
-
 __all__ = [
     'IntelligentCollaborationEngine',
     'AgentInsight',
@@ -51,18 +31,5 @@ __all__ = [
     'RiskDecision',
     'WeightedConsensusEngine',
     'AgentOpinion',
-    'ConsensusResult',
-    'CausalInferenceEngine',
-    'CausalGraph',
-    'CausalVariable',
-    'CausalEdge',
-    'CausalEffect',
-    'CounterfactualResult',
-    # Causal Bridge (Telegram + MCP + Learning Loop)
-    'CausalLearningBridge',
-    'ToolCall',
-    'CausalDecision',
-    'DecisionOutcome',
-    'ToolCategory',
-    'DecisionType'
+    'ConsensusResult'
 ]

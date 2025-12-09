@@ -93,8 +93,7 @@ graph TB
 
 ```
 Trading.System-0.1/
-├── frontend/                   # 📱 Next.js 14 Dashboard
-│   ├── src/app/[locale]/      # i18n pages (AR/EN)
+├── frontend/                   # 📱 Vite + React 19 Dashboard
 │   └── src/components/        # React components
 │
 ├── backend/                    # 🔧 FastAPI Server

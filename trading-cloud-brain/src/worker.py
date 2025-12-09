@@ -370,7 +370,7 @@ async def on_fetch(request, env):
     # ========================================
     # 🛡️ SHIELD PROTOCOL - Security Check
     # ========================================
-    # Public endpoints (no auth required)
+    # Public endpoints (no auth required) - نقاط النهاية العامة
     public_paths = [
         "/api/status", 
         "/api/telegram", 
@@ -381,7 +381,9 @@ async def on_fetch(request, env):
         "/api/market",    # Market data
         "/api/candles",   # Chart data
         "/api/dashboard", # Unified dashboard snapshot
-        "/api/mcp"        # Smart MCP Intelligence
+        "/api/mcp",       # Smart MCP Intelligence
+        "/health",        # System health (for frontend monitoring)
+        "/api/health",    # Health endpoint alias
     ]
     is_public = any(p in url for p in public_paths)
     

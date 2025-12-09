@@ -1,6 +1,31 @@
 # Vercel Ignore
-axiom-new
+# Legacy UI components - not used in current build
+# src/legacy
+
+# Environment files
 .env.local
 .env
+
+# Version control
 .git
+.gitignore
+
+# System files
 .DS_Store
+.env.example
+
+# Build artifacts
+.next
+node_modules
+*.tsbuildinfo
+
+# Testing
+.pytest_cache
+__pycache__
+*.pyc
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
