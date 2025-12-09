@@ -194,6 +194,16 @@ TP = Entry + (7.0 × ATR)  # 1:2.8 R:R ratio
 
 ---
 
+## 💳 Payment Systems | أنظمة الدفع
+
+| Provider | Purpose | Status | Features |
+|----------|---------|--------|----------|
+| 🪙 **Coinbase** | Crypto Payments | ✅ Ready | OAuth2, HMAC Security |
+| 💳 **Stripe** | Card Payments | ✅ Ready | Subscriptions, Webhooks |
+| 🅿️ **PayPal** | Global Payments | ✅ Ready | Multi-currency |
+
+---
+
 ## 🛠️ Tech Stack | التقنيات
 
 <table>
