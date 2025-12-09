@@ -164,6 +164,47 @@ Alignment: 1M + 5M + 15M confirmation
 Entry: RSI(7) + EMA(9/21) crossover
 ```
 
+---
+
+## 🧠 AlphaAxiom: DeepMind-Inspired AI | الذكاء المستوحى من ديب مايند
+
+> *"Don't hardcode rules. Build a system that learns to master the market."*
+
+Inspired by **AlphaZero**, **MuZero**, and **Gato**, we designed a trading brain that thinks like DeepMind's game-mastering AIs:
+
+![AlphaAxiom Architecture](docs/images/alphaaxiom_architecture.png)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              🧠 AlphaAxiom ARCHITECTURE                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  👥 COUNCIL OF AGENTS (Market Tensor)                       │
+│  ├── 🌀 Chaos Agent — Hurst Exponent, Fractal Dimension    │
+│  ├── 📱 Social Agent — Twitter/Nitter Sentiment            │
+│  ├── 🐋 Whales Agent — L2 Orderbook Imbalance              │
+│  └── 🌍 Macro Agent — Cross-Asset Correlations             │
+│                                                             │
+│  🔮 SIMULATION (Edge MCTS)                                  │
+│  ├── Trending Regime (H>0.5) → GBM with drift              │
+│  ├── Mean-Reverting (H<0.5) → Ornstein-Uhlenbeck           │
+│  └── Random Walk (H≈0.5) → NO TRADE                        │
+│                                                             │
+│  🧬 SELF-PLAY LEARNING                                      │
+│  ├── Every trade → Record (State, Action, P&L)             │
+│  ├── Weekly → Retrain models on new data                   │
+│  └── The system evolves like AlphaZero                     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| DeepMind Concept | AlphaAxiom Implementation |
+|------------------|---------------------------|
+| **MCTS** | Edge Worker Swarm (20 simulations) |
+| **World Model** | Dream Engine (predicts next state) |
+| **Self-Play** | Weekly retraining on R2 data |
+| **Value Network** | Groq/Gemini inference |
+
 ### Risk Management
 
 ```python
