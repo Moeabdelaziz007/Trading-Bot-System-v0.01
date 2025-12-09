@@ -1,59 +1,72 @@
 """
-🧮 MATH SANDBOX (Safe Execution)
-Allows LLMs to run generated Python math code safely.
+🧮 Math Sandbox MCP - Safe Calculator
+Zero-Cost Computational Engine
+
+Responsibilities:
+- Execute LLM-generated math safely
+- Allow: math.*, statistics.*, list operations
+- Block: import, exec, eval, system calls
 """
 
 import math
 import statistics
+import json
 
-class MathSandboxMCP:
-    
-    ALLOWED_GLOBALS = {
-        "math": math,
-        "statistics": statistics,
-        "sum": sum,
-        "len": len,
-        "max": max,
-        "min": min,
-        "abs": abs,
-        "round": round,
-        "sorted": sorted,
-        "list": list,
-        "dict": dict
-    }
-    
-    def run_calculation(self, code: str, data: list):
-        """
-        Executes sanitized math code on a dataset.
-        Use Case: "Compute the 200 EMA of this data array"
-        """
-        # 1. Sanitize
-        blacklist = ["import", "open", "eval", "exec", "__", "sys", "os", "subprocess"]
-        if any(bad in code for bad in blacklist):
-            return {"error": "Security Breach: Unsafe code detected"}
-        
-        # 2. Prepare Context
-        context = {
-            "data": data,
-            "result": None
+class MathEngine:
+    def __init__(self):
+        self.allowed_globals = {
+            "math": math,
+            "statistics": statistics,
+            "abs": abs,
+            "round": round,
+            "min": min,
+            "max": max,
+            "sum": sum,
+            "len": len,
+            "sorted": sorted,
+            "float": float,
+            "int": int,
+            "list": list,
+            "dict": dict
         }
-        context.update(self.ALLOWED_GLOBALS)
-        
-        # 3. Execute
-        try:
-            # Code should assign final value to 'result' variable
-            exec(code, {"__builtins__": {}}, context)
-            return {"success": True, "result": context.get("result")}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
 
-    @staticmethod
-    def get_example_prompt():
-        return """
-        Given a list of numbers in variable 'data'.
-        Write Python code to calculate the Simple Moving Average.
-        Assign the final value to variable 'result'.
-        Do not import any modules.
-        Example:
-        result = sum(data) / len(data)
+    def evaluate(self, expression: str, data: dict = None):
         """
+        Safely evaluate a mathematical expression.
+
+        Args:
+            expression: Python-like expression string (e.g., "sum(prices) / len(prices)")
+            data: Dictionary of variables to inject (e.g., {"prices": [1, 2, 3]})
+        """
+        context = self.allowed_globals.copy()
+        if data:
+            context.update(data)
+
+        # Security checks
+        if "__" in expression or "import" in expression or "exec" in expression or "eval" in expression:
+            return {"error": "Security Violation: Unsafe expression detected"}
+
+        try:
+            # We use eval() here BUT strictly controlled globals/locals
+            # Cloudflare Workers environment is already sandboxed,
+            # but we restrict it further to prevent logic abuse.
+            result = eval(expression, {"__builtins__": {}}, context)
+
+            # Check result type
+            if isinstance(result, (int, float, bool, str, list, dict)):
+                return {"result": result, "status": "success"}
+            else:
+                return {"result": str(result), "status": "success"}
+
+        except Exception as e:
+            return {"error": str(e), "status": "failed"}
+
+    def run_script(self, script: str, inputs: dict):
+        """
+        Run a multi-line math script (limited functionality).
+        This is a simulated execution since we can't easily use exec() safely.
+        For now, we stick to single expression evaluation or strict parsing.
+
+        NOTE: For v2.0 Zero-Cost, we focus on 'evaluate' for indicators.
+        """
+        return {"error": "Multi-line script execution not supported in Zero-Cost Tier. Use evaluate()"}

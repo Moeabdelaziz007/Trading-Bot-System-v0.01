@@ -9,10 +9,8 @@ workers_dev = false
 # ⏰ CRON TRIGGERS
 [triggers]
 crons = [
-    "* * * * *",      # 🛡️ RiskGuardian + R2 Save (1m)
-    "*/5 * * * *",    # ⚡ Scalper (5m)
-    "*/15 * * * *",   # 📰 Journalist (15m)
-    "0 * * * *"       # 🧠 Strategist (1h)
+    "* * * * *",      # 🛡️ RiskGuardian + Dynamic Check (1m)
+    # Scalper/Journalist logic handled dynamically inside code
 ]
 
 # 🔗 Service Bindings
@@ -42,12 +40,21 @@ binding = "TRADING_DB"
 database_name = "trading-brain-db"
 database_id = "9d4168e4-391c-4b79-a20a-6661e599fde6"
 
-# 📨 Queue Consumer
+# 📨 QUEUES (Event-Driven Architecture)
 [[queues.consumers]]
-queue = "trade-execution"
+queue = "trade-queue"
 max_batch_size = 5
-max_batch_timeout = 2
+max_batch_timeout = 5
+
+[[queues.consumers]]
+queue = "broadcast-queue"
+max_batch_size = 10
+max_batch_timeout = 5
 
 [[queues.producers]]
-queue = "signal-broadcast"
-binding = "SIGNAL_QUEUE"
+queue = "trade-queue"
+binding = "TRADE_QUEUE"
+
+[[queues.producers]]
+queue = "broadcast-queue"
+binding = "BROADCAST_QUEUE"
