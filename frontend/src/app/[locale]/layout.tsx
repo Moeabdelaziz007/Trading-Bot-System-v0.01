@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Cairo, Orbitron, Inter } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import "../globals.css";
 import { Providers } from "./providers";
 import Link from "next/link";
@@ -45,6 +45,11 @@ export const viewport: Viewport = {
     userScalable: false,
 };
 
+// Generate static params for supported locales
+export function generateStaticParams() {
+    return [{ locale: 'en' }, { locale: 'ar' }];
+}
+
 export default async function RootLayout({
     children,
     params: { locale }
@@ -52,6 +57,9 @@ export default async function RootLayout({
     children: React.ReactNode;
     params: { locale: string };
 }) {
+    // Enable static rendering for next-intl
+    setRequestLocale(locale);
+    
     const messages = await getMessages();
     const dir = locale === 'ar' ? 'rtl' : 'ltr';
     const fontVariable = locale === 'ar' ? cairo.variable : inter.variable;
