@@ -16,7 +16,7 @@
 
 | Skill | Level | Mastery | Triggers |
 |-------|-------|---------|----------|
-| **DeepSeek Signal Gen** | Gen 3 | ████████░░ | "LLM trading", "AI signals" |
+| **GLM-4.5 Signal Gen** | Gen 3 | ████████░░ | "LLM trading", "AI signals" |
 | **Gemini 2.0 Flash** | Gen 2 | ██████░░░░ | "Chart analysis", "1M context" |
 | **GLM-4.5 (z.ai)** | Gen 2 | ██████░░░░ | "Agentic AI", "Complex trading logic" |
 | **Reinforcement Learning** | Gen 1 | ████░░░░░░ | "RL bot", "Adaptive trading" |

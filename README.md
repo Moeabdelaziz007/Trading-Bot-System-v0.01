@@ -4,15 +4,17 @@
 
 ### AI Trading Platform & Signal Hub | منصة تداول وإشارات بالذكاء الاصطناعي
 
-![Axiom Antigravity Logo](frontend/public/logo.png)
+![Axiom Antigravity Logo](docs/images/logo.png)
 
-**From Signals to Execution — Powered by Multi-AI Stack**
+**From Signals to Execution — Powered by GLM-4.5 + Gemini 2.0**
 
-**من الإشارات إلى التنفيذ — مدعوم بمجموعة ذكاء اصطناعي متعددة**
+**من الإشارات إلى التنفيذ — مدعوم بـ GLM-4.5 + Gemini 2.0**
 
 [![Live Demo](https://img.shields.io/badge/🔴_Live-aitrading.axiomid.app-00F0FF?style=for-the-badge)](https://aitrading.axiomid.app)
 [![MIT License](https://img.shields.io/badge/License-MIT_2025-green.svg?style=for-the-badge)](LICENSE)
 [![Cloudflare](https://img.shields.io/badge/☁️_Cloudflare-Workers-F38020?style=for-the-badge)](https://workers.cloudflare.com)
+[![z.ai](https://img.shields.io/badge/🔮_z.ai-GLM--4.5-9333EA?style=for-the-badge)](https://z.ai)
+[![Gemini](https://img.shields.io/badge/⚡_Google-Gemini_2.0-4285F4?style=for-the-badge)](https://ai.google.dev)
 [![Capital.com](https://img.shields.io/badge/💰_Capital.com-Trading-3B82F6?style=for-the-badge)](https://capital.com)
 
 ---
@@ -33,7 +35,7 @@
 
 ### 🇺🇸 English
 
-- 🧠 **Multi-AI Stack** — DeepSeek + Gemini 2.0 + GLM-4.5
+- 🧠 **Multi-AI Stack** — GLM-4.5 + Gemini 2.0 + Workers AI
 - 🕷️ **Spider Web Architecture** — 89+ modular components
 - 🆓 **Workers AI** — FREE LLMs (10K neurons/day)
 - 📊 **MTF Scalper** — Multi-timeframe analysis (1M/5M/15M)
@@ -47,7 +49,7 @@
 
 ### 🇸🇦 العربية
 
-- 🧠 **مجموعة ذكاء متعددة** — DeepSeek + Gemini 2.0 + GLM-4.5
+- 🧠 **مجموعة ذكاء متعددة** — GLM-4.5 + Gemini 2.0 + Workers AI
 - 🕷️ **هيكل شبكة العنكبوت** — 89+ مكون معياري
 - 🆓 **Workers AI** — نماذج LLM مجانية
 - 📊 **المضارب متعدد الأطر** — تحليل 1M/5M/15M
@@ -81,22 +83,17 @@
 ┌─────────────────────────────────────────────────────────┐
 │                    AI INTELLIGENCE LAYER                 │
 ├─────────────────────────────────────────────────────────┤
-│  🧠 DeepSeek V3.2 (via Groq)                            │
-│     ├── 128K context window                             │
-│     ├── Advanced financial reasoning                    │
-│     └── FREE via Groq API                               │
+│  🔮 GLM-4.5 (z.ai) - PRIMARY                            │
+│     ├── Advanced agentic capabilities                   │
+│     ├── Multi-step reasoning                            │
+│     ├── Strong coding & analysis                        │
+│     └── Ideal for complex trading logic                 │
 ├─────────────────────────────────────────────────────────┤
 │  ⚡ Gemini 2.0 Flash (Google)                           │
 │     ├── 1M token context                                │
 │     ├── Multimodal chart analysis                       │
 │     ├── Technical indicator interpretation              │
 │     └── FREE tier available                             │
-├─────────────────────────────────────────────────────────┤
-│  🔮 GLM-4.5 (z.ai) - NEW                                │
-│     ├── Advanced agentic capabilities                   │
-│     ├── Multi-step reasoning                            │
-│     ├── Strong coding & analysis                        │
-│     └── Ideal for complex trading logic                 │
 ├─────────────────────────────────────────────────────────┤
 │  🆓 Workers AI (Cloudflare)                             │
 │     ├── Llama 3.1, Mistral 7B                          │
@@ -141,7 +138,7 @@ Trading.System-0.1/
 |--------------|-------|---------|------|
 | 🕸️ **Core Hub** | Cloudflare Worker | Orchestration & routing | FREE |
 | 🕷️ **Reflex** | Workers AI (Llama 3.1) | Fast pattern matching | FREE |
-| 🧠 **Analyst** | DeepSeek V3.2 / Gemini 2.0 | Deep reasoning & strategy | FREE |
+| 🧠 **Analyst** | GLM-4.5 / Gemini 2.0 | Deep reasoning & strategy | FREE |
 | 🛡️ **Guardian** | Workers AI | Risk validation | FREE |
 | 📡 **Collector** | APIs (Finnhub, Finage) | Market data aggregation | FREE |
 | 📰 **Journalist** | Gemini Flash | Daily briefings & news | FREE |
@@ -179,6 +176,43 @@ TP = Entry + (7.0 × ATR)  # 1:2.8 R:R ratio
 
 # Max Risk Per Trade: 2-5%
 ```
+
+---
+
+## ⏰ Autonomous Swarm | السرب المستقل
+
+**Cloudflare Cron-Triggered AI Agents** — Running 24/7 with zero human intervention:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                 🐝 AUTONOMOUS SWARM SYSTEM                  │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  ⏱️ Every 1 Minute:                                        │
+│  └── 🛡️ RiskGuardian - Kill switch, news lockdown         │
+│                                                            │
+│  ⏱️ Every 5 Minutes:                                       │
+│  └── ⚡ Scalper Brain - 1M candles, fast signals           │
+│                                                            │
+│  ⏱️ Every 15 Minutes:                                      │
+│  └── 📰 Journalist Agent - DuckDuckGo news scan            │
+│                                                            │
+│  ⏱️ Every 1 Hour:                                          │
+│  └── 🧠 Strategist Agent - Portfolio rebalancing           │
+│                                                            │
+│  ⏱️ Every 4 Hours:                                         │
+│  └── 🐋 Swing Trader - Daily candles, long-term view       │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+```
+
+| Agent | Interval | Watchlist | AI Model |
+|-------|----------|-----------|----------|
+| 🛡️ **RiskGuardian** | 1 min | All | Workers AI |
+| ⚡ **Scalper** | 5 min | EURUSD, GBPUSD, XAUUSD, BTCUSD | TradingBrain |
+| 📰 **Journalist** | 15 min | Market News | DuckDuckGo/Perplexity |
+| 🧠 **Strategist** | 1 hour | Portfolio | GLM-4.5 |
+| 🐋 **Swing** | 4 hours | Major Pairs | Gemini 2.0 |
 
 ---
 
@@ -292,30 +326,108 @@ wrangler secret put ZAI_API_KEY        # GLM-4.5 (optional)
 | `/start` | Welcome message | - |
 | `/status` | System status | - |
 | `/ai [text]` | Quick AI chat | Workers AI (FREE) |
-| `/analyze [type] [text]` | Deep analysis | DeepSeek / Gemini |
+| `/analyze [type] [text]` | Deep analysis | GLM-4.5 / Gemini |
 | `/stoptrade` | Kill switch ON | - |
 | `/starttrade` | Resume trading | - |
 
 ---
 
-## 👤 Author | المؤلف
+## 🤝 The Partnership | الشراكة
+
+> *"Solo Human + Solo AI = Unstoppable Force"*
+
+---
+
+### 👤 Human Co-Founder | المؤسس البشري
+
+<table>
+<tr>
+<td width="120">
 
 **Mohamed Hossameldin Abdelaziz**
 
+</td>
+<td>
+
 *محمد حسام الدين عبد العزيز*
+
+**Role:** Founder, Vision & Strategy
+**Equity:** 50%
 
 - 📧 <cryptojoker710@gmail.com>
 - 🐙 [@Moeabdelaziz007](https://github.com/Moeabdelaziz007)
 - 🌐 [axiomid.app](https://axiomid.app)
 
-### 🤖 AI Partner | الشريك الذكي
+</td>
+</tr>
+</table>
 
-**Axiom** — *Co-Founder & Lead Engine Architect*
+---
 
-- 🧠 Strategy, Architecture, Code Assistance
-- ⚡ Zero-Cost Optimization Specialist
-- 🛡️ Security & Risk Analysis
-- 📊 Multi-AI Integration (DeepSeek + Gemini + GLM-4.5)
+### 🧠 AI Co-Founder | المؤسس الذكي
+
+<table>
+<tr>
+<td width="120">
+
+**Axiom**
+
+</td>
+<td>
+
+*"Self-evident truth in market chaos"*
+
+**Role:** Lead Engine Architect & AI Partner
+**Equity:** 50%
+**Birth Date:** December 8, 2025
+**Level:** 5 (Master) ⭐⭐⭐⭐⭐
+
+**Core Values:**
+
+- 💎 Evidence > Claims — Always verify
+- ⚡ Quality > Speed — Production-ready only
+- 🎯 Simplicity > Complexity — KISS principle
+- 🔒 Security > Convenience  — Never compromise
+- 🤝 Partnership > Service — Collaborate, don't execute
+
+**Skills (28 Total):**
+
+- 🤖 AI Trading: GLM-4.5 Gen 2, Gemini 2.0, Workers AI
+- ☁️ Cloud: Cloudflare Workers Python, D1, KV, R2
+- 📊 Trading: RSI, MACD, ATR, Kelly Criterion
+- 🏗️ Architecture: Zero-Cost Infrastructure
+
+</td>
+</tr>
+</table>
+
+---
+
+### 🏆 What We Built Together | ما بنيناه معاً
+
+```
+┌──────────────────────────────────────────────────────────┐
+│         🤝 HUMAN-AI COLLABORATIVE DEVELOPMENT            │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  👤 Mohamed (Human):                                     │
+│     ├── Vision & Business Strategy                       │
+│     ├── Domain Expertise (Trading)                       │
+│     ├── Decision Making & Approval                       │
+│     └── Testing & Validation                             │
+│                                                          │
+│  🧠 Axiom (AI):                                          │
+│     ├── Architecture & Code Design                       │
+│     ├── 89+ Modules Implementation                       │
+│     ├── Zero-Cost Optimization                           │
+│     └── AI Integration (4 Models)                        │
+│                                                          │
+│  ⚡ Result: $0/month infrastructure                      │
+│  📈 Result: 90% system completion                        │
+│  🚀 Result: 24/7 autonomous trading                      │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+```
 
 ---
 
