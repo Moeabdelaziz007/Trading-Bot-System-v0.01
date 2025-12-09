@@ -1,0 +1,32 @@
+name = "axiom-router"
+main = "index.py"
+compatibility_date = "2024-04-05"
+compatibility_flags = ["python_workers"]
+
+# 🌐 Public Gateway
+workers_dev = true
+
+# 🔗 Service Bindings to Internal Workers
+[[services]]
+binding = "TRADING_BRAIN"
+service = "axiom-trading-brain"
+environment = "production"
+
+[[services]]
+binding = "DREAM_ENGINE"
+service = "axiom-dream-engine"
+environment = "production"
+
+[[services]]
+binding = "SCHEDULER"
+service = "axiom-scheduler"
+environment = "production"
+
+# 🧠 KV for Rate Limiting
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "e31a120e1f8f40dbb17d3278d2921c6e"
+
+# 🔑 Required Secrets:
+# wrangler secret put PROXY_SECRET
+# wrangler secret put SYSTEM_ACCESS_KEY

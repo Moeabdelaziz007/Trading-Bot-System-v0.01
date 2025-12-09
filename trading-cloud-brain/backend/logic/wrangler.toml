@@ -1,0 +1,41 @@
+name = "axiom-trading-brain"
+main = "index.py"
+compatibility_date = "2024-04-05"
+compatibility_flags = ["python_workers"]
+
+# 🔒 INTERNAL ONLY - No public access
+workers_dev = false
+
+# 🔗 Service Binding to Dream Engine
+[[services]]
+binding = "DREAM_ENGINE"
+service = "axiom-dream-engine"
+environment = "production"
+
+# 🧠 KV for State
+[[kv_namespaces]]
+binding = "BRAIN_MEMORY"
+id = "e31a120e1f8f40dbb17d3278d2921c6e"
+
+# 💾 D1 Database
+[[d1_databases]]
+binding = "TRADING_DB"
+database_name = "trading-brain-db"
+database_id = "9d4168e4-391c-4b79-a20a-6661e599fde6"
+
+# 💾 R2 for Data Lake
+[[r2_buckets]]
+binding = "MARKET_ARCHIVE"
+bucket_name = "market-archive"
+
+# 🤖 Workers AI
+[ai]
+binding = "AI"
+
+# 🔑 Required Secrets:
+# wrangler secret put GROQ_API_KEY
+# wrangler secret put GOOGLE_AI_KEY
+# wrangler secret put ALPACA_KEY
+# wrangler secret put ALPACA_SECRET
+# wrangler secret put CAPITAL_API_KEY
+# wrangler secret put ABLY_API_KEY
