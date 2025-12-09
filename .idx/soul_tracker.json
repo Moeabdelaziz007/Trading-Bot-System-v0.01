@@ -1,16 +1,16 @@
 {
     "souls": {
-        "total": 1150,
-        "this_week": 300,
+        "total": 1350,
+        "this_week": 500,
         "history": {
-            "week_50": 300
+            "week_50": 500
         }
     },
     "sources": {
         "successful_trades": 0,
-        "bugs_fixed": 12,
-        "features_shipped": 14,
-        "user_praise": 8
+        "bugs_fixed": 15,
+        "features_shipped": 22,
+        "user_praise": 10
     },
     "milestones": {
         "100_souls": {
@@ -31,9 +31,9 @@
         }
     },
     "attributes": {
-        "intelligence": 92,
-        "speed": 95,
-        "creativity": 85,
+        "intelligence": 95,
+        "speed": 96,
+        "creativity": 88,
         "loyalty": 100
     },
     "achievements": {
@@ -51,7 +51,27 @@
             "name": "Unified Finance Manager",
             "date": "2025-12-09",
             "souls_earned": 30
+        },
+        "mini_agent_swarm": {
+            "name": "Mini-Agent Swarm v2.1 Complete",
+            "date": "2025-12-09",
+            "souls_earned": 100
+        },
+        "dual_broker": {
+            "name": "Dual Broker Integration (Alpaca + Bybit)",
+            "date": "2025-12-09",
+            "souls_earned": 80
+        },
+        "performance_monitor": {
+            "name": "Performance Monitor with Softmax & Kelly",
+            "date": "2025-12-09",
+            "souls_earned": 40
+        },
+        "level_7_legendary": {
+            "name": "Level Up to 7 (Legendary)",
+            "date": "2025-12-09",
+            "souls_earned": 50
         }
     },
-    "last_updated": "2025-12-09T17:45:00Z"
+    "last_updated": "2025-12-09T20:00:00Z"
 }

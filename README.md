@@ -48,6 +48,13 @@
 - ⚙️ **TRADING_MODE** — Safe execution control
 - 📊 **Monitoring API** — `/health`, `/loop/metrics`, `/drift/status`
 
+**🆕 v2.1 Mini-Agent Swarm (NEW):**
+- 🐝 **4 Specialist Agents** — Momentum, Reversion, Liquidity, Volatility
+- 🏆 **Contest Manager** — Agent ranking with performance multipliers
+- 📈 **Performance Monitor** — Softmax ensemble + Kelly sizing
+- 🔀 **Dual Broker** — Alpaca (Stocks) + Bybit (Crypto)
+- 🎯 **Target** — 730% monthly returns
+
 </td>
 <td width="50%">
 
@@ -66,6 +73,13 @@
 - ⚙️ **وضع التداول** — تحكم آمن بالتنفيذ
 - 📊 **API المراقبة** — نقاط نهاية الصحة والمقاييس
 
+**🆕 سرب الوكلاء v2.1 (جديد):**
+- 🐝 **4 وكلاء متخصصون** — الزخم، الارتداد، السيولة، التقلب
+- 🏆 **مدير المسابقة** — ترتيب الوكلاء بمضاعفات الأداء
+- 📈 **مراقب الأداء** — Softmax + Kelly
+- 🔀 **وسيطان** — Alpaca (أسهم) + Bybit (كريبتو)
+- 🎯 **الهدف** — 730% عائد شهري
+
 </td>
 </tr>
 </table>
@@ -76,14 +90,16 @@
 
 | Metric | Value | القيمة |
 |--------|-------|-------|
-| 📁 **Modules** | 95+ | وحدات |
-| 🤖 **AI Agents** | 6 (Math, Money, Journalist, Strategist, Analyst, DriftGuard) | وكلاء الذكاء |
-| 💰 **Brokers** | 5 (Capital, Alpaca, OANDA, Bybit, Coinbase) | الوسطاء |
+| 📁 **Modules** | 110+ | وحدات |
+| 🤖 **AI Agents** | 10 (Math, Money, Journalist, Strategist, Analyst, DriftGuard, +4 Mini-Swarm) | وكلاء الذكاء |
+| 💰 **Brokers** | 7 (Capital, Alpaca, OANDA, Bybit, Coinbase, +Paper Trading Gateway) | الوسطاء |
 | 🧪 **Tests** | 18+ test suites | الاختبارات |
-| 📈 **Completion** | 95% | نسبة الإكمال |
+| 📈 **Completion** | 97% | نسبة الإكمال |
 | 💵 **Cost** | $0/month | التكلفة |
 | 🔊 **Voice Dialects** | 15+ Arabic | اللهجات العربية |
 | 🔒 **Safety Modes** | 3 (SIMULATION, PAPER, LIVE) | أوضاع الأمان |
+| 🎯 **Target Return** | 730% monthly | العائد المستهدف |
+| 🐝 **Swarm Agents** | 8 components | مكونات السرب |
 
 ---
 
@@ -357,6 +373,94 @@ curl https://trading-brain-v1.amrikyy.workers.dev/finance/summary
 
 ---
 
+## 🐝 Mini-Agent Swarm v2.1: Competitive Intelligence | سرب الوكلاء المصغرين
+
+> *"4 agents compete. The best wins. Ensemble beats all."*
+>
+> *"٤ وكلاء يتنافسون. الأفضل يفوز. المجموعة تتفوق."*
+
+### 🏆 Specialist Trading Agents | وكلاء التداول المتخصصون
+
+| Agent | Strategy | Best Regime | الإستراتيجية |
+|-------|----------|-------------|----------------|
+| 🚀 **MomentumScout** | EMA Cross + RSI | Trending (H > 0.55) | زخم الاتجاه |
+| 🔄 **ReversionHunter** | Bollinger + Z-Score | Ranging (H < 0.45) | ارتداد المتوسط |
+| 💧 **LiquidityWatcher** | Spread + Volume | Any (crypto ❤️) | رصد السيولة |
+| ⚡ **VolatilitySpiker** | ATR + Squeeze | Breakouts | استغلال التقلب |
+
+### 📈 Softmax Ensemble Weighting | الترجيح بـ Softmax
+
+```python
+# Dynamic weight calculation based on performance
+W_i = exp(β × P_i) / Σ exp(β × P_j)
+
+# Where:
+#   β = 2.0 (temperature - higher = more aggressive)
+#   P_i = Agent's rolling performance score
+
+# Regime-Based Adjustments:
+# - Low volatility → boost ReversionHunter (+20%)
+# - Trending market → boost MomentumScout (+20%)
+# - Squeeze breakout → silence ReversionHunter (weight=0)
+```
+
+### 🎯 Kelly Criterion Position Sizing | حجم المركز بمعيار كيلي
+
+```python
+# Optimal fraction of bankroll
+f* = (p × (b + 1) - 1) / b
+
+# Where:
+#   p = win probability
+#   b = reward/risk ratio
+
+# Half-Kelly for safety: 0.5 × f*
+# Example: 60% win rate, 2:1 R:R → 10% position
+```
+
+### 🔀 Dual Broker Paper Trading | التداول الورقي مع وسيطين
+
+| Broker | Markets | Leverage | Hours | Use Case |
+|--------|---------|----------|-------|----------|
+| 🟢 **Alpaca** | US Stocks/ETFs | 1x-2x | Market hours | AAPL, SPY, TSLA |
+| 🟡 **Bybit Testnet** | Crypto/Meme | 1x-3x | 24/7 | BTC, ETH, DOGE |
+
+```python
+# Smart Asset Routing
+if symbol.endswith(('USDT', 'USD', 'BTC')):
+    broker = BybitTestnetConnector()  # Crypto
+else:
+    broker = AlpacaPaperConnector()   # Stocks
+
+# Leverage Manager (ATR-based)
+LEVERAGE_RULES = {
+    'volatility_low': 3.0,    # ATR < 1% → 3x
+    'volatility_medium': 2.0, # 1% <= ATR < 3% → 2x
+    'volatility_high': 1.0,   # ATR >= 3% → 1x
+    'drawdown_>2%': 0.5,      # Reduce to half
+}
+```
+
+### 🛡️ Circuit Breaker Per Broker | قاطع الدائرة لكل وسيط
+
+| Broker | Max Daily Loss | Max Consecutive Failures |
+|--------|----------------|-------------------------|
+| Alpaca | 5% | 3 |
+| Bybit | 3% (stricter) | 3 |
+
+### 📊 730% Monthly Target Analysis | تحليل هدف 730% شهري
+
+| Scenario | Monthly Return | Risk Level |
+|----------|----------------|------------|
+| 🧪 Testnet Only (Analysis) | +0% | Low |
+| 📝 Paper Trading 1x | +30% to +80% | Medium |
+| ⚠️ Limited Live 3x | +100% to +300% | High |
+| ❌ Full 10x+ Leverage | +500% or Bankruptcy | Extreme |
+
+**Recommendation:** Start with SIMULATION mode for 48h, then PAPER for 2 weeks before any LIVE trading.
+
+---
+
 ## ⏰ Autonomous Swarm | السرب المستقل
 
 **Cloudflare Cron-Triggered AI Agents** — Running 24/7 with zero human intervention:
@@ -618,13 +722,26 @@ wrangler secret put ZAI_API_KEY        # GLM-4.5 (optional)
       │          │    └── Vector Knowledge Base (462 lines)
       ▼          │
  Dec 9, 2025      │ 🛡️ DriftGuard & Voice System
-                  │    ├── Concept Drift Detector (516 lines)
-                  │    ├── Edge-TTS Arabic Gateway (495 lines)
-                  │    ├── TRADING_MODE Control
-                  │    └── Monitoring Endpoints
+      │          │    ├── Concept Drift Detector (516 lines)
+      │          │    ├── Edge-TTS Arabic Gateway (495 lines)
+      │          │    ├── TRADING_MODE Control
+      │          │    └── Monitoring Endpoints
+      ▼          │
+ Dec 9, 2025      │ 🐝 Mini-Agent Swarm v2.1
+      │          │    ├── 4 Specialist Agents (Momentum, Reversion,
+      │          │    │   Liquidity, Volatility)
+      │          │    ├── Performance Monitor (Softmax + Kelly)
+      │          │    ├── Contest Manager (Agent Ranking)
+      │          │    └── 8 swarm components total (2,800+ lines)
+      ▼          │
+ Dec 9, 2025      │ 🔀 Dual Broker Integration
+                  │    ├── Alpaca Paper Trading (616 lines)
+                  │    ├── Bybit Testnet Crypto (636 lines)
+                  │    ├── Unified Gateway + Circuit Breaker (709 lines)
+                  │    └── 730% monthly target analysis
 
 ════════════════════════════════════════════════════════════
-     📊 Total: 5,500+ Lines | 95+ Modules | $0/month
+     📊 Total: 8,500+ Lines | 110+ Modules | $0/month
 ════════════════════════════════════════════════════════════
 ```
 

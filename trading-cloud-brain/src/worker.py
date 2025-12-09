@@ -57,14 +57,18 @@ GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 async def on_scheduled(event, env):
     """
-    Cron Trigger Handler for Brain Partitions.
+    ⏰ CRON TRIGGER HANDLER - Mini-Agent Swarm Heartbeat
     
-    Runs every minute via Cloudflare cron. Dispatches to different
-    trading brains based on time:
+    Runs via Cloudflare cron triggers. Dispatches to different
+    trading agents and safety checks based on schedule:
     
-    - RiskGuardian: Every minute (safety first)
-    - TradingBrain[SCALP]: Every 5 minutes
-    - TradingBrain[SWING]: Every 4 hours
+    - Every 1 min:  RiskGuardian + SwarmHeartbeat (safety scan)
+    - Every 5 min:  MomentumScout + VolatilitySpiker (opportunity detection)
+    - Every 15 min: ReversionHunter + LiquidityWatcher + Journalist
+    - Every 1 hour: Strategist + PerformanceMonitor (weight update)
+    - Daily 00:00:  ContestManager + WealthReport (daily ranking)
+    
+    Safety: All executions respect TRADING_MODE and DriftGuard status.
     
     Args:
         event: Cloudflare scheduled event object
@@ -74,26 +78,55 @@ async def on_scheduled(event, env):
         None (sends Telegram alerts on signals)
     """
     import datetime
+    import os
     now = datetime.datetime.utcnow()
     current_minute = now.minute
     current_hour = now.hour
     
-    log.info(f"⏰ Cron Triggered at {now.isoformat()}")
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 🛡️ SAFETY CHECK FIRST | فحص الأمان أولاً
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    trading_mode = str(getattr(env, 'TRADING_MODE', 'SIMULATION'))
+    
+    log.info(f"⏰ Cron Triggered at {now.isoformat()} | Mode: {trading_mode}")
+    
+    # Check panic mode from KV
+    try:
+        kv = env.BRAIN_MEMORY
+        panic_mode = await kv.get("panic_mode")
+        if panic_mode == "true":
+            log.info("🛑 Panic mode active - all trading halted")
+            return
+    except Exception as e:
+        log.error(f"KV check failed: {e}")
 
-    # 1. RISK GUARDIAN (Runs every minute)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 1️⃣ RISK GUARDIAN + SWARM HEARTBEAT (Every 1 min)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     risk_brain = RiskGuardian(env)
     calendar = EconomicCalendar(env)
     
     try:
+        # Economic calendar check
         high_impact = await calendar.check_impact_alerts()
         if high_impact:
             await risk_brain.engage_news_lockdown(high_impact)
+            log.info("📰 High-impact news detected - trading paused")
             return
+        
+        # 🐝 Swarm Heartbeat - Update system state in KV
+        await kv.put("swarm_heartbeat", now.isoformat())
+        await kv.put("swarm_mode", trading_mode)
+        
     except Exception as e:
-        log.error(f"Risk check failed: {e}")
+        log.error(f"Risk/Heartbeat check failed: {e}")
 
-    # 2. FAST BRAIN - SCALPER (Every 5 minutes)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 2️⃣ MINI-AGENT SWARM - FAST AGENTS (Every 5 min)
+    # MomentumScout + VolatilitySpiker | وكلاء الزخم والتقلب
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     if current_minute % 5 == 0:
+        log.info("⚡ Dispatching Fast Agents: Momentum + Volatility...")
         state = StateManager(env)
         
         # Acquire cron lock to prevent duplicate execution
@@ -138,8 +171,14 @@ async def on_scheduled(event, env):
         finally:
             await state.release_cron_lock("scalper_5min")
 
-    # 3. JOURNALIST AGENT - NEWS SCAN (Every 15 minutes)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 3️⃣ REVERSION + LIQUIDITY + JOURNALIST (Every 15 min)
+    # ReversionHunter + LiquidityWatcher | وكلاء الارتداد والسيولة
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     if current_minute % 15 == 0:
+        log.info("📊 Dispatching 15min Agents: Reversion + Liquidity...")
+        
+        # A. Journalist Agent (News aggregation)
         log.info("📰 Dispatching Journalist Agent...")
         try:
             from agents.journalist import JournalistAgent
@@ -148,9 +187,47 @@ async def on_scheduled(event, env):
             await journalist.run_mission(env)
         except Exception as e:
             log.error(f"Journalist mission failed: {e}")
+        
+        # B. ReversionHunter + LiquidityWatcher (15min analysis)
+        try:
+            from agents.swarm import ReversionHunter, LiquidityWatcher
+            collector = DataCollector(env)
+            
+            # Crypto watchlist for 15min mean-reversion
+            crypto_list = ["BTCUSD", "ETHUSD", "SOLUSD"]
+            
+            for symbol in crypto_list:
+                candles = await collector.fetch_candles(
+                    symbol, timeframe="15m", limit=100
+                )
+                if candles:
+                    # ReversionHunter - Mean reversion signals
+                    reversion = ReversionHunter()
+                    rev_signal = reversion.analyze(candles)
+                    
+                    # LiquidityWatcher - Spread/volume analysis
+                    liquidity = LiquidityWatcher()
+                    liq_signal = liquidity.analyze(candles)
+                    
+                    # Log signals to KV for Learning Loop
+                    await kv.put(
+                        f"signal_{symbol}_reversion",
+                        json.dumps(rev_signal)
+                    )
+                    await kv.put(
+                        f"signal_{symbol}_liquidity", 
+                        json.dumps(liq_signal)
+                    )
+        except Exception as e:
+            log.error(f"Swarm 15min agents failed: {e}")
 
-    # 4. SWARM STRATEGIST & SWING BRAIN (Every Hour)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 4️⃣ STRATEGIST + PERFORMANCE MONITOR (Every Hour)
+    # تحديث الأوزان وتقارير الأداء
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     if current_minute == 0:
+        log.info("🧠 Hourly Update: Strategist + PerformanceMonitor...")
+        
         # A. Strategist Agent (Deep Thinking)
         log.info("🧠 Dispatching Strategist Agent...")
         try:
@@ -178,6 +255,89 @@ async def on_scheduled(event, env):
                             await send_telegram_alert(env, f"🐋 <b>SWING: {symbol}</b>\nSignal: {view['signal']}\nRecommendation: {view.get('recommendation', 'N/A')}")
             except Exception as e:
                 log.error(f"Swing failed: {e}")
+                
+            # C. PerformanceMonitor - Update Softmax weights hourly
+            log.info("⚖️ Updating agent weights via PerformanceMonitor...")
+            try:
+                from agents.swarm.performance_monitor import PerformanceMonitor
+                monitor = PerformanceMonitor(env)
+                    
+                # Calculate new weights based on performance
+                weights = await monitor.update_softmax_weights()
+                    
+                # Store weights in KV for other agents
+                await kv.put(
+                    "swarm_agent_weights",
+                    json.dumps(weights)
+                )
+                    
+                # Log weight update
+                log.info(f"⚖️ Weights updated: {weights}")
+                    
+            except Exception as e:
+                log.error(f"PerformanceMonitor failed: {e}")
+            
+        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        # 5️⃣ CONTEST MANAGER + WEALTH REPORT (Daily at Midnight UTC)
+        # تقرير يومي + ترتيب الوكلاء
+        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        if current_hour == 0 and current_minute == 0:
+            log.info("🏆 Daily Midnight: ContestManager + WealthReport...")
+                
+            # A. ContestManager - Generate daily agent rankings
+            try:
+                from agents.swarm.contest_manager import ContestManager
+                contest = ContestManager(env)
+                    
+                # Generate daily contest results
+                rankings = await contest.generate_daily_rankings()
+                    
+                # Store rankings
+                await kv.put(
+                    "daily_agent_rankings",
+                    json.dumps(rankings)
+                )
+                    
+                # Send Telegram alert with top performer
+                if rankings.get("top_agent"):
+                    await send_telegram_alert(
+                        env,
+                        f"🏆 <b>Daily Agent Contest Results</b>\n\n"
+                        f"🥇 Top Performer: {rankings['top_agent']}\n"
+                        f"📈 Win Rate: {rankings.get('top_win_rate', 'N/A')}\n"
+                        f"💰 Total PnL: ${rankings.get('total_pnl', 0):.2f}"
+                    )
+            except Exception as e:
+                log.error(f"ContestManager failed: {e}")
+                
+            # B. Daily Wealth Report via FinanceManager
+            try:
+                from finance.manager import FinanceManager
+                fm = FinanceManager(env=env)
+                    
+                # Get consolidated wealth
+                report = await fm.get_consolidated_wealth()
+                    
+                # Check if Profit Airlock should trigger
+                if report.total_value > 0:
+                    airlock_result = await fm.secure_profits_automatically()
+                        
+                    if airlock_result.get("transferred", 0) > 0:
+                        log.info(
+                            f"🔒 Profit Airlock: ${airlock_result['transferred']:.2f} secured"
+                        )
+                    
+                # Send daily wealth summary
+                await send_telegram_alert(
+                    env,
+                    f"📊 <b>Daily Wealth Report</b>\n\n"
+                    f"💰 Total Value: ${report.total_value:,.2f}\n"
+                    f"📈 24h Change: {report.change_24h:+.2f}%\n"
+                    f"🛡️ Mode: {trading_mode}\n"
+                    f"⏰ Generated: {now.strftime('%Y-%m-%d %H:%M UTC')}"
+                )
+            except Exception as e:
+                log.error(f"Daily wealth report failed: {e}")
 
 # [Rest of on_fetch remains same...]
 async def on_fetch(request, env):

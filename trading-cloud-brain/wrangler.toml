@@ -7,14 +7,15 @@ compatibility_flags = ["python_workers"]
 # 🌐 Deploy to workers.dev (no custom domain needed)
 workers_dev = true
 
-# ⏰ THE HEARTBEAT: Single Cron (Free Tier Limit)
-# Internal dispatch logic in worker.py handles 5min/4hr cycles
+# ⏰ THE HEARTBEAT: Cron Triggers (Free Tier: 5 crons max)
+# Optimized for Mini-Agent Swarm + Core Agents
 [triggers]
 crons = [
-    "* * * * *",    # 🛡️ RiskGuardian (1m)
-    "*/5 * * * *",  # ⚡ Scalper (5m)
-    "*/15 * * * *", # 📰 Journalist (15m)
-    "0 * * * *"     # 🧠 Strategist (1h)
+    "* * * * *",    # 🛡️ RiskGuardian + SwarmHeartbeat (1m)
+    "*/5 * * * *",  # ⚡ MomentumScout + VolatilitySpiker (5m)
+    "*/15 * * * *", # 📰 ReversionHunter + LiquidityWatcher (15m)
+    "0 * * * *",    # 🧠 Strategist + PerformanceMonitor (1h)
+    "0 0 * * *"     # 🏆 ContestManager - Daily Ranking (midnight UTC)
 ]
 
 # 🧠 MEMORY: KV Namespace
@@ -40,6 +41,20 @@ binding = "AI"
 # 🔑 Environment Variables (Non-sensitive only)
 [vars]
 CAPITAL_DEMO = "true"
+# 🎯 Mini-Agent Swarm Configuration (NEW v2.1)
+TRADING_MODE = "SIMULATION"  # SIMULATION | PAPER | LIVE
+# 📊 ROI Targets (Adjusted based on mathematical analysis)
+# 730% requires 7.27% daily for 30 days - EXTREMELY HIGH RISK
+# Realistic targets: 10-20% monthly (top-decile performance)
+TARGET_MONTHLY_ROI = "0.20"   # 20% Realistic Target (was 7.30)
+AGGRESSIVE_ROI_TARGET = "7.30" # 730% (Bybit leverage required)
+MAX_DRAWDOWN_LIMIT = "0.05"  # 5% Max Drawdown (Circuit Breaker)
+LEVERAGE_MODE = "DYNAMIC"    # DYNAMIC | FIXED
+DEFAULT_LEVERAGE = "1.0"     # Start with 1x (safety)
+ASSET_ROUTING = "AUTO"       # AUTO | ALPACA_ONLY | BYBIT_ONLY
+# Strategy Mode: HFT is mathematically impossible on Alpaca (fees + latency)
+# Pivot to EVENT_DRIVEN for pattern detection (FVG, Liquidity Voids)
+STRATEGY_MODE = "EVENT_DRIVEN"  # HFT | SWING | EVENT_DRIVEN
 
 # ==========================================
 # 🔐 SECRETS MANAGEMENT
@@ -56,6 +71,8 @@ CAPITAL_DEMO = "true"
 # wrangler secret put CAPITAL_API_KEY
 # wrangler secret put CAPITAL_EMAIL
 # wrangler secret put CAPITAL_PASSWORD
+# wrangler secret put BYBIT_API_KEY      # ✅ Configured
+# wrangler secret put BYBIT_API_SECRET   # ✅ Configured
 #
 # For local development, create a `.dev.vars` file with these keys.
 # The `.dev.vars` file is automatically ignored by git.
