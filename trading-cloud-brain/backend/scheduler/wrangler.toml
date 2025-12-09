@@ -41,3 +41,13 @@ id = "e31a120e1f8f40dbb17d3278d2921c6e"
 binding = "TRADING_DB"
 database_name = "trading-brain-db"
 database_id = "9d4168e4-391c-4b79-a20a-6661e599fde6"
+
+# 📨 Queue Consumer
+[[queues.consumers]]
+queue = "trade-execution"
+max_batch_size = 5
+max_batch_timeout = 2
+
+[[queues.producers]]
+queue = "signal-broadcast"
+binding = "SIGNAL_QUEUE"
