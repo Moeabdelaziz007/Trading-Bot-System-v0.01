@@ -17,7 +17,7 @@ export default {
           // Backgrounds
           bg: '#050505',
           surface: '#0A0A1A',
-          
+
           // Neon Accents
           'neon-cyan': '#00FFFF',      // AI/Intelligence/Core
           'neon-purple': '#A855F7',    // Strategy/Learning
@@ -27,7 +27,7 @@ export default {
           'neon-magenta': '#FF0055',   // Shadow Agent
           'neon-blue': '#3B82F6',      // Info/Capital.com
           'neon-orange': '#FF6B35',    // Workers AI
-          
+
           // Legacy colors (keep for compatibility)
           card: '#1A1A2E',
           primary: '#00FF88',
@@ -50,7 +50,7 @@ export default {
         }
       },
       backgroundImage: {
-        'carbon-fiber': 'url(carbon-fiber-pattern.svg)',
+        'carbon-fiber': 'linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a), linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a)',
       },
       boxShadow: {
         'glow-cyan': '0 0 20px rgba(0,255,255,0.3)',
