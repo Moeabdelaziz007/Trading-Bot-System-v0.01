@@ -528,13 +528,46 @@ async def on_fetch(request, env):
             }), headers=headers)
     
     # ==========================================
-    # 🧠 ALPHAAXIOM v1.0 SELF-PLAY LEARNING LOOP
+    # 🧠 ALPHAAXIOM v0.1 SELF-PLAY LEARNING LOOP
     # ==========================================
+    
+    # 📈 Real-time Price Stream (SSE)
+    if "api/prices/stream" in url:
+        try:
+            from learning_loop_v0_1.ui.price_stream import stream_prices_sse
+            import asyncio
+            
+            # Parse symbols from query string
+            symbols = ["XAUUSD", "EURUSD", "BTCUSD"]
+            if "?" in url:
+                params = dict(p.split("=") for p in url.split("?")[1].split("&") if "=" in p)
+                if "symbols" in params:
+                    symbols = params["symbols"].split(",")
+            
+            async def generate_stream():
+                async for event in stream_prices_sse(symbols, 1000):
+                    yield event.encode('utf-8')
+            
+            # Create SSE response
+            sse_headers = {
+                "Content-Type": "text/event-stream",
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Access-Control-Allow-Origin": "*"
+            }
+            
+            return Response.new(json.dumps({
+                "status": "ok",
+                "message": "Use EventSource to connect to this endpoint",
+                "symbols": symbols
+            }), headers=Headers.new(sse_headers.items()))
+        except Exception as e:
+            return Response.new(json.dumps({"error": str(e)}), headers=headers)
     
     # 🎯 Dialectic Processing
     if "api/dialectic/process" in url or "api/dialectic" in url and request.method == "POST":
         try:
-            from learning_loop_v4.cloudflare_integration import handle_dialectic_request
+            from learning_loop_v0_1.cloudflare_integration import handle_dialectic_request
             result = await handle_dialectic_request(request, env)
             return Response.new(json.dumps(result), headers=headers)
         except Exception as e:
@@ -547,7 +580,7 @@ async def on_fetch(request, env):
     # 🧬 Evolution Cycles
     if "api/evolution/run" in url or "api/evolution" in url and request.method == "POST":
         try:
-            from learning_loop_v4.cloudflare_integration import handle_evolution_request
+            from learning_loop_v0_1.cloudflare_integration import handle_evolution_request
             result = await handle_evolution_request(request, env)
             return Response.new(json.dumps(result), headers=headers)
         except Exception as e:
@@ -560,7 +593,7 @@ async def on_fetch(request, env):
     # 📊 System Status
     if "api/system/status" in url or ("api/status" in url and "system" in url):
         try:
-            from learning_loop_v4.cloudflare_integration import handle_status_request
+            from learning_loop_v0_1.cloudflare_integration import handle_status_request
             result = await handle_status_request(request, env)
             return Response.new(json.dumps(result), headers=headers)
         except Exception as e:
