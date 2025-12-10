@@ -5,7 +5,7 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import "../globals.css";
 import { Providers } from "./providers";
 import Link from "next/link";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: '--font-jetbrains' });
@@ -60,7 +60,7 @@ export default async function RootLayout({
 }) {
     // Enable static rendering for next-intl
     setRequestLocale(locale);
-    
+
     const messages = await getMessages();
     const dir = locale === 'ar' ? 'rtl' : 'ltr';
     const fontVariable = locale === 'ar' ? cairo.variable : inter.variable;
@@ -76,66 +76,68 @@ export default async function RootLayout({
                 {/* Topographic Background */}
                 <div className="topo-bg" />
 
-                <NextIntlClientProvider messages={messages}>
-                    <Providers>
-                        {/* Premium Navigation Header */}
-                        <header className="premium-nav fixed top-0 left-0 right-0 z-40 h-16 flex items-center justify-between px-6">
-                            {/* Logo */}
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--neon-cyan)] to-[var(--neon-blue)] flex items-center justify-center">
-                                    <span className="font-orbitron font-bold text-lg">A</span>
+                <ClerkProvider>
+                    <NextIntlClientProvider messages={messages}>
+                        <Providers>
+                            {/* Premium Navigation Header */}
+                            <header className="premium-nav fixed top-0 left-0 right-0 z-40 h-16 flex items-center justify-between px-6">
+                                {/* Logo */}
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--neon-cyan)] to-[var(--neon-blue)] flex items-center justify-center">
+                                        <span className="font-orbitron font-bold text-lg">A</span>
+                                    </div>
+                                    <div>
+                                        <h1 className="text-sm font-bold font-orbitron tracking-wider">AXIOM</h1>
+                                        <p className="text-[10px] text-[var(--text-dim)] uppercase tracking-widest">Antigravity</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h1 className="text-sm font-bold font-orbitron tracking-wider">AXIOM</h1>
-                                    <p className="text-[10px] text-[var(--text-dim)] uppercase tracking-widest">Antigravity</p>
+
+                                {/* Nav Items */}
+                                <nav className="hidden md:flex items-center gap-1">
+                                    <Link href="/" className="nav-pill active">
+                                        Dashboard
+                                    </Link>
+                                    <Link href="/bots" className="nav-pill">
+                                        AI Bots
+                                    </Link>
+                                    <Link href="/test-ai" className="nav-pill">
+                                        Test AI
+                                    </Link>
+                                    <Link href="/settings" className="nav-pill">
+                                        Settings
+                                    </Link>
+                                    <Link href="/profile" className="nav-pill">
+                                        Profile
+                                    </Link>
+                                    <Link href="/about" className="nav-pill">
+                                        About
+                                    </Link>
+                                </nav>
+
+                                {/* Right Side - Clerk Authentication */}
+                                <div className="flex items-center gap-4">
+                                    <SignedOut>
+                                        <SignInButton />
+                                    </SignedOut>
+                                    <SignedIn>
+                                        <UserButton
+                                            appearance={{
+                                                elements: {
+                                                    avatarBox: "w-9 h-9 rounded-full border-2 border-[var(--neon-purple)]"
+                                                }
+                                            }}
+                                        />
+                                    </SignedIn>
                                 </div>
-                            </div>
+                            </header>
 
-                            {/* Nav Items */}
-                            <nav className="hidden md:flex items-center gap-1">
-                                <Link href="/" className="nav-pill active">
-                                    Dashboard
-                                </Link>
-                                <Link href="/bots" className="nav-pill">
-                                    AI Bots
-                                </Link>
-                                <Link href="/test-ai" className="nav-pill">
-                                    Test AI
-                                </Link>
-                                <Link href="/settings" className="nav-pill">
-                                    Settings
-                                </Link>
-                                <Link href="/profile" className="nav-pill">
-                                    Profile
-                                </Link>
-                                <Link href="/about" className="nav-pill">
-                                    About
-                                </Link>
-                            </nav>
-
-                            {/* Right Side - Clerk Authentication */}
-                            <div className="flex items-center gap-4">
-                                <SignedOut>
-                                    <SignInButton />
-                                </SignedOut>
-                                <SignedIn>
-                                    <UserButton 
-                                        appearance={{
-                                            elements: {
-                                                avatarBox: "w-9 h-9 rounded-full border-2 border-[var(--neon-purple)]"
-                                            }
-                                        }}
-                                    />
-                                </SignedIn>
-                            </div>
-                        </header>
-
-                        {/* Main Content */}
-                        <main className="pt-20 px-4 md:px-6 pb-8 max-w-7xl mx-auto">
-                            {children}
-                        </main>
-                    </Providers>
-                </NextIntlClientProvider>
+                            {/* Main Content */}
+                            <main className="pt-20 px-4 md:px-6 pb-8 max-w-7xl mx-auto">
+                                {children}
+                            </main>
+                        </Providers>
+                    </NextIntlClientProvider>
+                </ClerkProvider>
             </body>
         </html>
     );
