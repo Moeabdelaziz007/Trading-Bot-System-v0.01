@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^5.0.0",
+    "@clerk/themes": "^2.4.43",
     "ably": "^2.15.0",
     "framer-motion": "^12.23.25",
     "lightweight-charts": "^4.2.3",
