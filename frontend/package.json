@@ -13,7 +13,9 @@
   "dependencies": {
     "@clerk/nextjs": "^5.0.0",
     "@clerk/themes": "^2.4.43",
+    "@headlessui/react": "^2.2.9",
     "ably": "^2.15.0",
+    "axios": "^1.13.2",
     "framer-motion": "^12.23.25",
     "lightweight-charts": "^4.2.3",
     "lucide-react": "^0.556.0",
