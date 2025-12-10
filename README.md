@@ -40,9 +40,10 @@
 - 🆓 **Workers AI** — FREE LLMs (10K neurons/day)
 - 📊 **MTF Scalper** — Multi-timeframe analysis (1M/5M/15M)
 - 🛡️ **Risk Guardian** — Kelly Criterion + ATR-based sizing
-- 💰 **5 Broker Support** — Capital, Alpaca, OANDA, Bybit, Coinbase
-- 🧬 **Learning Loop** — Self-improving signal weights
-- 📡 **MCP Tools** — 10 free intelligence tools
+- 💰 **6 Broker Support** — Capital, Alpaca, OANDA, Bybit, Coinbase, **MT5**
+- 🧬 **Self-Play Learning Loop v0.1** — Dialectic AI (Core vs Shadow)
+- 📡 **MCP Tools** — 16 free intelligence tools (incl. MT5 Gold/Forex)
+- 🥇 **MT5/Forex MCP** — Arabic support for gold trading!
 
 </td>
 <td width="50%">
@@ -54,9 +55,10 @@
 - 🆓 **Workers AI** — نماذج LLM مجانية
 - 📊 **المضارب متعدد الأطر** — تحليل 1M/5M/15M
 - 🛡️ **حارس المخاطر** — Kelly + ATR للتحجيم
-- 💰 **5 وسطاء** — Capital, Alpaca, OANDA, Bybit, Coinbase
-- 🧬 **حلقة التعلم** — أوزان إشارات ذاتية التحسين
-- 📡 **أدوات MCP** — 10 أدوات ذكاء مجانية
+- 💰 **6 وسطاء** — Capital, Alpaca, OANDA, Bybit, Coinbase, **MT5**
+- 🧬 **حلقة التعلم الذاتي v0.1** — الجدلية (Core vs Shadow)
+- 📡 **أدوات MCP** — 16 أداة (شاملة الذهب والفوركس)
+- 🥇 **MT5 فوركس** — دعم عربي كامل لتداول الذهب!
 
 </td>
 </tr>
@@ -68,11 +70,11 @@
 
 | Metric | Value |
 |--------|-------|
-| 📁 **Modules** | 89+ |
+| 📁 **Modules** | 95+ |
 | 🤖 **AI Agents** | 5 (Math, Money, Journalist, Strategist, Analyst) |
-| 💰 **Brokers** | 5 (Capital, Alpaca, OANDA, Bybit, Coinbase) |
+| 💰 **Brokers** | 6 (Capital, Alpaca, OANDA, Bybit, Coinbase, MT5) |
 | 🧪 **Tests** | 15+ test suites |
-| 📈 **Completion** | 90% |
+| 📈 **Completion** | 92% |
 | 💵 **Cost** | $0/month |
 
 ---

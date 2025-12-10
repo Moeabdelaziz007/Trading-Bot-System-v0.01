@@ -617,6 +617,123 @@ async def on_fetch(request, env):
         except Exception as e:
             return Response.new(json.dumps({"error": str(e)}), headers=headers)
     
+    # ==========================================
+    # 🥇 MT5/FOREX MCP TOOLS (XM Global, Exness, etc.)
+    # Zero-Cost Cloudflare Workers Integration
+    # ==========================================
+    
+    # MT5 Gold Price
+    if "api/mt5/gold" in url:
+        try:
+            from brokers.mt5_broker import MT5Broker
+            from mcp.tools_mt5 import MT5MCPTools
+            
+            mt5_url = str(getattr(env, 'MT5_BRIDGE_URL', ''))
+            mt5_secret = str(getattr(env, 'MT5_BRIDGE_SECRET', ''))
+            
+            if not mt5_url:
+                return Response.new(json.dumps({
+                    "error": "MT5_BRIDGE_URL not configured",
+                    "arabic_message": "لم يتم تكوين MT5 Bridge ❌"
+                }), headers=headers)
+            
+            broker = MT5Broker(mt5_url, mt5_secret, "XM Global")
+            tools = MT5MCPTools(broker)
+            result = await tools._get_gold_price()
+            return Response.new(json.dumps(result), headers=headers)
+        except Exception as e:
+            return Response.new(json.dumps({"error": str(e)}), headers=headers)
+    
+    # MT5 Smart Trade
+    if "api/mt5/trade" in url and request.method == "POST":
+        try:
+            from brokers.mt5_broker import MT5Broker
+            from mcp.tools_mt5 import MT5MCPTools
+            
+            mt5_url = str(getattr(env, 'MT5_BRIDGE_URL', ''))
+            mt5_secret = str(getattr(env, 'MT5_BRIDGE_SECRET', ''))
+            
+            if not mt5_url:
+                return Response.new(json.dumps({
+                    "error": "MT5_BRIDGE_URL not configured"
+                }), headers=headers)
+            
+            body_js = await request.json()
+            body = json.loads(JSON.stringify(body_js))
+            
+            broker = MT5Broker(mt5_url, mt5_secret, "XM Global")
+            tools = MT5MCPTools(broker)
+            result = await tools._execute_smart_trade(**body)
+            return Response.new(json.dumps(result), headers=headers)
+        except Exception as e:
+            return Response.new(json.dumps({"error": str(e)}), headers=headers)
+    
+    # MT5 Portfolio Status
+    if "api/mt5/status" in url or "api/mt5/portfolio" in url:
+        try:
+            from brokers.mt5_broker import MT5Broker
+            from mcp.tools_mt5 import MT5MCPTools
+            
+            mt5_url = str(getattr(env, 'MT5_BRIDGE_URL', ''))
+            mt5_secret = str(getattr(env, 'MT5_BRIDGE_SECRET', ''))
+            
+            if not mt5_url:
+                return Response.new(json.dumps({
+                    "error": "MT5_BRIDGE_URL not configured"
+                }), headers=headers)
+            
+            broker = MT5Broker(mt5_url, mt5_secret, "XM Global")
+            tools = MT5MCPTools(broker)
+            result = await tools._get_portfolio_status()
+            return Response.new(json.dumps(result), headers=headers)
+        except Exception as e:
+            return Response.new(json.dumps({"error": str(e)}), headers=headers)
+    
+    # MT5 Market Scan
+    if "api/mt5/scan" in url:
+        try:
+            from brokers.mt5_broker import MT5Broker
+            from mcp.tools_mt5 import MT5MCPTools
+            
+            mt5_url = str(getattr(env, 'MT5_BRIDGE_URL', ''))
+            mt5_secret = str(getattr(env, 'MT5_BRIDGE_SECRET', ''))
+            
+            if not mt5_url:
+                return Response.new(json.dumps({
+                    "error": "MT5_BRIDGE_URL not configured"
+                }), headers=headers)
+            
+            broker = MT5Broker(mt5_url, mt5_secret, "XM Global")
+            tools = MT5MCPTools(broker)
+            result = await tools._market_scan()
+            return Response.new(json.dumps(result), headers=headers)
+        except Exception as e:
+            return Response.new(json.dumps({"error": str(e)}), headers=headers)
+    
+    # MT5 Close All (Emergency Kill Switch)
+    if "api/mt5/close-all" in url and request.method == "POST":
+        try:
+            from brokers.mt5_broker import MT5Broker
+            from mcp.tools_mt5 import MT5MCPTools
+            
+            mt5_url = str(getattr(env, 'MT5_BRIDGE_URL', ''))
+            mt5_secret = str(getattr(env, 'MT5_BRIDGE_SECRET', ''))
+            
+            if not mt5_url:
+                return Response.new(json.dumps({
+                    "error": "MT5_BRIDGE_URL not configured"
+                }), headers=headers)
+            
+            body_js = await request.json()
+            body = json.loads(JSON.stringify(body_js))
+            
+            broker = MT5Broker(mt5_url, mt5_secret, "XM Global")
+            tools = MT5MCPTools(broker)
+            result = await tools._close_all_positions(**body)
+            return Response.new(json.dumps(result), headers=headers)
+        except Exception as e:
+            return Response.new(json.dumps({"error": str(e)}), headers=headers)
+    
     # ☢️ PANIC PROTOCOL - Liquidate All Positions
     if "api/trade/panic" in url or "api/panic" in url:
         try:

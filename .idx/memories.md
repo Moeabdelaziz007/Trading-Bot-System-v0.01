@@ -4,7 +4,40 @@
 
 ## 📅 سجل الجلسات
 
-### الجلسة: 10 ديسمبر 2025 (آخر تحديث: 10:10)
+### الجلسة: 10 ديسمبر 2025 (آخر تحديث: 11:00)
+
+**🥇 MT5/Forex MCP Tools Integration (GROUNDBREAKING!):**
+
+- ✅ **أدوات تداول الذهب والفوركس** عبر MT5
+- ✅ **دعم كامل للغة العربية** في جميع الرسائل
+- ✅ **تكلفة صفر** - يعمل بالكامل على Cloudflare Workers
+- ✅ **6 أدوات MCP جديدة:**
+  - `mt5_gold_price` - سعر الذهب الحي
+  - `mt5_execute_smart_trade` - تداول ذكي مع إدارة مخاطر
+  - `mt5_portfolio_status` - حالة المحفظة
+  - `mt5_market_scan` - فحص الأسواق
+  - `mt5_close_all` - إغلاق طوارئ
+  - `mt5_analysis` - تحليل فني
+
+**📦 الملفات المضافة:**
+
+- `src/brokers/mt5_broker.py` - وسيط MT5
+- `src/mcp/tools_mt5.py` - أدوات MCP
+- تحديث `worker.py` - 5 endpoints جديدة (`/api/mt5/*`)
+
+**🧠 AlphaAxiom v0.1 Beta - Self-Play Learning Loop:**
+
+- ✅ `hybrid_memory.py` - D1 + R2 Time-Travel Snapshots
+- ✅ `circuit_breaker.py` - Multi-layer Protection
+- ✅ `warroom.py` - SSE Streaming للواجهة
+- ✅ `neural_bridge.js` - Edge Compute
+- ✅ SSE Endpoint `/api/dialectic/stream`
+- ✅ `useDialecticStream` hook (typewriter effect)
+- ✅ إعادة هيكلة: `learning_loop_v4` → `learning_loop_v0_1`
+
+---
+
+### الجلسة: 10 ديسمبر 2025 (10:10)
 
 **🎨 Self-Play Dashboard Integration (Google AI Studio):**
 
