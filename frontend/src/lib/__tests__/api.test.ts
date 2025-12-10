@@ -10,7 +10,7 @@ import {
   tradingApi,
 } from '../api';
 
-const API_BASE = 'https://trading-brain-v1.amrikyy1.workers.dev';
+const API_BASE = 'https://trading-brain-v1.amrikyy.workers.dev';
 
 // Helper to mock successful fetch
 const mockFetchSuccess = (data: any) =>

@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { CHART_DATA } from '@/lib/constants';
 
 export const PriceChart: React.FC = () => {
+  const [data, setData] = useState(CHART_DATA);
+
+  useEffect(() => {
+    // Simulate live data updates
+    const interval = setInterval(() => {
+      setData(prevData => {
+        const lastItem = prevData[prevData.length - 1];
+        const newTime = "Live"; // Simplified time
+        const newValue = lastItem.value + (Math.random() - 0.5) * 1000;
+        const newItem = { time: newTime, value: newValue };
+        return [...prevData.slice(1), newItem];
+      });
+    }, 3000);
+
+    // Cleanup interval to prevent memory leaks
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="glass-panel p-6 rounded-2xl flex flex-col h-full relative group hover:border-axiom-secondary/30 transition-colors duration-300">
       <div className="flex justify-between items-start mb-6">
@@ -34,7 +52,7 @@ export const PriceChart: React.FC = () => {
 
       <div className="flex-1 w-full min-h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={CHART_DATA}>
+          <AreaChart data={data}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#00D9FF" stopOpacity={0.3}/>

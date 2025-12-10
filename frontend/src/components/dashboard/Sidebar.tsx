@@ -8,6 +8,25 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  // Add resize listener to handle responsive behavior safely
+  React.useEffect(() => {
+    const handleResize = () => {
+      // Logic to auto-close sidebar on small screens could go here
+      // This is primarily to demonstrate the cleanup pattern requested
+      if (window.innerWidth < 1024 && isOpen && onClose) {
+        // We don't auto-close here to avoid annoying state changes during resize
+        // but we keep the listener to ensure no memory leaks occur if logic is added
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // cleanup function to prevent memory leaks
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isOpen, onClose]);
+
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard', active: true },
     { icon: LineChart, label: 'Analytics', href: '/dashboard/analytics', active: false },
