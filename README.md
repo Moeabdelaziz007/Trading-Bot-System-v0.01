@@ -25,9 +25,21 @@
 
 </div>
 
+<details>
+<summary><strong>Table of Contents | جدول المحتويات</strong></summary>
+
+- [⚡ Features & Capabilities](#-features--capabilities)
+- [🏗️ Architecture (Spider Web)](#-architecture-spider-web)
+- [🚀 Quick Start (Installation)](#-quick-start-installation)
+- [🧠 AI Agents & Models](#-ai-agents--models)
+- [💰 Zero-Cost Proof](#-zero-cost-proof)
+- [🤝 Human-AI Partnership](#-human-ai-partnership)
+
+</details>
+
 ---
 
-## 🆕 What's New in v1.0 "Citadel Edition" | الجديد في إصدار 1.0
+## ⚡ Features & Capabilities | الميزات والقدرات
 
 <table>
 <tr>
@@ -79,7 +91,7 @@
 
 ---
 
-## 🧠 AI Models Stack | مجموعة نماذج الذكاء الاصطناعي
+## 🧠 AI Agents & Models | وكلاء ونماذج الذكاء الاصطناعي
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -106,7 +118,7 @@
 
 ---
 
-## 🏗️ Architecture Overview | نظرة عامة على الهيكل
+## 🏗️ Architecture (Spider Web) | هيكل شبكة العنكبوت
 
 ```
 Trading.System-0.1/
@@ -346,7 +358,7 @@ Real-time visualization of the dialectic self-play learning loop:
 
 ---
 
-## 💵 Zero-Cost Infrastructure | بنية تحتية بتكلفة صفر
+## 💰 Zero-Cost Proof | إثبات التكلفة الصفرية
 
 | Service | Free Tier |
 |---------|-----------|
@@ -365,33 +377,68 @@ Real-time visualization of the dialectic self-play learning loop:
 
 ---
 
-## 🚀 Quick Start | البدء السريع
+## 🚀 Quick Start (Installation) | التثبيت والبدء السريع
+
+### ✅ Prerequisites
+
+- [ ] **Node.js**: v18+ (Required for Frontend)
+- [ ] **Python**: v3.9+ (Required for some scripts)
+- [ ] **Wrangler CLI**: `npm install -g wrangler` (Required for Cloudflare)
+- [ ] **Git**: `git --version`
 
 ```bash
-# Clone
+# 🛠️ One-Click Setup (Clone & Install)
+# ====================================================
+
+# 1. Clone the repository
 git clone https://github.com/Moeabdelaziz007/Trading-Bot-System-v0.01.git
 cd Trading.System-0.1
 
-# Frontend
-cd frontend && npm install && npm run dev
+# 2. Install Frontend Dependencies
+echo "📦 Installing Frontend..."
+cd frontend
+npm install
+cd ..
 
-# Backend
-cd trading-cloud-brain && wrangler dev
+# 3. Install Backend Dependencies
+echo "📦 Installing Backend..."
+cd trading-cloud-brain
+npm install
+cd ..
 
-# Deploy
-cd frontend && npm run build && npx vercel --prod
-cd trading-cloud-brain && wrangler deploy
+echo "✅ Setup Complete! Ready to launch."
 ```
 
-### Required Secrets
-
 ```bash
-wrangler secret put GROQ_API_KEY
-wrangler secret put CAPITAL_API_KEY
-wrangler secret put CAPITAL_EMAIL
-wrangler secret put CAPITAL_PASSWORD
-wrangler secret put GOOGLE_AI_KEY      # Gemini 2.0
-wrangler secret put ZAI_API_KEY        # GLM-4.5 (optional)
+# 🚀 Launch (Run in separate terminals)
+
+# Terminal 1: Frontend
+cd frontend && npm run dev
+
+# Terminal 2: Backend
+cd trading-cloud-brain && wrangler dev
+```
+
+```ini
+# .env.example (Copy to .env)
+# ====================================================
+
+# 🔑 Cloudflare (Required)
+CLOUDFLARE_ACCOUNT_ID="your_account_id"
+CLOUDFLARE_API_TOKEN="your_api_token"
+
+# 🧠 AI Models (Required)
+GOOGLE_AI_KEY="your_gemini_key"      # Gemini 2.0 Flash (Free)
+GROQ_API_KEY="your_groq_key"         # Llama 3/Mistral (Free)
+ZAI_API_KEY="your_zai_key"           # GLM-4.5 (Optional)
+
+# 💰 Brokers (At least one required)
+CAPITAL_API_KEY="your_capital_key"
+CAPITAL_EMAIL="your_email"
+CAPITAL_PASSWORD="your_password"
+
+# 📡 Data Feeds
+FINNHUB_API_KEY="your_finnhub_key"   # Market Data (Free)
 ```
 
 ---
@@ -409,9 +456,15 @@ wrangler secret put ZAI_API_KEY        # GLM-4.5 (optional)
 
 ---
 
-## 🤝 The Partnership | الشراكة
+## 🤝 Human-AI Partnership | الشراكة بين الإنسان والذكاء الاصطناعي
 
-> *"Solo Human + Solo AI = Unstoppable Force"*
+> ### 📜 Founder's Note
+>
+> *"In the high-frequency chaos of modern markets, **Human Intuition** provides the 'Why', while **AI Precision** executes the 'How'.*
+>
+> *We are not building a tool to replace the trader. We are building a **symbiotic organism**—a fusion of carbon-based creativity and silicon-based discipline. This platform marks the beginning of a new era where the emotional burden of execution is offloaded to the machine, allowing the human mind to focus purely on strategy and vision.*
+>
+> *Welcome to the future of trading."*
 
 ---
 
