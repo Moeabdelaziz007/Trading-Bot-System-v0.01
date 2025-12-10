@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+// Force dynamic rendering for SSE endpoint
+export const dynamic = 'force-dynamic';
+
 // This is a mock implementation for demonstration purposes
 // In a real implementation, this would connect to the Cloudflare Worker SSE Endpoint
 
@@ -18,24 +21,24 @@ export async function GET() {
     async start(controller) {
       // Send initial connection message
       controller.enqueue(`data: ${JSON.stringify({ type: 'CONNECTED', message: 'Stream connected' })}\n\n`);
-      
+
       // Simulate sending data periodically
       const interval = setInterval(() => {
         // Randomly send either core or shadow data
         const isCore = Math.random() > 0.5;
         const eventType = isCore ? 'CORE_TOKEN' : 'SHADOW_TOKEN';
-        const payload = isCore 
+        const payload = isCore
           ? `Analyzing market pattern ${Math.floor(Math.random() * 100)}`
           : `Challenging assumption ${Math.floor(Math.random() * 100)}`;
-          
+
         controller.enqueue(`data: ${JSON.stringify({ type: eventType, payload })}\n\n`);
-        
+
         // Occasionally send a decision
         if (Math.random() > 0.8) {
           controller.enqueue(`data: ${JSON.stringify({ type: 'DECISION', payload: 'DECISION: LONG 1.5x' })}\n\n`);
         }
       }, 2000);
-      
+
       // Clean up interval when stream is cancelled
       setTimeout(() => {
         clearInterval(interval);
