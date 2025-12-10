@@ -418,34 +418,51 @@ async def on_fetch(request, env):
             from routes.telegram import handle_telegram_webhook
             return await handle_telegram_webhook(request, env, headers)
         except ImportError:
-            # Fallback if module not found (during transition)
             return Response.new(json.dumps({"error": "Telegram module not found"}), headers=headers)
     
     # Main Chat (MoE Dispatcher)
     if "api/chat" in url:
         return await handle_moe_chat(request, env, headers)
     
-    # ... [rest of routes] ...
-    
-    # Chart Data
+    # Chart Data - Use routes.api
     if "api/candles" in url or "api/chart" in url:
-        return await get_candles(request, env, headers)
+        try:
+            from routes.api import get_candles
+            return await get_candles(request, env, headers)
+        except ImportError:
+            return await get_candles(request, env, headers)
     
-    # Account Info
+    # Account Info - Use routes.api
     if "api/account" in url:
-        return await get_combined_account(env, headers)
+        try:
+            from routes.api import get_combined_account
+            return await get_combined_account(env, headers)
+        except ImportError:
+            return await get_combined_account(env, headers)
     
-    # Positions
+    # Positions - Use routes.api
     if "api/positions" in url:
-        return await get_combined_positions(env, headers)
+        try:
+            from routes.api import get_combined_positions
+            return await get_combined_positions(env, headers)
+        except ImportError:
+            return await get_combined_positions(env, headers)
     
-    # Market Snapshot (Real-time prices with change %)
+    # Market Snapshot - Use routes.api
     if "api/market" in url or "api/snapshot" in url:
-        return await get_market_snapshot(request, env, headers)
+        try:
+            from routes.api import get_market_snapshot
+            return await get_market_snapshot(request, env, headers)
+        except ImportError:
+            return await get_market_snapshot(request, env, headers)
     
-    # 🎯 UNIFIED DASHBOARD SNAPSHOT (Expert Level API)
+    # Dashboard Snapshot - Use routes.api
     if "api/dashboard" in url:
-        return await get_dashboard_snapshot(env, headers)
+        try:
+            from routes.api import get_dashboard_snapshot
+            return await get_dashboard_snapshot(env, headers)
+        except ImportError:
+            return await get_dashboard_snapshot(env, headers)
     
     # 🧠 SMART MCP INTELLIGENCE (Zero-Cost AI Signals)
     if "api/mcp" in url:
