@@ -23,6 +23,10 @@ import time
 import json
 from typing import Dict, List, Optional
 
+# Structured logging
+from core.structured_logging import get_logger
+log = get_logger("state_manager")
+
 
 class StateManager:
     """
@@ -89,7 +93,7 @@ class StateManager:
             return True
             
         except Exception as e:
-            print(f"Lock error for {symbol}: {e}")
+            log.error("lock_acquire_failed", symbol=symbol, error=str(e))
             return False
     
     async def release_lock(self, symbol: str) -> bool:
@@ -111,7 +115,7 @@ class StateManager:
             await self.kv.delete(key)
             return True
         except Exception as e:
-            print(f"Unlock error for {symbol}: {e}")
+            log.error("lock_release_failed", symbol=symbol, error=str(e))
             return False
     
     async def is_locked(self, symbol: str) -> bool:
@@ -162,7 +166,7 @@ class StateManager:
             await self.kv.put(key, json.dumps(trade_data), expirationTtl=86400)
             return trade_id
         except Exception as e:
-            print(f"Record trade error: {e}")
+            log.error("record_trade_failed", trade_id=trade_id, error=str(e))
             return ""
     
     async def get_open_trades(self) -> List[Dict]:
@@ -189,7 +193,7 @@ class StateManager:
             
             return trades
         except Exception as e:
-            print(f"Get trades error: {e}")
+            log.error("get_trades_failed", error=str(e))
             return []
     
     async def close_trade(self, trade_id: str, exit_price: float) -> bool:
@@ -228,7 +232,7 @@ class StateManager:
                 return True
             return False
         except Exception as e:
-            print(f"Close trade error: {e}")
+            log.error("close_trade_failed", trade_id=trade_id, error=str(e))
             return False
     
     async def has_open_position(self, symbol: str) -> bool:
@@ -274,7 +278,7 @@ class StateManager:
             return True
             
         except Exception as e:
-            print(f"Cron lock error: {e}")
+            log.error("cron_lock_failed", job_name=job_name, error=str(e))
             return False
     
     async def release_cron_lock(self, job_name: str) -> bool:

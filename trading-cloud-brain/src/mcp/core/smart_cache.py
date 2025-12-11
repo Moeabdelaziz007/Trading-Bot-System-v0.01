@@ -3,6 +3,9 @@ import asyncio
 from datetime import datetime
 import time
 
+from core.structured_logging import get_logger
+log = get_logger("smart_cache")
+
 class SmartCache:
     """
     Tiered Caching System.
@@ -42,7 +45,7 @@ class SmartCache:
             ).bind(symbol, timestamp, price_data['current'], price_data.get('source', 'unknown'))
             await stmt.run()
         except Exception as e:
-            print(f"D1 Write Error: {e}")
+            log.error("d1_write_error", error=str(e))
 
     async def get_technicals(self, symbol: str):
         """
