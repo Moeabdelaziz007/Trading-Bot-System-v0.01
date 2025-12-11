@@ -15,56 +15,79 @@ For full implementation, requires:
 """
 
 from typing import Dict, List, Optional
-import uuid
+import json
+from js import fetch, Headers
 from .base import Broker
-from ..utils.fix_client import SimpleFixClient
 
 
 class PepperstoneProvider(Broker):
     """
-    Pepperstone broker integration.
-
-    Note: Defaults to FIX API (Protocol 4.4) for order placement as it provides
-    a cleaner serverless implementation compared to cTrader OpenAPI (Protobuf).
+    Pepperstone broker integration via cTrader OpenAPI.
     
+    Requires a running cTrader/FIX Bridge (similar to MT5Broker)
+    or a REST adapter service since cTrader uses Protobuf over TCP.
+
     Environment Variables:
-        PEPPERSTONE_FIX_HOST: FIX server host (e.g., fix.pepperstone.com)
-        PEPPERSTONE_FIX_PORT: FIX server port (e.g., 5202)
-        PEPPERSTONE_FIX_SENDER_ID: FIX SenderCompID
-        PEPPERSTONE_FIX_TARGET_ID: FIX TargetCompID (usually cServer)
-        PEPPERSTONE_FIX_PASSWORD: FIX Password
-        PEPPERSTONE_CLIENT_ID: OAuth2 client ID (Optional, for Data)
+        PEPPERSTONE_CLIENT_ID: OAuth2 client ID
+        PEPPERSTONE_CLIENT_SECRET: OAuth2 secret
+        PEPPERSTONE_ACCOUNT_ID: cTrader account ID
+        PEPPERSTONE_ACCESS_TOKEN: OAuth2 access token
+        PEPPERSTONE_BRIDGE_URL: URL of the cTrader/FIX bridge (optional)
     """
     
-    BASE_URL = "https://api.pepperstone.com"  # Placeholder
+    BASE_URL = "https://api.pepperstone.com"  # Placeholder for official API or Bridge
     
     def __init__(self, env):
         """
         Initialize Pepperstone provider.
         
         Args:
-            env: Cloudflare Worker environment (dict or object)
+            env: Cloudflare Worker environment
         """
         super().__init__("PEPPERSTONE", env)
+        self.env = env
+        self.client_id = str(getattr(env, 'PEPPERSTONE_CLIENT_ID', ''))
+        self.client_secret = str(getattr(env, 'PEPPERSTONE_CLIENT_SECRET', ''))
+        self.account_id = str(getattr(env, 'PEPPERSTONE_ACCOUNT_ID', ''))
+        self.access_token = str(getattr(env, 'PEPPERSTONE_ACCESS_TOKEN', ''))
+        # Allow configuring a bridge URL for actual execution
+        self.bridge_url = str(getattr(env, 'PEPPERSTONE_BRIDGE_URL', self.BASE_URL)).rstrip('/')
 
-        # Helper to get env var from dict or object
-        def get_env(key, default):
-            if isinstance(env, dict):
-                return env.get(key, default)
-            return getattr(env, key, default)
+    async def _request(self, method: str, endpoint: str, data: Dict = None) -> Dict:
+        """Helper to send requests to cTrader Bridge or API."""
+        url = f"{self.bridge_url}{endpoint}"
+        headers = {
+            "Authorization": f"Bearer {self.access_token}",
+            "Content-Type": "application/json",
+            "X-Client-ID": self.client_id,
+            "X-Account-ID": self.account_id
+        }
 
-        # FIX Credentials
-        self.fix_host = str(get_env('PEPPERSTONE_FIX_HOST', 'h45.p.ctrader.com'))
-        self.fix_port = int(get_env('PEPPERSTONE_FIX_PORT', 5202))
-        self.fix_sender_id = str(get_env('PEPPERSTONE_FIX_SENDER_ID', ''))
-        self.fix_target_id = str(get_env('PEPPERSTONE_FIX_TARGET_ID', 'cServer'))
-        self.fix_password = str(get_env('PEPPERSTONE_FIX_PASSWORD', ''))
+        try:
+            req_headers = Headers.new(headers.items())
+            options = {
+                "method": method,
+                "headers": req_headers
+            }
 
-        # OAuth Credentials (Legacy/Data)
-        self.client_id = str(get_env('PEPPERSTONE_CLIENT_ID', ''))
-        self.client_secret = str(get_env('PEPPERSTONE_CLIENT_SECRET', ''))
-        self.account_id = str(get_env('PEPPERSTONE_ACCOUNT_ID', ''))
-        self.access_token = str(get_env('PEPPERSTONE_ACCESS_TOKEN', ''))
+            if data and method in ["POST", "PUT", "PATCH"]:
+                options["body"] = json.dumps(data)
+
+            # Use positional argument for options in pyodide/js environment
+            response = await fetch(url, options)
+
+            if not response.ok:
+                return {
+                    "status": "error",
+                    "code": response.status,
+                    "message": f"HTTP {response.status}"
+                }
+
+            return await response.json()
+
+        except Exception as e:
+            self.log.error(f"Request failed: {e}")
+            return {"status": "error", "message": str(e)}
     
     async def get_account_summary(self) -> Dict:
         """
@@ -93,7 +116,7 @@ class PepperstoneProvider(Broker):
                          order_type: str = "MARKET", price: float = None,
                          stop_loss: float = None, take_profit: float = None) -> Dict:
         """
-        Place order via FIX API.
+        Place order via cTrader OpenAPI.
         
         Args:
             symbol: Trading symbol
@@ -107,64 +130,34 @@ class PepperstoneProvider(Broker):
         Returns:
             dict: Order result
         """
-        if order_type.upper() != "MARKET":
-            return {
-                "broker": "PEPPERSTONE",
-                "status": "ERROR",
-                "message": "Only MARKET orders are supported in this version"
-            }
-
-        if stop_loss is not None or take_profit is not None:
-            return {
-                "broker": "PEPPERSTONE",
-                "status": "ERROR",
-                "message": "Stop Loss and Take Profit are not supported in FIX implementation yet"
-            }
-
-        client = SimpleFixClient(
-            host=self.fix_host,
-            port=self.fix_port,
-            sender_id=self.fix_sender_id,
-            target_id=self.fix_target_id,
-            password=self.fix_password,
-            ssl_enabled=True
-        )
-
-        try:
-            await client.connect()
-            logged_in = await client.logon()
-
-            if not logged_in:
-                return {
-                    "broker": "PEPPERSTONE",
-                    "status": "ERROR",
-                    "message": "FIX Logon Failed"
-                }
-
-            cl_ord_id = f"PEPPER-{uuid.uuid4().hex[:8]}"
-            result = await client.place_market_order(symbol, side, units, cl_ord_id)
-
-            await client.logout()
-
-            return {
-                "broker": "PEPPERSTONE",
-                **result
-            }
-
-        except Exception as e:
-            self.log.error(f"Pepperstone FIX Order Error: {str(e)}")
-            return {
-                "broker": "PEPPERSTONE",
-                "status": "ERROR",
-                "message": str(e)
-            }
-        finally:
-            await client.disconnect()
+        # TODO: Implement cTrader order placement
+        return {
+            "broker": "PEPPERSTONE",
+            "status": "STUB_NOT_IMPLEMENTED",
+            "message": "Pepperstone cTrader integration pending"
+        }
     
     async def close_position(self, position_id: str) -> Dict:
-        """Close position."""
-        # TODO: Implement
-        return {"status": "STUB_NOT_IMPLEMENTED"}
+        """
+        Close a position via the Bridge/API.
+
+        Args:
+            position_id: The ID of the position to close.
+
+        Returns:
+            Dict containing the status of the operation.
+        """
+        # If no bridge is configured, return the stub response to avoid errors in dev
+        if not self.access_token and self.bridge_url == self.BASE_URL:
+             return {
+                "status": "STUB_NOT_IMPLEMENTED",
+                "message": "Missing credentials or bridge URL"
+            }
+
+        endpoint = f"/v1/accounts/{self.account_id}/positions/{position_id}/close"
+        # Some bridges might use POST with body instead of DELETE
+        # adhering to a standard REST pattern for now:
+        return await self._request("POST", endpoint, {"positionId": position_id})
     
     async def get_candles(self, symbol: str, timeframe: str = "M1", 
                          count: int = 100) -> List[Dict]:
