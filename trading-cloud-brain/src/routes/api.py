@@ -421,6 +421,74 @@ async def get_dashboard_snapshot(env, headers):
 
 
 # ==========================================
+# 🤖 AGENT DEPLOYMENT
+# ==========================================
+
+async def deploy_agent(request, env, headers):
+    """Deploy a new agent configuration"""
+    try:
+        body = await request.json()
+
+        # Validate input
+        if not body.get("name") or not body.get("broker"):
+            return Response.new(json.dumps({"error": "Missing name or broker"}), status=400, headers=headers)
+
+        import uuid
+        import time
+
+        agent_id = str(uuid.uuid4())
+        timestamp = int(time.time() * 1000)
+
+        # Prepare data
+        agent_config = {
+            "name": body.get("name"),
+            "description": body.get("description", ""),
+            "avatar": body.get("avatar"),
+            "dna": body.get("dna", {}),
+            "broker": body.get("broker")
+        }
+
+        rules = body.get("rules", [])
+
+        # Insert into D1
+        db = env.TRADING_DB
+
+        # Ensure table exists (Safe check)
+        await db.prepare("""
+            CREATE TABLE IF NOT EXISTS bots (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                broker TEXT,
+                config JSON,
+                rules JSON,
+                active INTEGER DEFAULT 1,
+                created_at INTEGER
+            )
+        """).run()
+
+        await db.prepare("""
+            INSERT INTO bots (id, name, broker, config, rules, active, created_at)
+            VALUES (?, ?, ?, ?, ?, 1, ?)
+        """).bind(
+            agent_id,
+            agent_config["name"],
+            agent_config["broker"],
+            json.dumps(agent_config),
+            json.dumps(rules),
+            timestamp
+        ).run()
+
+        return Response.new(json.dumps({
+            "status": "success",
+            "agent_id": agent_id,
+            "message": f"Agent {agent_config['name']} deployed successfully"
+        }), headers=headers)
+
+    except Exception as e:
+        return Response.new(json.dumps({"error": str(e)}), status=500, headers=headers)
+
+
+# ==========================================
 # ⚡ ABLY REALTIME
 # ==========================================
 

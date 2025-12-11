@@ -8,6 +8,7 @@ import { AgentBuilder } from './components/AgentBuilder';
 import { StrategyEditor } from './components/StrategyEditor';
 import { SimulationSandbox } from './components/SimulationSandbox';
 import { StrategyRule } from './components/StrategyBlock';
+import { API_CONFIG } from '@/lib/constants';
 
 interface AgentConfig {
   name: string;
@@ -36,10 +37,32 @@ export default function AgentLabPage() {
 
   const [strategyRules, setStrategyRules] = useState<StrategyRule[]>([]);
 
-  const handleDeploy = () => {
-    // TODO: Implement actual deployment
-    console.log('Deploying agent:', { ...agentConfig, rules: strategyRules });
-    alert(`🚀 Agent "${agentConfig.name}" is being deployed to ${agentConfig.broker}!`);
+  const handleDeploy = async () => {
+    try {
+      console.log('Deploying agent:', { ...agentConfig, rules: strategyRules });
+
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/agents/deploy`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...agentConfig,
+          rules: strategyRules
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`🚀 Agent "${agentConfig.name}" deployed successfully! ID: ${data.agent_id}`);
+      } else {
+        alert(`❌ Deployment failed: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Deployment error:', error);
+      alert('❌ Deployment failed. Check console for details.');
+    }
   };
 
   return (
