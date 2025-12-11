@@ -114,6 +114,8 @@ async def on_fetch(request, env):
         "/api/candles",   # Chart data
         "/api/dashboard", # Unified dashboard snapshot
         "/api/mcp",       # Smart MCP Intelligence
+        "/api/tick",      # Manual brain heartbeat
+        "/api/brain",     # Brain status monitoring
         "/health",        # System health (for frontend monitoring)
         "/api/health",    # Health endpoint alias
     ]
@@ -199,6 +201,22 @@ async def on_fetch(request, env):
             return await get_dashboard_snapshot(env, headers)
         except ImportError:
             return await get_dashboard_snapshot(env, headers)
+    
+    # ⏱️ UNIFIED TICK - Manual Brain Heartbeat
+    if "api/tick" in url:
+        try:
+            from routes.tick import handle_tick
+            return await handle_tick(request, env, headers)
+        except ImportError as e:
+            return Response.new(json.dumps({"error": f"Tick module error: {e}"}), status=500, headers=headers)
+    
+    # 🧠 BRAIN STATUS - Health Monitoring
+    if "api/brain/status" in url:
+        try:
+            from routes.tick import get_brain_status
+            return await get_brain_status(env, headers)
+        except ImportError as e:
+            return Response.new(json.dumps({"error": f"Brain status error: {e}"}), status=500, headers=headers)
     
     # 🧠 SMART MCP INTELLIGENCE (Zero-Cost AI Signals)
     if "api/mcp" in url:
