@@ -20,6 +20,9 @@ const EvolutionaryOptimization = dynamic(() => import('@/components/dialectic/Ev
 const ResilienceMonitor = dynamic(() => import('@/components/dialectic/ResilienceMonitor'), { ssr: false });
 const StrategyEngine = dynamic(() => import('@/components/dialectic/StrategyEngine'), { ssr: false });
 
+// AI Chat - Connected to /api/chat
+const AIChat = dynamic(() => import('@/components/dashboard/AIChat'), { ssr: false });
+
 export default function HomePage() {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const { portfolio } = usePortfolio();
@@ -173,19 +176,10 @@ export default function HomePage() {
 
                 {/* Bottom Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* AI Chat Placeholder */}
-                    <motion.div
-                        data-testid="ai-chat-card"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-[#0A0A1A]/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex items-center justify-center"
-                    >
-                        <div className="text-center">
-                            <Brain className="w-12 h-12 text-[#A855F7] mx-auto mb-2" />
-                            <p className="text-sm font-mono text-gray-400">AI_CHAT</p>
-                            <p className="text-xs font-mono text-gray-600 mt-1">GLM-4.5 Integration</p>
-                        </div>
-                    </motion.div>
+                    {/* AI Chat - Connected to Backend */}
+                    <div data-testid="ai-chat-wrapper" className="lg:col-span-1 min-h-[400px]">
+                        <AIChat />
+                    </div>
 
                     {/* Execution Deck */}
                     <div data-testid="execution-deck-wrapper">
