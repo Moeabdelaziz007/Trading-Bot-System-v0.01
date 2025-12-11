@@ -72,6 +72,7 @@ export const ExecutionDeck: React.FC = () => {
             onChange={(e) => setSymbol(e.target.value.toUpperCase())}
             className="w-full bg-axiom-bg border border-glass-border rounded-lg px-4 py-2 text-white font-mono focus:outline-none focus:border-axiom-neon-cyan transition-colors"
             placeholder="EURUSD"
+            data-testid="symbol-input"
           />
         </div>
 
@@ -85,6 +86,7 @@ export const ExecutionDeck: React.FC = () => {
             onChange={(e) => setAmount(Number(e.target.value))}
             className="w-full bg-axiom-bg border border-glass-border rounded-lg px-4 py-2 text-white font-mono focus:outline-none focus:border-axiom-neon-cyan transition-colors"
             placeholder="1000"
+            data-testid="amount-input"
           />
         </div>
       </div>
@@ -93,6 +95,7 @@ export const ExecutionDeck: React.FC = () => {
       <div className="grid grid-cols-2 gap-4 mb-4">
         {/* BUY Button */}
         <motion.button
+          data-testid="buy-button"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleBuy}
@@ -113,6 +116,7 @@ export const ExecutionDeck: React.FC = () => {
 
         {/* SELL Button */}
         <motion.button
+          data-testid="sell-button"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleSell}
@@ -134,15 +138,15 @@ export const ExecutionDeck: React.FC = () => {
 
       {/* Kill Switch */}
       <motion.button
+        data-testid="kill-switch-button"
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
         onClick={handleKillSwitch}
         disabled={executing}
-        className={`w-full border-2 rounded-lg p-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-          showKillConfirm
+        className={`w-full border-2 rounded-lg p-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${showKillConfirm
             ? 'bg-axiom-neon-red/20 border-axiom-neon-red animate-pulse'
             : 'bg-axiom-bg border-gray-600 hover:border-axiom-neon-red'
-        }`}
+          }`}
       >
         <div className="flex items-center justify-center gap-3">
           <AlertTriangle className={`w-5 h-5 ${showKillConfirm ? 'text-axiom-neon-red' : 'text-gray-400'}`} />

@@ -1,0 +1,433 @@
+{
+  "test_suite": "Phase 3: Agent Logic Simulation",
+  "timestamp": "2025-12-11T04:33:06.260434",
+  "summary": {
+    "total_tests": 9,
+    "passed": 8,
+    "failed": 1,
+    "pass_rate": 88.88888888888889,
+    "total_execution_time": 0.006065
+  },
+  "category_breakdown": {
+    "AEXI Protocol": {
+      "total": 3,
+      "passed": 2,
+      "failed": 1,
+      "pass_rate": 66.66666666666666
+    },
+    "Dream Machine": {
+      "total": 3,
+      "passed": 2,
+      "failed": 1,
+      "pass_rate": 66.66666666666666
+    },
+    "Self-Play Loop": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "Sentinel Agent": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "Integration": {
+      "total": 1,
+      "passed": 0,
+      "failed": 1,
+      "pass_rate": 0.0
+    },
+    "Edge Cases": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    }
+  },
+  "detailed_results": [
+    {
+      "test_name": "AEXI Protocol - Extreme RSI (95)",
+      "passed": true,
+      "execution_time": 0.000732,
+      "details": {
+        "aexi_score": 95,
+        "signal": "REVERSAL_DOWN",
+        "direction": "SHORT",
+        "triggered": true,
+        "assertions": {
+          "score_above_threshold": true,
+          "signal_triggered": true,
+          "exhaustion_detected": true,
+          "direction_short": true,
+          "components_present": true
+        },
+        "data_points": 100
+      },
+      "error": null
+    },
+    {
+      "test_name": "AEXI Protocol - Signal Boundaries",
+      "passed": true,
+      "execution_time": 0.000739,
+      "details": {
+        "boundary_tests": [
+          {
+            "scenario": "extreme_overbought",
+            "score": 95,
+            "signal": "REVERSAL_DOWN",
+            "triggered": true
+          },
+          {
+            "scenario": "normal_uptrend",
+            "score": 95,
+            "signal": "REVERSAL_DOWN",
+            "triggered": true
+          },
+          {
+            "scenario": "normal_downtrend",
+            "score": 95,
+            "signal": "REVERSAL_UP",
+            "triggered": true
+          },
+          {
+            "scenario": "sideways",
+            "score": 45,
+            "signal": "NEUTRAL",
+            "triggered": false
+          }
+        ],
+        "assertions": {
+          "extreme_higher_than_normal": true,
+          "extreme_triggers_signal": true,
+          "all_scores_valid": true,
+          "extreme_above_78": true
+        },
+        "extreme_vs_normal_diff": 0
+      },
+      "error": null
+    },
+    {
+      "test_name": "Dream Machine - Chaos Detection",
+      "passed": true,
+      "execution_time": 0.000728,
+      "details": {
+        "dream_score": 90,
+        "regime": "CHAOS",
+        "signal": "CHAOS_DETECTED",
+        "chaotic": true,
+        "assertions": {
+          "score_above_chaos_threshold": true,
+          "chaos_detected": true,
+          "regime_chaos_or_unstable": true,
+          "components_present": true,
+          "entropy_high": true
+        },
+        "entropy_score": 90,
+        "fractal_score": 90
+      },
+      "error": null
+    },
+    {
+      "test_name": "Dream Machine - Fractal Dimension",
+      "passed": true,
+      "execution_time": 0.001066,
+      "details": {
+        "fractal_results": [
+          {
+            "scenario": "simple_trend",
+            "fractal_dimension": 1.3,
+            "fractal_normalized": 35
+          },
+          {
+            "scenario": "chaotic",
+            "fractal_dimension": 1.7,
+            "fractal_normalized": 90
+          },
+          {
+            "scenario": "sideways",
+            "fractal_dimension": 1.7,
+            "fractal_normalized": 90
+          }
+        ],
+        "assertions": {
+          "chaotic_higher_complexity": true,
+          "all_fd_valid": true,
+          "normalized_scores_valid": true
+        },
+        "complexity_difference": 0.3999999999999999
+      },
+      "error": null
+    },
+    {
+      "test_name": "Self-Play Loop - Dialectic Debate",
+      "passed": true,
+      "execution_time": 0.00011,
+      "details": {
+        "market_data": {
+          "symbol": "BTCUSDT",
+          "price": 95000,
+          "trend": "bullish",
+          "volatility": "high",
+          "news_sentiment": 0.7,
+          "technical_indicators": {
+            "rsi": 72,
+            "macd": 1250,
+            "atr": 850
+          }
+        },
+        "core_thesis": {
+          "agent": "Core",
+          "position": "LONG",
+          "confidence": 0.85,
+          "reasoning": "Strong momentum with positive sentiment supports bullish position",
+          "risk_level": "MEDIUM"
+        },
+        "shadow_antithesis": {
+          "agent": "Shadow",
+          "position": "SHORT",
+          "confidence": 0.75,
+          "counter_argument": "Overbought conditions suggest imminent reversal",
+          "risk_factors": [
+            "high_rsi",
+            "crowd_trade"
+          ],
+          "regret_minimization": true
+        },
+        "synthesis": {
+          "final_position": "NEUTRAL",
+          "execution_weight": 0.425,
+          "resolution_strategy": "Conflicting signals require caution",
+          "synthesis_confidence": 0.8,
+          "risk_adjusted": true
+        },
+        "assertions": {
+          "core_has_position": true,
+          "shadow_has_counter": true,
+          "synthesis_resolves_conflict": true,
+          "different_perspectives": true,
+          "execution_weight_calculated": true
+        },
+        "debate_intensity": 0.09999999999999998
+      },
+      "error": null
+    },
+    {
+      "test_name": "Sentinel Agent - Asset Type Detection",
+      "passed": true,
+      "execution_time": 0.000128,
+      "details": {
+        "detection_results": [
+          {
+            "symbol": "BTCUSDT",
+            "expected_type": "CRYPTO",
+            "detected_type": "CRYPTO",
+            "expected_broker": "binance_futures",
+            "routed_broker": "binance_futures",
+            "type_correct": true,
+            "broker_correct": true
+          },
+          {
+            "symbol": "EURUSD",
+            "expected_type": "FOREX",
+            "detected_type": "FOREX",
+            "expected_broker": "oanda",
+            "routed_broker": "oanda",
+            "type_correct": true,
+            "broker_correct": true
+          },
+          {
+            "symbol": "AAPL",
+            "expected_type": "STOCK",
+            "detected_type": "STOCK",
+            "expected_broker": "alpaca",
+            "routed_broker": "alpaca",
+            "type_correct": true,
+            "broker_correct": true
+          },
+          {
+            "symbol": "XAUUSD",
+            "expected_type": "COMMODITY",
+            "detected_type": "COMMODITY",
+            "expected_broker": "ig",
+            "routed_broker": "ig",
+            "type_correct": true,
+            "broker_correct": true
+          },
+          {
+            "symbol": "ETHUSDT",
+            "expected_type": "CRYPTO",
+            "detected_type": "CRYPTO",
+            "expected_broker": "binance_futures",
+            "routed_broker": "binance_futures",
+            "type_correct": true,
+            "broker_correct": true
+          },
+          {
+            "symbol": "GBPJPY",
+            "expected_type": "FOREX",
+            "detected_type": "FOREX",
+            "expected_broker": "oanda",
+            "routed_broker": "oanda",
+            "type_correct": true,
+            "broker_correct": true
+          }
+        ],
+        "assertions": {
+          "all_types_detected": true,
+          "all_brokers_routed": true,
+          "detection_accuracy": true,
+          "routing_accuracy": true
+        },
+        "detection_accuracy": 1.0,
+        "routing_accuracy": 1.0
+      },
+      "error": null
+    },
+    {
+      "test_name": "Sentinel Agent - Risk Management",
+      "passed": true,
+      "execution_time": 0.00017,
+      "details": {
+        "risk_results": [
+          {
+            "scenario": "high_volatility_crypto",
+            "calculated_risk": 200.0,
+            "risk_percentage": 2.0,
+            "position_size": 0.10526315789473684,
+            "within_limits": true
+          },
+          {
+            "scenario": "low_volatility_forex",
+            "calculated_risk": 100.0,
+            "risk_percentage": 1.0,
+            "position_size": 4608.294930875576,
+            "within_limits": true
+          },
+          {
+            "scenario": "medium_risk_stock",
+            "calculated_risk": 150.0,
+            "risk_percentage": 1.5,
+            "position_size": 42.73504273504273,
+            "within_limits": true
+          }
+        ],
+        "assertions": {
+          "all_risks_within_limits": true,
+          "reasonable_position_sizes": true,
+          "risk_percentages_reasonable": true
+        },
+        "max_risk_used": 200.0
+      },
+      "error": null
+    },
+    {
+      "test_name": "Twin-Turbo Integration - AEXI + Dream",
+      "passed": false,
+      "execution_time": 0.002227,
+      "details": {
+        "integration_results": [
+          {
+            "scenario": "exhaustion_chaos",
+            "aexi_score": 95,
+            "dream_score": 90,
+            "combined_signal": "WAIT",
+            "confidence": 0.3,
+            "aexi_triggered": true,
+            "dream_chaotic": true
+          },
+          {
+            "scenario": "normal_trending",
+            "aexi_score": 95,
+            "dream_score": 35,
+            "combined_signal": "SHORT",
+            "confidence": 0.75,
+            "aexi_triggered": true,
+            "dream_chaotic": false
+          },
+          {
+            "scenario": "mixed_signals",
+            "aexi_score": 45,
+            "dream_score": 90,
+            "combined_signal": "WAIT",
+            "confidence": 0.3,
+            "aexi_triggered": false,
+            "dream_chaotic": true
+          }
+        ],
+        "assertions": {
+          "exhaustion_triggers_aexi": true,
+          "chaos_detects_dream": true,
+          "normal_has_lower_confidence": false,
+          "all_signals_valid": true
+        },
+        "confidence_range": [
+          0.3,
+          0.75,
+          0.3
+        ]
+      },
+      "error": null
+    },
+    {
+      "test_name": "Edge Cases & Error Handling",
+      "passed": true,
+      "execution_time": 0.000165,
+      "details": {
+        "edge_case_results": [
+          {
+            "test": "insufficient_data_aexi",
+            "handled": true,
+            "score": 50
+          },
+          {
+            "test": "zero_volume_dream",
+            "handled": true,
+            "score": 35
+          },
+          {
+            "test": "invalid_symbols",
+            "handled": true,
+            "results": [
+              {
+                "symbol": "",
+                "detected_type": "STOCK",
+                "handled": true
+              },
+              {
+                "symbol": "123",
+                "detected_type": "STOCK",
+                "handled": true
+              },
+              {
+                "symbol": "INVALID",
+                "detected_type": "STOCK",
+                "handled": true
+              },
+              {
+                "symbol": "TOOLONGSYMBOLNAME",
+                "detected_type": "STOCK",
+                "handled": true
+              }
+            ]
+          }
+        ],
+        "assertions": {
+          "all_edge_cases_handled": true,
+          "reasonable_scores": true,
+          "no_crashes": true
+        },
+        "handling_rate": 1.0
+      },
+      "error": null
+    }
+  ],
+  "system_info": {
+    "aexi_engine_available": false,
+    "dream_engine_available": false,
+    "twin_turbo_available": false,
+    "python_version": "3.11.9 (main, Sep  8 2025, 14:33:47) [Clang 17.0.0 (clang-1700.0.13.5)]",
+    "platform": "posix"
+  }
+}

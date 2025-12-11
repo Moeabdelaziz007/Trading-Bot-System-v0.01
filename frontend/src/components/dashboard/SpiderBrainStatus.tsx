@@ -55,6 +55,7 @@ export const SpiderBrainStatus: React.FC = () => {
           return (
             <motion.div
               key={agent.id}
+              data-testid={`agent-node-${agent.id}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -64,13 +65,12 @@ export const SpiderBrainStatus: React.FC = () => {
               <div className={`relative bg-axiom-bg/80 border ${colorClass} rounded-lg p-4 hover:scale-105 transition-all duration-300 cursor-pointer`}>
                 {/* Status Indicator */}
                 <div className="absolute top-2 right-2">
-                  <div className={`w-2 h-2 rounded-full ${
-                    agent.status === 'online' 
-                      ? 'bg-axiom-neon-green animate-pulse' 
+                  <div className={`w-2 h-2 rounded-full ${agent.status === 'online'
+                      ? 'bg-axiom-neon-green animate-pulse'
                       : agent.status === 'degraded'
-                      ? 'bg-yellow-500'
-                      : 'bg-axiom-neon-red'
-                  }`}></div>
+                        ? 'bg-yellow-500'
+                        : 'bg-axiom-neon-red'
+                    }`}></div>
                 </div>
 
                 {/* Icon */}
@@ -102,9 +102,8 @@ export const SpiderBrainStatus: React.FC = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-text-muted">Status:</span>
-                        <span className={`${
-                          agent.status === 'online' ? 'text-axiom-neon-green' : 'text-axiom-neon-red'
-                        }`}>
+                        <span className={`${agent.status === 'online' ? 'text-axiom-neon-green' : 'text-axiom-neon-red'
+                          }`}>
                           {agent.status.toUpperCase()}
                         </span>
                       </div>

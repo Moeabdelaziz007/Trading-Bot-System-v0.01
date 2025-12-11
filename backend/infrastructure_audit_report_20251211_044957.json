@@ -1,0 +1,498 @@
+{
+  "timestamp": "2025-12-11T04:49:57.079521",
+  "audit_version": "1.0.0",
+  "findings": {
+    "token_usage": {
+      "status": "success",
+      "current_usage": {
+        "total_tokens": 133000,
+        "input_tokens": 100000,
+        "output_tokens": 33000,
+        "by_model": {
+          "gemini-1.5-flash": {
+            "input_tokens": 50000,
+            "output_tokens": 15000,
+            "total_tokens": 65000,
+            "cost": 0.006
+          },
+          "glm-4.5": {
+            "input_tokens": 30000,
+            "output_tokens": 10000,
+            "total_tokens": 40000,
+            "cost": 0.025
+          },
+          "groq": {
+            "input_tokens": 20000,
+            "output_tokens": 8000,
+            "total_tokens": 28000,
+            "cost": 0.01004
+          }
+        },
+        "by_type": {
+          "chat": 0,
+          "analysis": 0,
+          "strategy": 0
+        },
+        "daily_usage": [],
+        "cost_estimate": 0.04104
+      },
+      "gemini_flash_status": {
+        "requests_per_minute": 65,
+        "within_free_tier": false,
+        "utilization_percent": 433.3333333333333
+      },
+      "recommendations": [
+        "\ud83d\udcdd Implement prompt optimization to reduce token usage",
+        "\ud83d\udcbe Cache frequently requested responses"
+      ]
+    },
+    "cloudflare": {
+      "status": "success",
+      "current_metrics": {
+        "workers": {
+          "requests_today": 15420,
+          "cpu_time_ms": 450000,
+          "memory_usage_mb": 128,
+          "errors_4xx": 142,
+          "errors_5xx": 8
+        },
+        "d1": {
+          "storage_used_bytes": 536870912,
+          "reads_today": 1500000,
+          "writes_today": 85000,
+          "query_time_avg_ms": 12.5,
+          "tables_count": 7
+        },
+        "r2": {
+          "storage_used_bytes": 2254857830.4,
+          "class_a_operations": 450000,
+          "class_b_operations": 3200000,
+          "objects_count": 15420,
+          "avg_object_size_kb": 142
+        },
+        "kv": {
+          "reads_today": 25000,
+          "writes_today": 8500,
+          "storage_used_bytes": 47185920
+        }
+      },
+      "utilization": {
+        "workers_requests_percent": 15.42,
+        "workers_cpu_percent": 75.0,
+        "d1_storage_percent": 10.0,
+        "d1_reads_percent": 6.0,
+        "d1_writes_percent": 85.0,
+        "r2_storage_percent": 21.000000000000004
+      },
+      "free_tier_status": {
+        "workers_within_limits": true,
+        "d1_within_limits": true,
+        "r2_within_limits": true,
+        "overall_within_free_tier": true
+      },
+      "recommendations": [
+        "\ud83d\udcdd Batch write operations where possible",
+        "\ud83d\uddd1\ufe0f Implement data cleanup and archival strategies"
+      ]
+    }
+  },
+  "recommendations": [
+    "\ud83d\udea8 CRITICAL: Implement usage throttling to stay within free tier limits",
+    "\ud83d\udea8 Consider upgrading to paid plan or optimizing resource usage immediately",
+    "\ud83d\udcca Implement comprehensive logging and monitoring for better visibility",
+    "\ud83d\udd04 Set up automated alerts for when usage approaches limits",
+    "\ud83d\uddc2\ufe0f Implement data archival strategy for old trading data",
+    "\ud83d\udd10 Review and optimize API security to prevent unauthorized usage",
+    "\ud83d\udcc8 Regular performance audits to identify optimization opportunities"
+  ],
+  "cost_analysis": {
+    "status": "success",
+    "cost_breakdown": {
+      "ai_tokens": 0.04104,
+      "cloudflare_workers": 0.0,
+      "d1_storage": 0.0,
+      "r2_storage": 0.0,
+      "bandwidth": 0.0,
+      "total_monthly": 0.04104
+    },
+    "monthly_projection": 0.04104,
+    "annual_projection": 0.49248000000000003,
+    "cost_per_user": 0.0004104,
+    "free_tier_savings": 0.028728,
+    "recommendations": []
+  },
+  "performance_analysis": {
+    "status": "success",
+    "results": {
+      "regional_performance": {
+        "us-east-1": {
+          "region": "us-east-1",
+          "response_times": [
+            79,
+            55,
+            61,
+            74,
+            77,
+            89,
+            66,
+            92,
+            89,
+            89,
+            95,
+            93,
+            89,
+            100,
+            101,
+            86,
+            111,
+            112,
+            105,
+            105,
+            91,
+            121,
+            111,
+            106,
+            126,
+            113,
+            116,
+            116,
+            107,
+            123,
+            117,
+            127,
+            129,
+            124,
+            145,
+            121,
+            128,
+            142,
+            153,
+            142,
+            143,
+            157,
+            160,
+            154,
+            145,
+            142,
+            171,
+            167,
+            166,
+            177
+          ],
+          "avg_response_time": 116.16,
+          "min_response_time": 55,
+          "max_response_time": 177,
+          "success_count": 48,
+          "total_tests": 50,
+          "success_rate": 96.0
+        },
+        "us-west-2": {
+          "region": "us-west-2",
+          "response_times": [
+            97,
+            100,
+            81,
+            92,
+            94,
+            90,
+            89,
+            109,
+            119,
+            98,
+            114,
+            104,
+            125,
+            101,
+            110,
+            116,
+            108,
+            134,
+            111,
+            142,
+            126,
+            117,
+            138,
+            122,
+            135,
+            137,
+            147,
+            142,
+            143,
+            155,
+            155,
+            139,
+            140,
+            148,
+            163,
+            157,
+            166,
+            176,
+            158,
+            160,
+            183,
+            170,
+            160,
+            189,
+            188,
+            175,
+            182,
+            198,
+            175,
+            183
+          ],
+          "avg_response_time": 137.22,
+          "min_response_time": 81,
+          "max_response_time": 198,
+          "success_count": 50,
+          "total_tests": 50,
+          "success_rate": 100.0
+        },
+        "eu-west-1": {
+          "region": "eu-west-1",
+          "response_times": [
+            132,
+            134,
+            138,
+            127,
+            151,
+            135,
+            149,
+            143,
+            138,
+            143,
+            153,
+            148,
+            160,
+            174,
+            174,
+            168,
+            168,
+            164,
+            184,
+            171,
+            180,
+            165,
+            170,
+            166,
+            188,
+            181,
+            200,
+            174,
+            193,
+            202,
+            190,
+            183,
+            200,
+            196,
+            209,
+            209,
+            218,
+            217,
+            208,
+            201,
+            208,
+            225,
+            217,
+            214,
+            228,
+            220,
+            213,
+            227,
+            236,
+            219
+          ],
+          "avg_response_time": 182.22,
+          "min_response_time": 127,
+          "max_response_time": 236,
+          "success_count": 46,
+          "total_tests": 50,
+          "success_rate": 92.0
+        },
+        "ap-southeast-1": {
+          "region": "ap-southeast-1",
+          "response_times": [
+            205,
+            206,
+            205,
+            192,
+            188,
+            209,
+            208,
+            203,
+            202,
+            208,
+            220,
+            226,
+            224,
+            225,
+            236,
+            220,
+            241,
+            236,
+            216,
+            232,
+            234,
+            236,
+            227,
+            234,
+            245,
+            240,
+            232,
+            256,
+            261,
+            264,
+            261,
+            250,
+            270,
+            252,
+            267,
+            260,
+            265,
+            257,
+            280,
+            259,
+            288,
+            270,
+            273,
+            268,
+            276,
+            281,
+            299,
+            274,
+            303,
+            301
+          ],
+          "avg_response_time": 243.7,
+          "min_response_time": 188,
+          "max_response_time": 303,
+          "success_count": 47,
+          "total_tests": 50,
+          "success_rate": 94.0
+        },
+        "ap-northeast-1": {
+          "region": "ap-northeast-1",
+          "response_times": [
+            154,
+            157,
+            178,
+            163,
+            160,
+            180,
+            188,
+            169,
+            172,
+            188,
+            177,
+            201,
+            187,
+            198,
+            195,
+            204,
+            192,
+            187,
+            202,
+            217,
+            196,
+            215,
+            220,
+            215,
+            213,
+            216,
+            212,
+            216,
+            235,
+            222,
+            216,
+            240,
+            221,
+            224,
+            246,
+            249,
+            251,
+            251,
+            242,
+            233,
+            257,
+            254,
+            252,
+            245,
+            238,
+            269,
+            257,
+            245,
+            264,
+            273
+          ],
+          "avg_response_time": 215.12,
+          "min_response_time": 154,
+          "max_response_time": 273,
+          "success_count": 49,
+          "total_tests": 50,
+          "success_rate": 98.0
+        }
+      },
+      "global_metrics": {
+        "avg_response_time": 178.884,
+        "p95_response_time": 269.45,
+        "p99_response_time": 299.98,
+        "success_rate": 96.0,
+        "total_tests": 250
+      },
+      "bottlenecks": [
+        "\u274c eu-west-1: Low success rate (92.0%)",
+        "\u274c ap-southeast-1: Low success rate (94.0%)"
+      ],
+      "recommendations": [
+        "\ud83d\udee1\ufe0f Implement circuit breakers and retry mechanisms",
+        "\ud83d\udcdd Improve error handling and logging"
+      ]
+    }
+  },
+  "free_tier_status": {
+    "status": "success",
+    "free_tier_status": {
+      "overall_status": "critical",
+      "alerts": [
+        "\ud83d\udea8 Gemini Flash: Exceeding free tier limits!"
+      ],
+      "warnings": [
+        "\u26a1 d1_writes_percent: 85.0% utilized - Monitor closely"
+      ],
+      "utilization_summary": {
+        "workers_requests_percent": "15.4%",
+        "workers_cpu_percent": "75.0%",
+        "d1_storage_percent": "10.0%",
+        "d1_reads_percent": "6.0%",
+        "d1_writes_percent": "85.0%",
+        "r2_storage_percent": "21.0%",
+        "gemini_flash": "433.3%"
+      },
+      "time_until_limit": {
+        "workers_requests_percent": {
+          "days_remaining": 164,
+          "estimated_limit_date": "2026-05-24"
+        },
+        "workers_cpu_percent": {
+          "days_remaining": 10,
+          "estimated_limit_date": "2025-12-21"
+        },
+        "d1_storage_percent": {
+          "days_remaining": 270,
+          "estimated_limit_date": "2026-09-07"
+        },
+        "d1_reads_percent": {
+          "days_remaining": 470,
+          "estimated_limit_date": "2027-03-26"
+        },
+        "d1_writes_percent": {
+          "days_remaining": 5,
+          "estimated_limit_date": "2025-12-16"
+        },
+        "r2_storage_percent": {
+          "days_remaining": 112,
+          "estimated_limit_date": "2026-04-03"
+        }
+      }
+    }
+  }
+}

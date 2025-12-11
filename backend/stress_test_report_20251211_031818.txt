@@ -1,0 +1,154 @@
+================================================================================
+🚀 ALPHAAXIOM BACKEND API STRESS TEST REPORT
+================================================================================
+Test Date: 2025-12-11T03:18:18.944873
+Base URL: http://localhost:8000
+Target Response Time: 500ms
+
+📊 SUMMARY
+----------------------------------------
+Total Tests: 5
+Passed Tests: 3
+Failed Tests: 2
+Success Rate: 60.0%
+
+📈 DETAILED RESULTS
+----------------------------------------
+
+🔍 GET /api/status
+   Total Requests: 50
+   Successful: 50
+   Failed: 0
+   Error Rate: 0.00%
+   Response Times:
+     Average: 104.36ms
+     Min: 80.59ms
+     Max: 142.54ms
+     95th Percentile: 139.28ms
+     99th Percentile: 143.73ms
+   Requests/Second: 350.27
+   Test Duration: 0.14s
+   Memory Usage: 1.36MB
+   CPU Usage: 0.00%
+   ✅ PASSED
+
+🔍 GET /api/brain/status
+   Total Requests: 50
+   Successful: 50
+   Failed: 0
+   Error Rate: 0.00%
+   Response Times:
+     Average: 17.63ms
+     Min: 5.66ms
+     Max: 24.25ms
+     95th Percentile: 24.07ms
+     99th Percentile: 24.30ms
+   Requests/Second: 1907.25
+   Test Duration: 0.03s
+   Memory Usage: 0.04MB
+   CPU Usage: 0.00%
+   ✅ PASSED
+
+🔍 POST /api/ai/chat
+   Total Requests: 10
+   Successful: 10
+   Failed: 0
+   Error Rate: 0.00%
+   Response Times:
+     Average: 1245.48ms
+     Min: 518.61ms
+     Max: 1326.46ms
+     95th Percentile: 1326.50ms
+     99th Percentile: 1326.55ms
+   Requests/Second: 7.53
+   Test Duration: 1.33s
+   Memory Usage: 0.02MB
+   CPU Usage: 0.00%
+   ❌ FAILED
+      ⚠️  Response time exceeds 500ms target
+
+🔍 POST /api/trade
+   Total Requests: 10
+   Successful: 10
+   Failed: 0
+   Error Rate: 0.00%
+   Response Times:
+     Average: 7.02ms
+     Min: 4.75ms
+     Max: 8.33ms
+     95th Percentile: 8.34ms
+     99th Percentile: 8.35ms
+   Requests/Second: 981.74
+   Test Duration: 0.01s
+   Memory Usage: 0.01MB
+   CPU Usage: 0.00%
+   ✅ PASSED
+
+🔍 WebSocket /ws
+   Total Requests: 10
+   Successful: 10
+   Failed: 0
+   Error Rate: 0.00%
+   Response Times:
+     Average: 2740.33ms
+     Min: 2036.11ms
+     Max: 3039.09ms
+     95th Percentile: 3039.13ms
+     99th Percentile: 3039.16ms
+   Requests/Second: 3.25
+   Test Duration: 3.08s
+   Memory Usage: 0.90MB
+   CPU Usage: 0.00%
+   ❌ FAILED
+      ⚠️  Response time exceeds 500ms target
+
+🖥️  SYSTEM METRICS SUMMARY
+----------------------------------------
+
+/api/status:
+   Memory Before: 30.45MB
+   Memory After: 31.81MB
+   Peak Memory: 31.81MB
+   Memory Delta: 1.36MB
+   CPU Before: 0.00%
+   CPU After: 0.00%
+
+/api/brain/status:
+   Memory Before: 31.82MB
+   Memory After: 31.86MB
+   Peak Memory: 31.86MB
+   Memory Delta: 0.04MB
+   CPU Before: 0.00%
+   CPU After: 0.00%
+
+/api/ai/chat:
+   Memory Before: 31.86MB
+   Memory After: 31.88MB
+   Peak Memory: 31.88MB
+   Memory Delta: 0.02MB
+   CPU Before: 0.00%
+   CPU After: 0.00%
+
+/api/trade:
+   Memory Before: 31.88MB
+   Memory After: 31.89MB
+   Peak Memory: 31.89MB
+   Memory Delta: 0.01MB
+   CPU Before: 0.00%
+   CPU After: 0.00%
+
+/ws:
+   Memory Before: 31.89MB
+   Memory After: 32.80MB
+   Peak Memory: 32.80MB
+   Memory Delta: 0.90MB
+   CPU Before: 0.00%
+   CPU After: 0.00%
+
+💡 RECOMMENDATIONS
+----------------------------------------
+⚠️  Slow Endpoints (need optimization):
+   - POST /api/ai/chat: 1245.48ms
+   - WebSocket /ws: 2740.33ms
+
+================================================================================

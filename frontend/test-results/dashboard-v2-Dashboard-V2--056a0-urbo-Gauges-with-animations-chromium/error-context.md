@@ -1,0 +1,93 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic:
+    - generic:
+      - generic:
+        - heading "ALPHA AXIOM" [level=1]
+      - paragraph: INITIALIZING SYSTEM v2.4
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e6]: A
+        - generic [ref=e7]:
+          - heading "AXIOM" [level=1] [ref=e8]
+          - paragraph [ref=e9]: Antigravity
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /
+        - link "AI Bots" [ref=e12] [cursor=pointer]:
+          - /url: /bots
+        - link "Test AI" [ref=e13] [cursor=pointer]:
+          - /url: /test-ai
+        - link "Settings" [ref=e14] [cursor=pointer]:
+          - /url: /settings
+        - link "Profile" [ref=e15] [cursor=pointer]:
+          - /url: /profile
+        - link "About" [ref=e16] [cursor=pointer]:
+          - /url: /about
+      - button "Sign in" [ref=e18] [cursor=pointer]
+    - main [ref=e19]:
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e26]:
+            - heading "ALPHA AXIOM" [level=1] [ref=e29]
+            - paragraph [ref=e30]:
+              - text: Advanced Intelligence
+              - text: for Modern Trading.
+            - generic [ref=e31]:
+              - generic [ref=e32]: SYSTEM v2.4
+              - generic [ref=e33]: NEURAL BRIDGE ACTIVE
+          - generic [ref=e34]:
+            - generic [ref=e37]: "OPERATIONAL STATUS: NOMINAL"
+            - generic [ref=e38]:
+              - generic [ref=e39]: SESSION ID
+              - text: AX-9920-XF
+        - generic [ref=e42]:
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - generic [ref=e47]:
+                - heading "Sign in to My Application" [level=1] [ref=e48]
+                - paragraph [ref=e49]: Welcome back! Please sign in to continue
+              - generic [ref=e50]:
+                - generic [ref=e51]:
+                  - generic [ref=e52]:
+                    - generic [ref=e55]:
+                      - generic [ref=e57]: Email address
+                      - textbox "Email address" [ref=e58]:
+                        - /placeholder: Enter your email address
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Password
+                          - generic:
+                            - textbox "Password":
+                              - /placeholder: Enter your password
+                            - button "Show password":
+                              - img
+                  - button "Continue" [ref=e61] [cursor=pointer]:
+                    - generic [ref=e62]:
+                      - text: Continue
+                      - img [ref=e63]
+                - paragraph [ref=e67]: or
+                - button "Sign in with Google Continue with Google" [ref=e71] [cursor=pointer]:
+                  - generic [ref=e72]:
+                    - img "Sign in with Google" [ref=e74]
+                    - generic [ref=e75]: Continue with Google
+            - generic [ref=e76]:
+              - generic [ref=e77]:
+                - generic [ref=e78]: Don’t have an account?
+                - link "Sign up" [ref=e79] [cursor=pointer]:
+                  - /url: http://localhost:3000/sign-up#/?redirect_url=http%3A%2F%2Flocalhost%3A3000%2Fdashboard-v2
+              - generic [ref=e81]:
+                - generic [ref=e83]:
+                  - paragraph [ref=e84]: Secured by
+                  - link "Clerk logo" [ref=e85] [cursor=pointer]:
+                    - /url: https://go.clerk.com/components
+                    - img [ref=e86]
+                - paragraph [ref=e91]: Development mode
+          - paragraph [ref=e93] [cursor=pointer]: SECURED BY CLERK & CLOUDFLARE
+  - alert [ref=e94]
+```

@@ -1,0 +1,150 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic:
+    - generic:
+      - generic:
+        - heading "ALPHA AXIOM" [level=1]
+      - paragraph: INITIALIZING SYSTEM v2.4
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e6]: A
+        - generic [ref=e7]:
+          - heading "AXIOM" [level=1] [ref=e8]
+          - paragraph [ref=e9]: Antigravity
+      - button "Sign in" [ref=e11] [cursor=pointer]
+    - main [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - link [ref=e18] [cursor=pointer]:
+              - /url: /dashboard-v2
+              - img [ref=e19]
+            - generic [ref=e21]:
+              - img [ref=e22]
+              - generic [ref=e25]:
+                - heading "AGENT_FOUNDRY" [level=1] [ref=e26]
+                - paragraph [ref=e27]: Create & Simulate Trading Agents
+          - generic [ref=e30]: LAB_MODE
+        - main [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e35]:
+              - generic [ref=e36]:
+                - img [ref=e37]
+                - heading "AGENT_IDENTITY" [level=2] [ref=e40]
+              - generic [ref=e41]:
+                - generic [ref=e42]:
+                  - img [ref=e45]
+                  - button "Choose File" [ref=e48] [cursor=pointer]
+                - paragraph [ref=e49]: UPLOAD_AVATAR
+              - generic [ref=e50]:
+                - generic [ref=e51]: AGENT_NAME
+                - textbox "AGENT_NAME" [ref=e52]:
+                  - /placeholder: e.g., Alpha Predator
+              - generic [ref=e53]:
+                - generic [ref=e54]: STRATEGY_DESCRIPTION
+                - textbox "STRATEGY_DESCRIPTION" [ref=e55]:
+                  - /placeholder: Describe your agent's trading philosophy...
+              - generic [ref=e56]:
+                - heading "DNA_CONFIGURATION" [level=3] [ref=e57]:
+                  - img [ref=e58]
+                  - text: DNA_CONFIGURATION
+                - generic [ref=e60]:
+                  - generic [ref=e61]:
+                    - generic [ref=e62]:
+                      - img [ref=e64]
+                      - generic [ref=e66]: RISK_TOLERANCE
+                    - generic [ref=e67]: "50"
+                  - slider [ref=e69] [cursor=pointer]: "50"
+                  - generic [ref=e71]:
+                    - generic [ref=e72]: Conservative
+                    - generic [ref=e73]: Aggressive
+                - generic [ref=e74]:
+                  - generic [ref=e75]:
+                    - generic [ref=e76]:
+                      - img [ref=e78]
+                      - generic [ref=e80]: TRADE_FREQUENCY
+                    - generic [ref=e81]: "50"
+                  - slider [ref=e83] [cursor=pointer]: "50"
+                  - generic [ref=e85]:
+                    - generic [ref=e86]: Swing Trader
+                    - generic [ref=e87]: Scalper
+                - generic [ref=e88]:
+                  - generic [ref=e89]:
+                    - generic [ref=e90]:
+                      - img [ref=e92]
+                      - generic [ref=e100]: INTELLIGENCE_LEVEL
+                    - generic [ref=e101]: "50"
+                  - slider [ref=e103] [cursor=pointer]: "50"
+                  - generic [ref=e105]:
+                    - generic [ref=e106]: Basic Rules
+                    - generic [ref=e107]: GLM-4.5 AI
+              - generic [ref=e108]:
+                - heading "BROKER_SELECTION" [level=3] [ref=e109]:
+                  - img [ref=e110]
+                  - text: BROKER_SELECTION
+                - generic [ref=e114]:
+                  - button "Capital.com" [ref=e115] [cursor=pointer]:
+                    - paragraph [ref=e116]: Capital.com
+                  - button "Alpaca" [ref=e117] [cursor=pointer]:
+                    - paragraph [ref=e118]: Alpaca
+                  - button "Bybit" [ref=e119] [cursor=pointer]:
+                    - paragraph [ref=e120]: Bybit
+            - generic [ref=e123]:
+              - generic [ref=e124]:
+                - generic [ref=e125]:
+                  - img [ref=e126]
+                  - heading "STRATEGY_GENE_EDITOR" [level=2] [ref=e130]
+                - generic [ref=e132]: 0 RULES
+              - paragraph [ref=e134]: 💡 Build your agent's decision logic by adding conditional rules. Each rule defines when and how your agent should act.
+              - button "ADD_LOGIC_BLOCK" [ref=e136] [cursor=pointer]:
+                - generic [ref=e137]:
+                  - img [ref=e139]
+                  - generic [ref=e140]: ADD_LOGIC_BLOCK
+            - generic [ref=e143]:
+              - generic [ref=e145]:
+                - img [ref=e146]
+                - heading "SIMULATION_SANDBOX" [level=2] [ref=e148]
+              - generic [ref=e149]:
+                - heading "THEORETICAL_PERFORMANCE" [level=3] [ref=e150]
+                - table [ref=e153]:
+                  - row [ref=e154]:
+                    - cell
+                    - cell [ref=e155]:
+                      - link "Charting by TradingView" [ref=e159] [cursor=pointer]:
+                        - /url: https://www.tradingview.com/?utm_medium=lwc-link&utm_campaign=lwc-chart&utm_source=localhost/agent-lab
+                        - img [ref=e160]
+                    - cell [ref=e164]
+                  - row [ref=e168]:
+                    - cell
+                    - cell [ref=e169]
+                    - cell [ref=e173]
+              - generic [ref=e176]:
+                - generic [ref=e177]:
+                  - generic [ref=e178]:
+                    - img [ref=e179]
+                    - generic [ref=e182]: WIN_RATE
+                  - paragraph [ref=e183]: 60.0%
+                - generic [ref=e184]:
+                  - generic [ref=e188]: MAX_DRAWDOWN
+                  - paragraph [ref=e189]: 2.2%
+                - generic [ref=e190]:
+                  - generic [ref=e193]: PROFIT_FACTOR
+                  - paragraph [ref=e194]: "2.00"
+                - generic [ref=e195]:
+                  - generic [ref=e198]: TOTAL_TRADES
+                  - paragraph [ref=e199]: "150"
+              - generic [ref=e201]:
+                - generic [ref=e202]: PROJECTED_30D_RETURN
+                - generic [ref=e203]: "-0.14%"
+              - button "IGNITE_AGENT" [disabled] [ref=e204]:
+                - generic [ref=e206]:
+                  - img [ref=e207]
+                  - generic [ref=e212]: IGNITE_AGENT
+              - paragraph [ref=e214]: ⚠️ Complete agent configuration and add at least one strategy rule to deploy
+          - generic:
+            - img
+  - alert [ref=e215]
+```

@@ -4,19 +4,21 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Bell, Crown, Brain, TrendingUp } from 'lucide-react';
 
-// Use canonical component locations
-import { SpiderBrainStatus } from './dashboard-v2/components/SpiderBrainStatus';
-import { TwinTurboGauges } from './dashboard-v2/components/TwinTurboGauges';
-import { AutonomousSwarm } from './dashboard-v2/components/AutonomousSwarm';
-import { ExecutionDeck } from './dashboard-v2/components/ExecutionDeck';
-import { PaymentModal } from './dashboard-v2/components/PaymentModal';
+import dynamic from 'next/dynamic';
+
+// Dynamic imports for improved performance (Code Splitting)
+const SpiderBrainStatus = dynamic(() => import('./dashboard-v2/components/SpiderBrainStatus'), { ssr: false });
+const TwinTurboGauges = dynamic(() => import('./dashboard-v2/components/TwinTurboGauges'), { ssr: false });
+const AutonomousSwarm = dynamic(() => import('./dashboard-v2/components/AutonomousSwarm'), { ssr: false });
+const ExecutionDeck = dynamic(() => import('./dashboard-v2/components/ExecutionDeck'), { ssr: false });
+const PaymentModal = dynamic(() => import('./dashboard-v2/components/PaymentModal'), { ssr: false });
 import { usePortfolio } from './dashboard-v2/hooks/usePortfolio';
 
-// Import existing dialectic components
-import { DialecticWarRoom } from '@/components/dialectic/DialecticWarRoom';
-import { EvolutionaryOptimization } from '@/components/dialectic/EvolutionaryOptimization';
-import { ResilienceMonitor } from '@/components/dialectic/ResilienceMonitor';
-import { StrategyEngine } from '@/components/dialectic/StrategyEngine';
+// existing dialectic components - dynamic load
+const DialecticWarRoom = dynamic(() => import('@/components/dialectic/DialecticWarRoom'), { ssr: false });
+const EvolutionaryOptimization = dynamic(() => import('@/components/dialectic/EvolutionaryOptimization'), { ssr: false });
+const ResilienceMonitor = dynamic(() => import('@/components/dialectic/ResilienceMonitor'), { ssr: false });
+const StrategyEngine = dynamic(() => import('@/components/dialectic/StrategyEngine'), { ssr: false });
 
 export default function HomePage() {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -75,12 +77,15 @@ export default function HomePage() {
             {/* Main Content */}
             <main className="max-w-[1920px] mx-auto px-6 py-6 space-y-6">
                 {/* Spider Web Brain Status */}
-                <SpiderBrainStatus />
+                <div data-testid="spider-brain-section">
+                    <SpiderBrainStatus />
+                </div>
 
                 {/* Top Stats Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-testid="stats-row">
                     {/* Bot Scores */}
                     <motion.div
+                        data-testid="bot-scores-card"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="bg-[#0A0A1A]/50 backdrop-blur-xl border border-white/10 rounded-xl p-6"
@@ -89,13 +94,13 @@ export default function HomePage() {
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
                                 <span className="text-xs font-mono text-gray-500">PnL Today</span>
-                                <span className={`text-lg font-mono font-bold ${portfolio.todayPnL >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
+                                <span className={`text-lg font-mono font-bold ${portfolio.todayPnL >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`} data-testid="pnl-value">
                                     {portfolio.todayPnL >= 0 ? '+' : ''}{portfolio.todayPnL.toFixed(2)}
                                 </span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-xs font-mono text-gray-500">Win Rate</span>
-                                <span className="text-lg font-mono font-bold text-[#00FFFF]">
+                                <span className="text-lg font-mono font-bold text-[#00FFFF]" data-testid="win-rate-value">
                                     {portfolio.winRate}%
                                 </span>
                             </div>
@@ -104,6 +109,7 @@ export default function HomePage() {
 
                     {/* Main Chart Placeholder */}
                     <motion.div
+                        data-testid="main-chart-card"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
@@ -118,6 +124,7 @@ export default function HomePage() {
 
                     {/* Portfolio */}
                     <motion.div
+                        data-testid="portfolio-card"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
@@ -127,13 +134,13 @@ export default function HomePage() {
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
                                 <span className="text-xs font-mono text-gray-500">Balance</span>
-                                <span className="text-lg font-mono font-bold text-white">
+                                <span className="text-lg font-mono font-bold text-white" data-testid="balance-value">
                                     ${portfolio.balance.toLocaleString()}
                                 </span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-xs font-mono text-gray-500">Positions</span>
-                                <span className="text-lg font-mono font-bold text-[#00FFFF]">
+                                <span className="text-lg font-mono font-bold text-[#00FFFF]" data-testid="positions-count">
                                     {portfolio.positions.length}
                                 </span>
                             </div>
@@ -142,7 +149,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Self-Play Learning Loop */}
-                <div className="bg-[#0A0A1A]/50 backdrop-blur-xl border border-white/10 rounded-xl p-6">
+                <div className="bg-[#0A0A1A]/50 backdrop-blur-xl border border-white/10 rounded-xl p-6" data-testid="self-play-section">
                     <div className="flex items-center gap-3 mb-6">
                         <Brain className="w-6 h-6 text-[#A855F7]" />
                         <h2 className="text-xl font-mono font-bold text-white tracking-tight">
@@ -160,12 +167,15 @@ export default function HomePage() {
                 </div>
 
                 {/* Twin-Turbo Engines */}
-                <TwinTurboGauges />
+                <div data-testid="twin-turbo-section">
+                    <TwinTurboGauges />
+                </div>
 
                 {/* Bottom Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* AI Chat Placeholder */}
                     <motion.div
+                        data-testid="ai-chat-card"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="bg-[#0A0A1A]/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex items-center justify-center"
@@ -178,10 +188,12 @@ export default function HomePage() {
                     </motion.div>
 
                     {/* Execution Deck */}
-                    <ExecutionDeck />
+                    <div data-testid="execution-deck-wrapper">
+                        <ExecutionDeck />
+                    </div>
 
                     {/* Autonomous Swarm */}
-                    <div className="lg:col-span-1">
+                    <div className="lg:col-span-1" data-testid="swarm-timeline-wrapper">
                         <AutonomousSwarm />
                     </div>
                 </div>

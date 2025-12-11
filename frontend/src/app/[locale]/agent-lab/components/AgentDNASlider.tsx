@@ -38,7 +38,10 @@ export const AgentDNASlider: React.FC<AgentDNASliderProps> = ({
             {label}
           </label>
         </div>
-        <span className={`text-lg font-mono font-bold ${color}`}>
+        <span
+          data-testid={`slider-value-${label.toLowerCase().replace(/\s+/g, '-')}`}
+          className={`text-lg font-mono font-bold ${color} min-w-[3ch] text-right`}
+        >
           {value}
         </span>
       </div>
@@ -56,7 +59,7 @@ export const AgentDNASlider: React.FC<AgentDNASliderProps> = ({
             background: `linear-gradient(to right, ${color.replace('text-', '')} 0%, ${color.replace('text-', '')} ${percentage}%, rgba(255,255,255,0.1) ${percentage}%, rgba(255,255,255,0.1) 100%)`
           }}
         />
-        
+
         {/* DNA Strand Animation */}
         <motion.div
           className="absolute -top-1 h-4 w-4 rounded-full border-2"

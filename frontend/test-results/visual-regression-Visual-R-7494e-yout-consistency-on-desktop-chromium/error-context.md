@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - heading "ALPHA AXIOM" [level=1] [ref=e6]
+    - paragraph [ref=e9]: INITIALIZING SYSTEM v2.4
+  - generic [ref=e10]:
+    - banner [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e14]: A
+        - generic [ref=e15]:
+          - heading "AXIOM" [level=1] [ref=e16]
+          - paragraph [ref=e17]: Antigravity
+      - navigation [ref=e18]:
+        - link "Dashboard" [ref=e19] [cursor=pointer]:
+          - /url: /
+        - link "AI Bots" [ref=e20] [cursor=pointer]:
+          - /url: /bots
+        - link "Test AI" [ref=e21] [cursor=pointer]:
+          - /url: /test-ai
+        - link "Settings" [ref=e22] [cursor=pointer]:
+          - /url: /settings
+        - link "Profile" [ref=e23] [cursor=pointer]:
+          - /url: /profile
+        - link "About" [ref=e24] [cursor=pointer]:
+          - /url: /about
+      - button "Sign in" [ref=e26] [cursor=pointer]
+    - main [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e34]:
+            - heading "ALPHA AXIOM" [level=1] [ref=e37]
+            - paragraph [ref=e38]:
+              - text: Advanced Intelligence
+              - text: for Modern Trading.
+            - generic [ref=e39]:
+              - generic [ref=e40]: SYSTEM v2.4
+              - generic [ref=e41]: NEURAL BRIDGE ACTIVE
+          - generic [ref=e42]:
+            - generic [ref=e45]: "OPERATIONAL STATUS: NOMINAL"
+            - generic [ref=e46]:
+              - generic [ref=e47]: SESSION ID
+              - text: AX-9920-XF
+        - paragraph [ref=e52] [cursor=pointer]: SECURED BY CLERK & CLOUDFLARE
+  - alert [ref=e53]
+```

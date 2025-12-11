@@ -14,3 +14,8 @@ yfinance>=0.2.33
 # Data & Analysis
 pandas>=2.0.0
 numpy>=1.24.0
+
+# Stress Testing Dependencies
+aiohttp>=3.8.0
+psutil>=5.9.0
+websockets>=10.0

@@ -1,0 +1,16 @@
+2025-12-11 03:43:08,089 - __main__ - INFO - Real AlphaAxiom components loaded successfully
+2025-12-11 03:43:08,090 - __main__ - INFO - Starting Phase 3: Agent Logic Simulation Tests
+2025-12-11 03:43:08,091 - __main__ - INFO - AEXI Test - Score: 77.13, Signal: NEUTRAL
+2025-12-11 03:43:08,091 - __main__ - INFO - ✅ AEXI Protocol - Extreme RSI (95): FAILED
+2025-12-11 03:43:08,092 - __main__ - INFO - ✅ AEXI Protocol - Signal Boundaries: FAILED
+2025-12-11 03:43:08,093 - __main__ - INFO - Dream Test - Score: 66.59, Regime: NORMAL
+2025-12-11 03:43:08,093 - __main__ - INFO - ✅ Dream Machine - Chaos Detection: FAILED
+2025-12-11 03:43:08,095 - __main__ - INFO - ✅ Dream Machine - Fractal Dimension: PASSED
+2025-12-11 03:43:08,095 - __main__ - INFO - Self-Play Test - Core: LONG, Shadow: SHORT
+2025-12-11 03:43:08,095 - __main__ - INFO - ✅ Self-Play Loop - Dialectic Debate: PASSED
+2025-12-11 03:43:08,096 - __main__ - INFO - Sentinel Test - Detection Accuracy: 6/6
+2025-12-11 03:43:08,098 - __main__ - INFO - ✅ Sentinel Agent - Asset Type Detection: PASSED
+2025-12-11 03:43:08,098 - __main__ - INFO - ✅ Sentinel Agent - Risk Management: FAILED
+2025-12-11 03:43:08,143 - __main__ - INFO - Twin-Turbo Test - Confidence Range: [0.6, 0.5, 0.5]
+2025-12-11 03:43:08,144 - __main__ - INFO - ✅ Twin-Turbo Integration - AEXI + Dream: FAILED
+2025-12-11 03:43:08,145 - __main__ - INFO - ✅ Edge Cases & Error Handling: PASSED
