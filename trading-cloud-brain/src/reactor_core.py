@@ -39,13 +39,45 @@ class AxiomReactor:
             f"Analyze sentiment from these tweets: {market_data['tweets']}"
         )
 
-        return {
-            "chaos": chaos_score,
-            "whales": whales_insight,
-            "macro": macro_view,
-            "social": sentiment,
-            "final_verdict": "BUY" if chaos_score > 0.7 else "HOLD"
-        }
+        # ----------------------------------------
+        # 💾 MEMORY COMMIT (The "Thought" Storage)
+        # ----------------------------------------
+        try:
+            # Calculate Synthetic Scores for UI
+            aexi_score = 50 + (chaos_score * 20) + (10 if "Order flow positive" in str(whales_insight) else -10)
+            dream_score = chaos_score * 100
+
+            # Signal Packet
+            signal_packet = {
+                "chaos": chaos_score,
+                "whales": whales_insight,
+                "macro": macro_view,
+                "social": sentiment,
+                "final_verdict": "BUY" if aexi_score > 60 else "SELL" if aexi_score < 40 else "HOLD",
+                "timestamp": market_data.get("timestamp")
+            }
+
+            if hasattr(self.env, 'BRAIN_MEMORY'):
+                await self.env.BRAIN_MEMORY.put("aexi_score", str(aexi_score))
+                await self.env.BRAIN_MEMORY.put("dream_score", str(dream_score))
+                await self.env.BRAIN_MEMORY.put("last_signal", json.dumps(signal_packet))
+                
+                # Update Agents Status
+                agents_status = [
+                   {"id": "core-hub", "status": "online", "latency": 12},
+                   {"id": "reflex", "status": "online", "latency": 45 if "Speed" in str(whales_insight) else 120},
+                   {"id": "analyst", "status": "online", "latency": 600}, # GLM-4.5 is slower
+                   {"id": "guardian", "status": "online", "latency": 15},
+                   {"id": "collector", "status": "online", "latency": 22},
+                   {"id": "journalist", "status": "online" if sentiment else "offline", "latency": 38},
+                   {"id": "strategist", "status": "online", "latency": 52}
+                ]
+                await self.env.BRAIN_MEMORY.put("spider_agents", json.dumps(agents_status))
+
+        except Exception as e:
+            print(f"Memory Write Error: {e}")
+
+        return signal_packet
 
     # --- AI BRAIN INTERFACES ---
 

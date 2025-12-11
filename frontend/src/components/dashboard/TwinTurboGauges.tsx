@@ -80,30 +80,23 @@ const CircularGauge: React.FC<{
   );
 };
 
+import { useTwinTurbo } from '../hooks/useTwinTurbo';
+
 export const TwinTurboGauges: React.FC = () => {
-  const [engineData, setEngineData] = useState<EngineData>({
-    aexi: 78,
-    dream: 65,
-    mtfAlignment: 'full'
-  });
+  const { status, loading } = useTwinTurbo();
 
-  useEffect(() => {
-    const fetchEngineData = async () => {
-      try {
-        const response = await axios.get(`${API_BASE}/api/engines/status`);
-        if (response.data) {
-          setEngineData(response.data);
-        }
-      } catch (error) {
-        console.log('Using mock engine data');
-      }
-    };
+  // Derive MTF alignment from AEXI score for visualization
+  const getAlignment = (score: number) => {
+    if (score >= 80) return 'full';
+    if (score >= 50) return 'partial';
+    return 'none';
+  };
 
-    fetchEngineData();
-    const interval = setInterval(fetchEngineData, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+  const engineData = {
+    aexi: status.aexi,
+    dream: status.dream,
+    mtfAlignment: getAlignment(status.aexi)
+  };
 
   const mtfStatusColor = {
     full: 'bg-axiom-neon-green text-white',
@@ -173,11 +166,10 @@ export const TwinTurboGauges: React.FC = () => {
               <span className="text-4xl">{mtfStatusIcon[engineData.mtfAlignment]}</span>
               <div>
                 <p className="text-xs text-text-muted font-mono">ALIGNMENT</p>
-                <p className={`text-sm font-mono font-bold ${
-                  engineData.mtfAlignment === 'full' ? 'text-axiom-neon-green' :
-                  engineData.mtfAlignment === 'partial' ? 'text-yellow-400' :
-                  'text-axiom-neon-red'
-                }`}>
+                <p className={`text-sm font-mono font-bold ${engineData.mtfAlignment === 'full' ? 'text-axiom-neon-green' :
+                    engineData.mtfAlignment === 'partial' ? 'text-yellow-400' :
+                      'text-axiom-neon-red'
+                  }`}>
                   {engineData.mtfAlignment.toUpperCase()}
                 </p>
               </div>

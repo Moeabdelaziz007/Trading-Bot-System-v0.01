@@ -399,8 +399,13 @@ async def get_dashboard_snapshot(env, headers):
             "dream": float(dream_score) if dream_score else 50.0,
             "last_signal": json.loads(last_signal) if last_signal else None
         }
+        
+        # Spider Brain Agents
+        spider_agents = await kv.get("spider_agents")
+        results["spider_agents"] = json.loads(spider_agents) if spider_agents else []
     except:
         results["engines"] = {"aexi": 50.0, "dream": 50.0, "last_signal": None}
+        results["spider_agents"] = []
     
     try:
         db = env.TRADING_DB

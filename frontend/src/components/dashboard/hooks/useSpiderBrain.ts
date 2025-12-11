@@ -108,13 +108,25 @@ export const useSpiderBrain = () => {
     const fetchStatus = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_BASE}/api/status`);
-        
-        if (response.data.agents) {
+        // Switch to unified dashboard endpoint for KV data
+        const response = await axios.get(`${API_BASE}/api/dashboard`);
+
+        // Check for 'spider_agents' from KV (unpacked in api.py) 
+        // OR fallback to 'agents' if the API structure varies
+        const agentsData = response.data.spider_agents || response.data.agents;
+
+        if (agentsData) {
+          // If it comes as string from KV, parse it
+          const parsedAgents = typeof agentsData === 'string' ? JSON.parse(agentsData) : agentsData;
+
           setStatus(prev => ({
             ...prev,
-            agents: response.data.agents,
-            totalOnline: response.data.agents.filter((a: Agent) => a.status === 'online').length,
+            agents: parsedAgents.map((agent: any) => ({
+              ...agent,
+              // Ensure we keep static metadata if backend only sends status/latency
+              ...prev.agents.find(a => a.id === agent.id)
+            })),
+            totalOnline: parsedAgents.filter((a: Agent) => a.status === 'online').length,
             averageLatency: response.data.averageLatency || prev.averageLatency,
             lastUpdate: new Date().toISOString()
           }));
@@ -127,7 +139,7 @@ export const useSpiderBrain = () => {
     };
 
     fetchStatus();
-    const interval = setInterval(fetchStatus, 10000); // Update every 10s
+    const interval = setInterval(fetchStatus, 5000); // 5s updates for Agents
 
     return () => clearInterval(interval);
   }, []);
