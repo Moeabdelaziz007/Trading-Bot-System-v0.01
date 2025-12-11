@@ -43,6 +43,15 @@ from agents.math import get_math_agent
 from agents.money import get_money_agent
 from cache.client import create_kv_cache
 
+# 🛡️ INFRASTRUCTURE PROTECTION LAYER (Zero-Cost Compliance)
+from utils.ai_gatekeeper import AIGatekeeper
+from utils.db_batcher import DatabaseBatcher, D1BatchWriter
+from utils.kv_cache import KVCacheLayer, AIResponseCache, DashboardCache
+
+# Initialize global protection instances
+ai_gate = AIGatekeeper(limit=14, window=60, cache_ttl=300)  # 14 RPM, 5min cache
+db_batch = DatabaseBatcher(batch_size=50, flush_interval=10)  # 50 records, 10s flush
+
 # ==========================================
 # 🧠 ANTIGRAVITY MoE BRAIN v2.0
 # ==========================================
