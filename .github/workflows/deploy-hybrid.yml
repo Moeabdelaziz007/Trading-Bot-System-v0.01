@@ -1,0 +1,60 @@
+name: Hybrid Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-azure:
+    name: Deploy to Azure Functions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pushd azure_functions
+          pip install -r requirements.txt
+          popd
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: 'alphaaxiom-news-func'
+          package: './azure_functions'
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+
+  deploy-cloudflare:
+    name: Deploy to Cloudflare Workers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: 'trading-cloud-brain'
+
+  deploy-oracle:
+    name: Deploy to Oracle Core (Backend)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/AlphaAxiom
+            git pull origin main
+            docker compose up --build -d backend
