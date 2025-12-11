@@ -113,6 +113,10 @@ class Logger:
     def error(self, message: str, **kwargs):
         """Log error message."""
         return self._log(LogLevel.ERROR, message, **kwargs)
+
+    def warning(self, message: str, **kwargs):
+        """Log warning message (alias for warn)."""
+        return self._log(LogLevel.WARN, message, **kwargs)
     
     def critical(self, message: str, **kwargs):
         """Log critical message."""

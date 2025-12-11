@@ -23,6 +23,7 @@ import json
 import time
 from typing import Dict, List, Optional
 from js import fetch, Headers
+from brokers.gateway import BrokerGateway
 
 
 # High-impact event types to avoid
@@ -67,6 +68,7 @@ class MarketFeed:
         self.env = env
         self.kv = getattr(env, 'BRAIN_MEMORY', None)
         self.finnhub_key = str(getattr(env, 'FINNHUB_API_KEY', ''))
+        self.gateway = BrokerGateway(env)
     
     # ==========================================
     # 📊 DATA COLLECTOR
@@ -92,8 +94,24 @@ class MarketFeed:
             if cached:
                 return json.loads(cached)
         
-        # TODO: Fetch from broker API
-        # For now return empty (broker gateway handles this)
+        # Map timeframe to standard broker format
+        tf_map = {
+            "1m": "M1", "5m": "M5", "15m": "M15", "30m": "M30",
+            "1h": "H1", "4h": "H4", "1d": "D"
+        }
+        broker_tf = tf_map.get(timeframe, "M5")
+
+        try:
+            candles = await self.gateway.get_market_data(symbol, timeframe=broker_tf, limit=limit)
+
+            if candles:
+                # Cache for 1 minute (short lived for market data)
+                if self.kv:
+                    await self.kv.put(cache_key, json.dumps(candles), expirationTtl=60)
+                return candles
+        except Exception as e:
+            print(f"Broker fetch error: {e}")
+
         return []
     
     async def fetch_snapshot(self, symbol: str) -> Dict:
