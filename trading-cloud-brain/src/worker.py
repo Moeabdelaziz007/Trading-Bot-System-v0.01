@@ -166,6 +166,14 @@ async def on_fetch(request, env):
             return await handle_telegram_webhook(request, env, headers)
         except ImportError:
             return Response.new(json.dumps({"error": "Telegram module not found"}), headers=headers)
+
+    # 🔐 AUTH & WALLET CONNECTION
+    if "/api/auth" in url:
+        try:
+            from routes.auth import handle_auth_request
+            return await handle_auth_request(request, env, headers)
+        except Exception as e:
+            return Response.new(json.dumps({"error": f"Auth module error: {str(e)}"}), status=500, headers=headers)
     
     # Main Chat (MoE Dispatcher)
     if "api/chat" in url:

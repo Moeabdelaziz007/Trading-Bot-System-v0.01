@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wallet, CreditCard, Building2, Check, Loader2, X } from "lucide-react";
 
@@ -44,34 +44,68 @@ export default function ConnectWallet() {
         },
     ]);
 
+    // Check status on mount or when connected param is present
+    useEffect(() => {
+        const checkStatus = async () => {
+            const updatedProviders = await Promise.all(
+                providers.map(async (p) => {
+                    try {
+                        // Assuming backend API is at the same origin or configured via proxy
+                        const res = await fetch(`/api/auth/${p.id}/status`);
+                        const data = await res.json();
+                        return { ...p, connected: data.connected };
+                    } catch (e) {
+                        return p;
+                    }
+                })
+            );
+            setProviders(updatedProviders);
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const justConnected = params.get("connected");
+
+        if (isOpen || justConnected) {
+            checkStatus();
+            if (justConnected && !isOpen) {
+                setIsOpen(true); // Re-open modal if we just returned from connection
+            }
+        }
+    }, [isOpen]);
+
     const handleConnect = async (providerId: string) => {
         setConnecting(providerId);
 
-        // Simulate OAuth flow - replace with actual implementation
         try {
-            // TODO: Call backend OAuth endpoint
-            // const response = await fetch(`/api/auth/${providerId}/connect`);
+            // Call backend to initiate OAuth
+            const response = await fetch(`/api/auth/${providerId}/connect`);
+            const data = await response.json();
 
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-
-            setProviders((prev) =>
-                prev.map((p) =>
-                    p.id === providerId ? { ...p, connected: true } : p
-                )
-            );
+            if (data.url) {
+                // Redirect to provider
+                window.location.href = data.url;
+            } else if (data.error) {
+                console.error("Connection failed:", data.error);
+                setConnecting(null);
+            }
         } catch (error) {
             console.error("Connection failed:", error);
-        } finally {
             setConnecting(null);
         }
     };
 
-    const handleDisconnect = (providerId: string) => {
-        setProviders((prev) =>
-            prev.map((p) =>
-                p.id === providerId ? { ...p, connected: false } : p
-            )
-        );
+    const handleDisconnect = async (providerId: string) => {
+        try {
+            await fetch(`/api/auth/${providerId}/disconnect`, { method: "POST" });
+
+            setProviders((prev) =>
+                prev.map((p) =>
+                    p.id === providerId ? { ...p, connected: false } : p
+                )
+            );
+        } catch (e) {
+            console.error("Disconnect failed", e);
+        }
     };
 
     return (
