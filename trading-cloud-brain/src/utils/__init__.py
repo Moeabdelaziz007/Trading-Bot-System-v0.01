@@ -6,11 +6,13 @@ Modules:
 - ai_gatekeeper: Rate limiting for AI APIs (Gemini: 14 RPM)
 - db_batcher: Write batching for D1 (95% reduction)
 - kv_cache: Persistent response caching via Cloudflare KV
+- fix_client: Simple FIX 4.4 Client for cTrader/IC Markets
 """
 
 from .ai_gatekeeper import AIGatekeeper, ai_gatekeeper
 from .db_batcher import DatabaseBatcher, D1BatchWriter, db_batcher
 from .kv_cache import KVCacheLayer, MarketDataCache, AIResponseCache, DashboardCache
+from .fix_client import SimpleFixClient
 
 __all__ = [
     # AI Rate Limiting
@@ -27,4 +29,7 @@ __all__ = [
     "MarketDataCache",
     "AIResponseCache",
     "DashboardCache",
+
+    # Protocols
+    "SimpleFixClient",
 ]
