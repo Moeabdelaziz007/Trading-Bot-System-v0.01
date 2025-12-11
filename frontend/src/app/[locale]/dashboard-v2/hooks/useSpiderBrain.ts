@@ -108,13 +108,16 @@ export const useSpiderBrain = () => {
     const fetchStatus = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_BASE}/api/status`);
-        
-        if (response.data.agents) {
+        // Unified dashboard endpoint
+        const response = await axios.get(`${API_BASE}/api/dashboard`);
+        // Handle KV unpacked data
+        const agentsData = response.data.spider_agents || response.data.agents;
+        // ... rest of logic check if data exists
+        if (agentsData) {
           setStatus(prev => ({
             ...prev,
-            agents: response.data.agents,
-            totalOnline: response.data.agents.filter((a: Agent) => a.status === 'online').length,
+            agents: agentsData,
+            totalOnline: agentsData.filter((a: Agent) => a.status === 'online').length,
             averageLatency: response.data.averageLatency || prev.averageLatency,
             lastUpdate: new Date().toISOString()
           }));

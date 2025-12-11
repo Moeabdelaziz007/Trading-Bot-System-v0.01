@@ -118,7 +118,10 @@ export const TwinTurboGauges: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-axiom-surface/50 backdrop-blur-glass border border-glass-border rounded-xl p-6">
+    <div
+      data-testid="twin-turbo-gauges"
+      className="w-full bg-axiom-surface/50 backdrop-blur-glass border border-glass-border rounded-xl p-6"
+    >
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Gauge className="w-6 h-6 text-axiom-neon-purple" />
@@ -173,11 +176,10 @@ export const TwinTurboGauges: React.FC = () => {
               <span className="text-4xl">{mtfStatusIcon[engineData.mtfAlignment]}</span>
               <div>
                 <p className="text-xs text-text-muted font-mono">ALIGNMENT</p>
-                <p className={`text-sm font-mono font-bold ${
-                  engineData.mtfAlignment === 'full' ? 'text-axiom-neon-green' :
-                  engineData.mtfAlignment === 'partial' ? 'text-yellow-400' :
-                  'text-axiom-neon-red'
-                }`}>
+                <p className={`text-sm font-mono font-bold ${engineData.mtfAlignment === 'full' ? 'text-axiom-neon-green' :
+                    engineData.mtfAlignment === 'partial' ? 'text-yellow-400' :
+                      'text-axiom-neon-red'
+                  }`}>
                   {engineData.mtfAlignment.toUpperCase()}
                 </p>
               </div>

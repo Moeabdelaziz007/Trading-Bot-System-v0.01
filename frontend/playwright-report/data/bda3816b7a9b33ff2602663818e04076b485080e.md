@@ -1,0 +1,466 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic:
+    - generic:
+      - generic:
+        - heading "ALPHA AXIOM" [level=1]
+      - paragraph: INITIALIZING SYSTEM v2.4
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e6]: A
+        - generic [ref=e7]:
+          - heading "AXIOM" [level=1] [ref=e8]
+          - paragraph [ref=e9]: Antigravity
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /
+        - link "AI Bots" [ref=e12] [cursor=pointer]:
+          - /url: /bots
+        - link "Test AI" [ref=e13] [cursor=pointer]:
+          - /url: /test-ai
+        - link "Settings" [ref=e14] [cursor=pointer]:
+          - /url: /settings
+        - link "Profile" [ref=e15] [cursor=pointer]:
+          - /url: /profile
+        - link "About" [ref=e16] [cursor=pointer]:
+          - /url: /about
+    - main [ref=e17]:
+      - generic [ref=e18]:
+        - navigation [ref=e19]:
+          - generic [ref=e21]:
+            - generic [ref=e23]:
+              - img [ref=e24]
+              - generic [ref=e32]:
+                - heading "AXIOM ANTIGRAVITY" [level=1] [ref=e33]
+                - paragraph [ref=e34]: v1.0 Citadel Edition
+            - generic [ref=e37]: "MAINNET: 7/7 Agents Online"
+            - generic [ref=e38]:
+              - button [ref=e39] [cursor=pointer]:
+                - img [ref=e40]
+              - button [ref=e43] [cursor=pointer]:
+                - img [ref=e44]
+              - button "UPGRADE" [ref=e48] [cursor=pointer]:
+                - img [ref=e49]
+                - generic [ref=e51]: UPGRADE
+        - main [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - generic [ref=e55]:
+                - img [ref=e56]
+                - heading "SPIDER_WEB_BRAIN" [level=2] [ref=e64]
+              - generic [ref=e67]: "MAINNET: 7/7 AGENTS ONLINE"
+            - generic [ref=e68]:
+              - generic [ref=e70] [cursor=pointer]:
+                - img [ref=e74]
+                - generic [ref=e82]:
+                  - heading "CORE HUB" [level=3] [ref=e83]
+                  - paragraph [ref=e84]: 12ms
+              - generic [ref=e87] [cursor=pointer]:
+                - img [ref=e91]
+                - generic [ref=e93]:
+                  - heading "REFLEX" [level=3] [ref=e94]
+                  - paragraph [ref=e95]: 8ms
+              - generic [ref=e98] [cursor=pointer]:
+                - img [ref=e102]
+                - generic [ref=e106]:
+                  - heading "ANALYST" [level=3] [ref=e107]
+                  - paragraph [ref=e108]: 45ms
+              - generic [ref=e111] [cursor=pointer]:
+                - img [ref=e115]
+                - generic [ref=e117]:
+                  - heading "GUARDIAN" [level=3] [ref=e118]
+                  - paragraph [ref=e119]: 15ms
+              - generic [ref=e122] [cursor=pointer]:
+                - img [ref=e126]
+                - generic [ref=e132]:
+                  - heading "COLLECTOR" [level=3] [ref=e133]
+                  - paragraph [ref=e134]: 22ms
+              - generic [ref=e137] [cursor=pointer]:
+                - img [ref=e141]
+                - generic [ref=e144]:
+                  - heading "JOURNALIST" [level=3] [ref=e145]
+                  - paragraph [ref=e146]: 38ms
+              - generic [ref=e149] [cursor=pointer]:
+                - img [ref=e153]
+                - generic [ref=e156]:
+                  - heading "STRATEGIST" [level=3] [ref=e157]
+                  - paragraph [ref=e158]: 52ms
+            - generic [ref=e159]:
+              - generic [ref=e160]: "AVG_LATENCY:"
+              - generic [ref=e161]: 27ms
+          - generic [ref=e162]:
+            - generic [ref=e163]:
+              - heading "BOT_SCORES" [level=3] [ref=e164]
+              - generic [ref=e165]:
+                - generic [ref=e166]:
+                  - generic [ref=e167]: PnL Today
+                  - generic [ref=e168]: "+125.00"
+                - generic [ref=e169]:
+                  - generic [ref=e170]: Win Rate
+                  - generic [ref=e171]: 68.5%
+            - generic [ref=e173]:
+              - img [ref=e174]
+              - paragraph [ref=e177]: MAIN_CHART
+              - paragraph [ref=e178]: TradingView Integration
+            - generic [ref=e179]:
+              - heading "PORTFOLIO" [level=3] [ref=e180]
+              - generic [ref=e181]:
+                - generic [ref=e182]:
+                  - generic [ref=e183]: Balance
+                  - generic [ref=e184]: $10,000
+                - generic [ref=e185]:
+                  - generic [ref=e186]: Positions
+                  - generic [ref=e187]: "0"
+          - generic [ref=e188]:
+            - generic [ref=e189]:
+              - img [ref=e190]
+              - heading "SELF_PLAY_LEARNING_LOOP" [level=2] [ref=e198]
+            - generic [ref=e199]:
+              - generic [ref=e200]:
+                - generic [ref=e201]:
+                  - heading "DIALECTIC_WAR_ROOM" [level=2] [ref=e202]:
+                    - img [ref=e203]
+                    - text: DIALECTIC_WAR_ROOM
+                  - generic [ref=e211]: LIVE_INFERENCE
+                - generic [ref=e215]:
+                  - generic [ref=e217]:
+                    - generic [ref=e218]:
+                      - img [ref=e219]
+                      - generic [ref=e221]: CORE_AGENT
+                    - generic [ref=e222]: THESIS
+                  - generic [ref=e223]:
+                    - text: ">"
+                    - generic [ref=e224]: Aalyzing market c_
+                  - generic [ref=e226]:
+                    - generic [ref=e227]: CONFIDENCE_SCORE
+                    - generic [ref=e228]: 84%
+                - generic [ref=e237]:
+                  - generic [ref=e238]: DECISION
+                  - generic [ref=e239]: LONG 1.5x
+                  - generic [ref=e240]: "TS: 7:58:48 AM"
+                - generic [ref=e243]:
+                  - generic [ref=e245]:
+                    - generic [ref=e246]:
+                      - img [ref=e247]
+                      - generic [ref=e249]: SHADOW_AGENT
+                    - generic [ref=e250]: ANTITHESIS
+                  - generic [ref=e251]:
+                    - text: ">"
+                    - generic [ref=e252]: Callenging core h_
+                  - generic [ref=e254]:
+                    - generic [ref=e255]: REGRET_ANALYSIS
+                    - generic [ref=e256]: 32%
+                - generic [ref=e260]:
+                  - img [ref=e261]
+                  - generic [ref=e263]:
+                    - generic [ref=e264]: "SYNTHESIS_ENGINE:"
+                    - generic [ref=e265]: Reconciling vectors... Hedged position approved. Order routed via dark pool.
+                  - generic [ref=e266]:
+                    - generic [ref=e267]: "LATENCY: 12ms"
+                    - generic [ref=e268]: "EXECUTION: OPTIMAL"
+              - generic [ref=e269]:
+                - generic [ref=e270]:
+                  - heading "SYSTEM_RESILIENCE_&_HEALTH" [level=3] [ref=e271]:
+                    - img [ref=e272]
+                    - text: SYSTEM_RESILIENCE_&_HEALTH
+                  - generic [ref=e275]:
+                    - generic [ref=e276]:
+                      - generic [ref=e277]:
+                        - generic [ref=e278]: CIRCUIT_BREAKERS
+                        - generic [ref=e279]: AUTO-RESET ENABLED
+                      - generic [ref=e280]:
+                        - generic [ref=e281]:
+                          - generic [ref=e284]: Broker API
+                          - generic [ref=e285]:
+                            - generic [ref=e286]: 12ms
+                            - generic [ref=e287]: CLOSED
+                        - generic [ref=e288]:
+                          - generic [ref=e291]: Price Feed
+                          - generic [ref=e292]:
+                            - generic [ref=e293]: 8ms
+                            - generic [ref=e294]: CLOSED
+                        - generic [ref=e295]:
+                          - generic [ref=e298]: AI Engine
+                          - generic [ref=e299]:
+                            - generic [ref=e300]: 45ms
+                            - generic [ref=e301]: CLOSED
+                        - generic [ref=e302]:
+                          - generic [ref=e305]: Database
+                          - generic [ref=e306]:
+                            - generic [ref=e307]: 3ms
+                            - generic [ref=e308]: CLOSED
+                        - generic [ref=e309]:
+                          - generic [ref=e312]: Telegram Bot
+                          - generic [ref=e313]:
+                            - generic [ref=e314]: 28ms
+                            - generic [ref=e315]: CLOSED
+                    - generic [ref=e316]:
+                      - generic [ref=e317]:
+                        - img [ref=e318]
+                        - text: NODE_HEALTH (US-EAST)
+                      - generic [ref=e321]:
+                        - generic [ref=e323]:
+                          - generic [ref=e324]: CPU_LOAD
+                          - generic [ref=e325]: 42%
+                        - generic [ref=e329]:
+                          - generic [ref=e330]: MEMORY_HEAP
+                          - generic [ref=e331]: 68%
+                        - generic [ref=e335]:
+                          - generic [ref=e336]: UPTIME
+                          - generic [ref=e337]: 14d 02h 12m
+                    - generic [ref=e338]:
+                      - generic [ref=e339]: DATA_PERSISTENCE
+                      - generic [ref=e343]:
+                        - generic [ref=e344]:
+                          - generic [ref=e345]: D1 SQL
+                          - generic [ref=e346]: 240MB
+                          - generic [ref=e347]: OPTIMAL
+                        - generic [ref=e348]:
+                          - generic [ref=e349]: R2 STORE
+                          - generic [ref=e350]: 1.2GB
+                          - generic [ref=e351]: SYNCED
+                      - generic [ref=e352]: "LAST SNAPSHOT: 04:00 UTC"
+                - generic [ref=e353]:
+                  - generic [ref=e354]:
+                    - generic [ref=e355]:
+                      - generic [ref=e356]:
+                        - img [ref=e357]
+                        - heading "EVOLUTIONARY_FITNESS_LANDSCAPE" [level=3] [ref=e369]
+                      - generic [ref=e372]: "[RUNNING]"
+                    - application [ref=e376]:
+                      - generic [ref=e387]:
+                        - generic [ref=e388]:
+                          - generic [ref=e390]: "1"
+                          - generic [ref=e392]: "5"
+                          - generic [ref=e394]: "10"
+                          - generic [ref=e396]: "15"
+                          - generic [ref=e398]: "20"
+                          - generic [ref=e400]: "25"
+                          - generic [ref=e402]: "30"
+                          - generic [ref=e404]: "35"
+                          - generic [ref=e406]: "40"
+                        - generic [ref=e407]:
+                          - generic [ref=e409]: "0.45"
+                          - generic [ref=e411]: "0.6"
+                          - generic [ref=e413]: "0.75"
+                          - generic [ref=e415]: "0.9"
+                          - generic [ref=e417]: "1.05"
+                  - generic [ref=e418]:
+                    - generic [ref=e419]:
+                      - generic [ref=e420]:
+                        - img [ref=e421]
+                        - text: Population Stats
+                      - generic [ref=e423]:
+                        - generic [ref=e424]:
+                          - generic [ref=e425]: 4,281
+                          - generic [ref=e426]: "GENERATION #"
+                        - generic [ref=e427]:
+                          - generic [ref=e428]: "128"
+                          - generic [ref=e429]: POPULATION SIZE
+                    - generic [ref=e430]:
+                      - img [ref=e432]
+                      - 'heading "ALPHA_GENOME_ID: #8X92" [level=4] [ref=e438]': "ALPHA_GENOME_ID: #8X92"
+                      - generic [ref=e444]:
+                        - generic [ref=e445]:
+                          - generic [ref=e446]: FITNESS_SCORE
+                          - generic [ref=e447]: "98.42"
+                        - generic [ref=e448]:
+                          - generic [ref=e449]: SHARPE_RATIO
+                          - generic [ref=e450]: "3.14"
+                        - generic [ref=e451]:
+                          - generic [ref=e452]: MAX_DRAWDOWN
+                          - generic [ref=e453]: "-2.4%"
+              - generic [ref=e454]:
+                - generic [ref=e455]:
+                  - heading "STRATEGY_ENGINE" [level=2] [ref=e456]:
+                    - img [ref=e457]
+                    - text: STRATEGY_ENGINE
+                  - button "SAVE_CONFIG" [ref=e459] [cursor=pointer]:
+                    - img [ref=e460]
+                    - text: SAVE_CONFIG
+                - generic [ref=e464]:
+                  - generic [ref=e465]:
+                    - generic [ref=e466]:
+                      - generic [ref=e467]:
+                        - text: AEXI Trigger Threshold
+                        - img [ref=e468]
+                      - generic [ref=e470]: 75/100
+                    - slider [ref=e471] [cursor=pointer]: "75"
+                    - paragraph [ref=e472]: Minimum score required to trigger a trade signal.
+                  - generic [ref=e473]:
+                    - generic [ref=e474]:
+                      - generic [ref=e475]: Dream Machine Threshold
+                      - generic [ref=e476]: 80/100
+                    - slider [ref=e477] [cursor=pointer]: "80"
+                  - generic [ref=e478]:
+                    - generic [ref=e479]: Active Timeframes
+                    - generic [ref=e480]:
+                      - button "M1" [ref=e481] [cursor=pointer]
+                      - button "M5" [ref=e482] [cursor=pointer]
+                      - button "M15" [ref=e483] [cursor=pointer]
+                      - button "H1" [ref=e484] [cursor=pointer]
+                      - button "H4" [ref=e485] [cursor=pointer]
+                      - button "D1" [ref=e486] [cursor=pointer]
+          - generic [ref=e487]:
+            - generic [ref=e488]:
+              - img [ref=e489]
+              - heading "TWIN_TURBO_ENGINES" [level=2] [ref=e492]
+            - generic [ref=e493]:
+              - generic [ref=e494]:
+                - generic [ref=e495]:
+                  - img [ref=e496]
+                  - generic [ref=e499]:
+                    - generic [ref=e500]: "78"
+                    - generic [ref=e501]: /100
+                  - paragraph [ref=e503]: AEXI PROTOCOL
+                - paragraph [ref=e504]: Exhaustion Detection Engine
+              - generic [ref=e505]:
+                - generic [ref=e506]:
+                  - img [ref=e507]
+                  - generic [ref=e510]:
+                    - generic [ref=e511]: "65"
+                    - generic [ref=e512]: /100
+                  - paragraph [ref=e514]: DREAM MACHINE
+                - paragraph [ref=e515]: Chaos Theory Pattern Detector
+              - generic [ref=e517]:
+                - generic [ref=e518]:
+                  - img [ref=e519]
+                  - heading "MTF_SCALPER" [level=3] [ref=e521]
+                - generic [ref=e522]:
+                  - generic [ref=e523]: 🟢
+                  - generic [ref=e524]:
+                    - paragraph [ref=e525]: ALIGNMENT
+                    - paragraph [ref=e526]: FULL
+                - generic [ref=e527]:
+                  - generic [ref=e529]: 1M
+                  - generic [ref=e532]: 5M
+                  - generic [ref=e535]: 15M
+          - generic [ref=e537]:
+            - generic [ref=e539]:
+              - img [ref=e540]
+              - paragraph [ref=e548]: AI_CHAT
+              - paragraph [ref=e549]: GLM-4.5 Integration
+            - generic [ref=e550]:
+              - generic [ref=e551]:
+                - img [ref=e552]
+                - heading "EXECUTION_DECK" [level=2] [ref=e554]
+              - generic [ref=e555]:
+                - generic [ref=e556]:
+                  - generic [ref=e557]: SYMBOL
+                  - textbox "EURUSD" [ref=e558]
+                - generic [ref=e559]:
+                  - generic [ref=e560]: AMOUNT ($)
+                  - spinbutton [ref=e561]: "1000"
+              - generic [ref=e562]:
+                - button "BUY LONG POSITION" [ref=e563] [cursor=pointer]:
+                  - generic [ref=e565]:
+                    - img [ref=e566]
+                    - generic [ref=e569]: BUY
+                    - generic [ref=e570]: LONG POSITION
+                - button "SELL SHORT POSITION" [ref=e571] [cursor=pointer]:
+                  - generic [ref=e573]:
+                    - img [ref=e574]
+                    - generic [ref=e577]: SELL
+                    - generic [ref=e578]: SHORT POSITION
+              - button "KILL SWITCH" [ref=e579] [cursor=pointer]:
+                - generic [ref=e580]:
+                  - img [ref=e581]
+                  - generic [ref=e583]: KILL SWITCH
+            - generic [ref=e585]:
+              - generic [ref=e586]:
+                - generic [ref=e587]:
+                  - img [ref=e588]
+                  - heading "AUTONOMOUS_SWARM_SYSTEM" [level=2] [ref=e591]
+                - generic [ref=e592]: 24/7 OPERATIONS
+              - generic [ref=e593]:
+                - generic [ref=e596]:
+                  - img [ref=e598]
+                  - generic [ref=e600]:
+                    - generic [ref=e601]:
+                      - paragraph [ref=e602]: AGENT
+                      - paragraph [ref=e603]: RiskGuardian
+                    - generic [ref=e604]:
+                      - paragraph [ref=e605]: INTERVAL
+                      - paragraph [ref=e606]: 1 min
+                    - generic [ref=e607]:
+                      - paragraph [ref=e608]: WATCHLIST
+                      - paragraph [ref=e609]: All
+                    - generic [ref=e610]:
+                      - paragraph [ref=e611]: NEXT_RUN
+                      - paragraph [ref=e613]: 00:32
+                - generic [ref=e616]:
+                  - img [ref=e618]
+                  - generic [ref=e620]:
+                    - generic [ref=e621]:
+                      - paragraph [ref=e622]: AGENT
+                      - paragraph [ref=e623]: Scalper
+                    - generic [ref=e624]:
+                      - paragraph [ref=e625]: INTERVAL
+                      - paragraph [ref=e626]: 5 min
+                    - generic [ref=e627]:
+                      - paragraph [ref=e628]: WATCHLIST
+                      - paragraph [ref=e629]: EURUSD, GBPUSD, XAUUSD, BTC
+                    - generic [ref=e630]:
+                      - paragraph [ref=e631]: NEXT_RUN
+                      - paragraph [ref=e633]: 00:35
+                - generic [ref=e636]:
+                  - img [ref=e638]
+                  - generic [ref=e641]:
+                    - generic [ref=e642]:
+                      - paragraph [ref=e643]: AGENT
+                      - paragraph [ref=e644]: Journalist
+                    - generic [ref=e645]:
+                      - paragraph [ref=e646]: INTERVAL
+                      - paragraph [ref=e647]: 15 min
+                    - generic [ref=e648]:
+                      - paragraph [ref=e649]: WATCHLIST
+                      - paragraph [ref=e650]: Market News
+                    - generic [ref=e651]:
+                      - paragraph [ref=e652]: NEXT_RUN
+                      - paragraph [ref=e654]: 00:45
+                - generic [ref=e657]:
+                  - img [ref=e659]
+                  - generic [ref=e667]:
+                    - generic [ref=e668]:
+                      - paragraph [ref=e669]: AGENT
+                      - paragraph [ref=e670]: Strategist
+                    - generic [ref=e671]:
+                      - paragraph [ref=e672]: INTERVAL
+                      - paragraph [ref=e673]: 1 hour
+                    - generic [ref=e674]:
+                      - paragraph [ref=e675]: WATCHLIST
+                      - paragraph [ref=e676]: Portfolio
+                    - generic [ref=e677]:
+                      - paragraph [ref=e678]: NEXT_RUN
+                      - paragraph [ref=e680]: 01:00
+                - generic [ref=e682]:
+                  - img [ref=e684]
+                  - generic [ref=e687]:
+                    - generic [ref=e688]:
+                      - paragraph [ref=e689]: AGENT
+                      - paragraph [ref=e690]: Swing
+                    - generic [ref=e691]:
+                      - paragraph [ref=e692]: INTERVAL
+                      - paragraph [ref=e693]: 4 hours
+                    - generic [ref=e694]:
+                      - paragraph [ref=e695]: WATCHLIST
+                      - paragraph [ref=e696]: Major Pairs
+                    - generic [ref=e697]:
+                      - paragraph [ref=e698]: NEXT_RUN
+                      - paragraph [ref=e700]: 04:00
+              - generic [ref=e701]:
+                - generic [ref=e702]:
+                  - paragraph [ref=e703]: "5"
+                  - paragraph [ref=e704]: ACTIVE_AGENTS
+                - generic [ref=e705]:
+                  - paragraph [ref=e706]: 100%
+                  - paragraph [ref=e707]: UPTIME
+                - generic [ref=e708]:
+                  - paragraph [ref=e709]: 1,284
+                  - paragraph [ref=e710]: EXECUTIONS_TODAY
+  - alert [ref=e711]
+  - generic [ref=e712]: "0.45"
+```

@@ -19,9 +19,16 @@ const isProtectedRoute = createRouteMatcher([
 
 // Export the combined middleware
 export default clerkMiddleware((auth, req) => {
-    // Protect routes that require authentication
-    if (isProtectedRoute(req)) auth().protect();
-    
+    // 🛡️ E2E TEST BYPASS (Zero-Cost Testing)
+    // Allows Playwright to skip auth login screen by setting a secret header
+    // Use env var to ensure this is only active in dev/preview
+    const isTestMode = process.env.NODE_ENV !== 'production' && req.headers.get('x-e2e-bypass') === 'true';
+
+    // Protect routes that require authentication (unless bypassing)
+    if (isProtectedRoute(req) && !isTestMode) {
+        auth().protect();
+    }
+
     // Apply internationalization to all routes
     return intlMiddleware(req);
 });

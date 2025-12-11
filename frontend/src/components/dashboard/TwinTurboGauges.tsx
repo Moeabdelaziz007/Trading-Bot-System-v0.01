@@ -1,17 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Gauge, Zap, Brain } from 'lucide-react';
-import axios from 'axios';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://trading-brain-v1.amrikyy1.workers.dev';
-
-interface EngineData {
-  aexi: number;
-  dream: number;
-  mtfAlignment: 'full' | 'partial' | 'none';
-}
+import { Gauge, Zap } from 'lucide-react';
+import { useTwinTurbo } from '../hooks/useTwinTurbo';
 
 const CircularGauge: React.FC<{
   value: number;
@@ -80,10 +72,8 @@ const CircularGauge: React.FC<{
   );
 };
 
-import { useTwinTurbo } from '../hooks/useTwinTurbo';
-
 export const TwinTurboGauges: React.FC = () => {
-  const { status, loading } = useTwinTurbo();
+  const { status } = useTwinTurbo();
 
   // Derive MTF alignment from AEXI score for visualization
   const getAlignment = (score: number) => {
@@ -98,20 +88,17 @@ export const TwinTurboGauges: React.FC = () => {
     mtfAlignment: getAlignment(status.aexi)
   };
 
-  const mtfStatusColor = {
-    full: 'bg-axiom-neon-green text-white',
-    partial: 'bg-yellow-500 text-black',
-    none: 'bg-axiom-neon-red text-white'
-  };
-
-  const mtfStatusIcon = {
+  const mtfStatusIcon: Record<string, string> = {
     full: '🟢',
     partial: '🟡',
     none: '🔴'
   };
 
   return (
-    <div className="w-full bg-axiom-surface/50 backdrop-blur-glass border border-glass-border rounded-xl p-6">
+    <div
+      data-testid="twin-turbo-gauges"
+      className="w-full bg-axiom-surface/50 backdrop-blur-glass border border-glass-border rounded-xl p-6"
+    >
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Gauge className="w-6 h-6 text-axiom-neon-purple" />
@@ -167,8 +154,8 @@ export const TwinTurboGauges: React.FC = () => {
               <div>
                 <p className="text-xs text-text-muted font-mono">ALIGNMENT</p>
                 <p className={`text-sm font-mono font-bold ${engineData.mtfAlignment === 'full' ? 'text-axiom-neon-green' :
-                    engineData.mtfAlignment === 'partial' ? 'text-yellow-400' :
-                      'text-axiom-neon-red'
+                  engineData.mtfAlignment === 'partial' ? 'text-yellow-400' :
+                    'text-axiom-neon-red'
                   }`}>
                   {engineData.mtfAlignment.toUpperCase()}
                 </p>

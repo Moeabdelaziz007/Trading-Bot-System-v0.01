@@ -46,7 +46,7 @@ export const test = base.extend<{
         await use(page);
     },
 
-    // Pre-authenticated page (skips login)
+    // Pre-authenticated page (skips login via middleware bypass)
     authenticatedPage: async ({ browser }, use) => {
         // Check if we have stored auth state
         const authFile = 'playwright/.auth/user.json';
@@ -54,10 +54,15 @@ export const test = base.extend<{
         let context;
         try {
             // Try to use existing auth state
-            context = await browser.newContext({ storageState: authFile });
+            context = await browser.newContext({
+                storageState: authFile,
+                extraHTTPHeaders: { 'x-e2e-bypass': 'true' }
+            });
         } catch {
-            // No auth file exists, create new context without auth
-            context = await browser.newContext();
+            // No auth file exists, create new context with bypass header
+            context = await browser.newContext({
+                extraHTTPHeaders: { 'x-e2e-bypass': 'true' }
+            });
         }
 
         const page = await context.newPage();

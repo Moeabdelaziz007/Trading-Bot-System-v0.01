@@ -29,7 +29,10 @@ export const SpiderBrainStatus: React.FC = () => {
   const { status, loading } = useSpiderBrain();
 
   return (
-    <div className="w-full bg-axiom-surface/50 backdrop-blur-glass border border-glass-border rounded-xl p-6 mb-6">
+    <div
+      data-testid="spider-brain-status"
+      className="w-full bg-axiom-surface/50 backdrop-blur-glass border border-glass-border rounded-xl p-6 mb-6"
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -64,13 +67,12 @@ export const SpiderBrainStatus: React.FC = () => {
               <div className={`relative bg-axiom-bg/80 border ${colorClass} rounded-lg p-4 hover:scale-105 transition-all duration-300 cursor-pointer`}>
                 {/* Status Indicator */}
                 <div className="absolute top-2 right-2">
-                  <div className={`w-2 h-2 rounded-full ${
-                    agent.status === 'online' 
-                      ? 'bg-axiom-neon-green animate-pulse' 
+                  <div className={`w-2 h-2 rounded-full ${agent.status === 'online'
+                      ? 'bg-axiom-neon-green animate-pulse'
                       : agent.status === 'degraded'
-                      ? 'bg-yellow-500'
-                      : 'bg-axiom-neon-red'
-                  }`}></div>
+                        ? 'bg-yellow-500'
+                        : 'bg-axiom-neon-red'
+                    }`}></div>
                 </div>
 
                 {/* Icon */}
@@ -102,9 +104,8 @@ export const SpiderBrainStatus: React.FC = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-text-muted">Status:</span>
-                        <span className={`${
-                          agent.status === 'online' ? 'text-axiom-neon-green' : 'text-axiom-neon-red'
-                        }`}>
+                        <span className={`${agent.status === 'online' ? 'text-axiom-neon-green' : 'text-axiom-neon-red'
+                          }`}>
                           {agent.status.toUpperCase()}
                         </span>
                       </div>
