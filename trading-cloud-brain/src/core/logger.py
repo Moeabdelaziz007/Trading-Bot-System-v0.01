@@ -1,17 +1,20 @@
 """
-📋 Structured Logger for Axiom Antigravity Trading System
-Provides consistent logging with levels, timestamps, and context.
+📋 Production-Grade Structured Logger for AlphaAxiom
+Outputs pure JSON for Cloudflare Workers Logs with correlation ID tracing.
 
 Features:
-- Structured JSON logging for Cloudflare
-- Log levels: DEBUG, INFO, WARN, ERROR, CRITICAL
-- Request/Response logging decorator
-- Trade activity tracking
-- Performance metrics
+- Pure JSON output (machine-readable)
+- Correlation ID for request tracing
+- ISO 8601 timestamps
+- Trading-specific log methods
+- BigQuery-compatible schema
 """
 
 import json
+import uuid
+from datetime import datetime, timezone
 from enum import IntEnum
+from typing import Any, Dict, Optional
 
 
 class LogLevel(IntEnum):
@@ -25,71 +28,97 @@ class LogLevel(IntEnum):
 
 class Logger:
     """
-    📋 Structured Logger for Cloudflare Workers.
+    📋 Production Structured Logger for Cloudflare Workers.
+    
+    Outputs pure JSON format:
+    {"timestamp": "...", "level": "INFO", "module": "worker", "event": "REQUEST", "correlation_id": "...", "context": {...}}
     
     Usage:
-        log = Logger("worker", LogLevel.INFO)
+        log = Logger("worker")
+        log.set_correlation_id("abc-123")
         log.info("Request received", path="/api/status")
-        log.error("Trade failed", symbol="EURUSD", reason="timeout")
     """
     
-    def __init__(self, name: str = "antigravity", level: LogLevel = LogLevel.INFO):
+    _correlation_id: Optional[str] = None
+    
+    def __init__(self, module: str = "antigravity", level: LogLevel = LogLevel.INFO, production: bool = True):
         """
         Initialize logger.
         
         Args:
-            name: Logger name (appears in logs)
+            module: Module name (appears in logs)
             level: Minimum log level to output
+            production: If True, output pure JSON. If False, pretty print.
         """
-        self.name = name
+        self.module = module
         self.level = level
-        self._context = {}
+        self.production = production
+        self._context: Dict[str, Any] = {}
     
-    def set_context(self, **kwargs):
+    def set_correlation_id(self, correlation_id: str) -> None:
+        """Set correlation ID for request tracing."""
+        self._correlation_id = correlation_id
+    
+    def new_correlation_id(self) -> str:
+        """Generate and set a new correlation ID."""
+        self._correlation_id = str(uuid.uuid4())[:8]
+        return self._correlation_id
+    
+    def set_context(self, **kwargs) -> None:
         """Set persistent context that appears in all logs."""
         self._context.update(kwargs)
     
-    def clear_context(self):
+    def clear_context(self) -> None:
         """Clear persistent context."""
         self._context = {}
+        self._correlation_id = None
     
-    def _log(self, level: LogLevel, message: str, **kwargs):
+    def _log(self, level: LogLevel, event: str, **kwargs) -> Dict[str, Any]:
         """
-        Internal log method.
+        Internal log method - outputs pure JSON.
         
         Args:
             level: Log severity level
-            message: Log message
+            event: Event name (e.g., "REQUEST", "TRADE_EXECUTED")
             **kwargs: Additional context fields
         """
         if level < self.level:
-            return
+            return {}
         
+        # Build log entry
         log_entry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "level": level.name,
-            "logger": self.name,
-            "message": message,
-            **self._context,
-            **kwargs
+            "module": self.module,
+            "event": event,
         }
         
-        # Format based on level
-        emoji = self._get_emoji(level)
+        # Add correlation ID if set
+        if self._correlation_id:
+            log_entry["correlation_id"] = self._correlation_id
         
-        # For Cloudflare Workers, print outputs to console
-        # which is captured in Workers logs
-        print(f"{emoji} [{level.name}] {self.name}: {message}", end="")
+        # Merge persistent context and kwargs
+        context = {**self._context, **kwargs}
+        if context:
+            log_entry["context"] = context
         
-        # Add context if present
-        if kwargs:
-            print(f" | {json.dumps(kwargs, default=str)}", end="")
-        
-        print()  # Newline
+        # Output
+        if self.production:
+            # Pure JSON - one line, no emojis
+            print(json.dumps(log_entry, default=str, separators=(",", ":")))
+        else:
+            # Dev mode - pretty print with emojis
+            emoji = self._get_emoji(level)
+            print(f"{emoji} [{level.name}] {self.module}: {event}", end="")
+            if context:
+                print(f" | {context}")
+            else:
+                print()
         
         return log_entry
     
     def _get_emoji(self, level: LogLevel) -> str:
-        """Get emoji for log level."""
+        """Get emoji for log level (dev mode only)."""
         return {
             LogLevel.DEBUG: "🔍",
             LogLevel.INFO: "ℹ️",
@@ -98,154 +127,104 @@ class Logger:
             LogLevel.CRITICAL: "🚨"
         }.get(level, "📝")
     
-    def debug(self, message: str, **kwargs):
-        """Log debug message."""
-        return self._log(LogLevel.DEBUG, message, **kwargs)
+    # ==========================================
+    # 📋 STANDARD LOG METHODS
+    # ==========================================
     
-    def info(self, message: str, **kwargs):
-        """Log info message."""
-        return self._log(LogLevel.INFO, message, **kwargs)
+    def debug(self, event: str, **kwargs) -> Dict[str, Any]:
+        """Log debug event."""
+        return self._log(LogLevel.DEBUG, event, **kwargs)
     
-    def warn(self, message: str, **kwargs):
-        """Log warning message."""
-        return self._log(LogLevel.WARN, message, **kwargs)
+    def info(self, event: str, **kwargs) -> Dict[str, Any]:
+        """Log info event."""
+        return self._log(LogLevel.INFO, event, **kwargs)
     
-    def error(self, message: str, **kwargs):
-        """Log error message."""
-        return self._log(LogLevel.ERROR, message, **kwargs)
-
-    def warning(self, message: str, **kwargs):
-        """Log warning message (alias for warn)."""
-        return self._log(LogLevel.WARN, message, **kwargs)
+    def warn(self, event: str, **kwargs) -> Dict[str, Any]:
+        """Log warning event."""
+        return self._log(LogLevel.WARN, event, **kwargs)
     
-    def critical(self, message: str, **kwargs):
-        """Log critical message."""
-        return self._log(LogLevel.CRITICAL, message, **kwargs)
+    def warning(self, event: str, **kwargs) -> Dict[str, Any]:
+        """Log warning event (alias)."""
+        return self._log(LogLevel.WARN, event, **kwargs)
+    
+    def error(self, event: str, **kwargs) -> Dict[str, Any]:
+        """Log error event."""
+        return self._log(LogLevel.ERROR, event, **kwargs)
+    
+    def critical(self, event: str, **kwargs) -> Dict[str, Any]:
+        """Log critical event."""
+        return self._log(LogLevel.CRITICAL, event, **kwargs)
     
     # ==========================================
     # 📊 TRADING-SPECIFIC LOGS
     # ==========================================
     
-    def trade_signal(self, symbol: str, action: str, confidence: int, **kwargs):
+    def trade_signal(self, symbol: str, action: str, confidence: int, **kwargs) -> Dict[str, Any]:
         """Log a trading signal."""
-        self.info(
-            f"Signal: {action} {symbol}",
-            event="TRADE_SIGNAL",
-            symbol=symbol,
-            action=action,
-            confidence=confidence,
-            **kwargs
-        )
+        return self.info("TRADE_SIGNAL", symbol=symbol, action=action, confidence=confidence, **kwargs)
     
-    def trade_executed(self, symbol: str, side: str, qty: float, price: float, **kwargs):
+    def trade_executed(self, symbol: str, side: str, qty: float, price: float, **kwargs) -> Dict[str, Any]:
         """Log a trade execution."""
-        self.info(
-            f"Trade Executed: {side.upper()} {qty} {symbol} @ ${price}",
-            event="TRADE_EXECUTED",
-            symbol=symbol,
-            side=side,
-            qty=qty,
-            price=price,
-            **kwargs
-        )
+        return self.info("TRADE_EXECUTED", symbol=symbol, side=side, qty=qty, price=price, **kwargs)
     
-    def trade_rejected(self, symbol: str, reason: str, **kwargs):
+    def trade_rejected(self, symbol: str, reason: str, **kwargs) -> Dict[str, Any]:
         """Log a rejected trade."""
-        self.warn(
-            f"Trade Rejected: {symbol} - {reason}",
-            event="TRADE_REJECTED",
-            symbol=symbol,
-            reason=reason,
-            **kwargs
-        )
+        return self.warn("TRADE_REJECTED", symbol=symbol, reason=reason, **kwargs)
     
-    def panic_mode(self, activated: bool, reason: str = None):
+    def panic_mode(self, activated: bool, reason: str = None) -> Dict[str, Any]:
         """Log panic mode activation/deactivation."""
         if activated:
-            self.critical(
-                "PANIC MODE ACTIVATED",
-                event="PANIC_MODE_ON",
-                reason=reason
-            )
-        else:
-            self.info(
-                "Panic mode deactivated",
-                event="PANIC_MODE_OFF"
-            )
+            return self.critical("PANIC_MODE_ON", reason=reason)
+        return self.info("PANIC_MODE_OFF")
     
     # ==========================================
     # 🔌 API/REQUEST LOGS
     # ==========================================
     
-    def request(self, method: str, path: str, **kwargs):
+    def request(self, method: str, path: str, **kwargs) -> Dict[str, Any]:
         """Log incoming request."""
-        self.debug(
-            f"{method} {path}",
-            event="REQUEST",
-            method=method,
-            path=path,
-            **kwargs
-        )
+        return self.debug("REQUEST", method=method, path=path, **kwargs)
     
-    def response(self, status: int, duration_ms: float = None, **kwargs):
+    def response(self, status: int, duration_ms: float = None, **kwargs) -> Dict[str, Any]:
         """Log response."""
         level = LogLevel.INFO if status < 400 else LogLevel.ERROR
-        self._log(
-            level,
-            f"Response: {status}",
-            event="RESPONSE",
-            status=status,
-            duration_ms=duration_ms,
-            **kwargs
-        )
+        return self._log(level, "RESPONSE", status=status, duration_ms=duration_ms, **kwargs)
     
-    def api_call(self, service: str, endpoint: str, status: int = None, **kwargs):
+    def api_call(self, service: str, endpoint: str, status: int = None, **kwargs) -> Dict[str, Any]:
         """Log external API call."""
-        self.debug(
-            f"API: {service} -> {endpoint}",
-            event="API_CALL",
-            service=service,
-            endpoint=endpoint,
-            status=status,
-            **kwargs
-        )
+        return self.debug("API_CALL", service=service, endpoint=endpoint, status=status, **kwargs)
     
     # ==========================================
     # 📈 ANALYSIS LOGS
     # ==========================================
     
-    def analysis(self, engine: str, symbol: str, result: dict, **kwargs):
+    def analysis(self, engine: str, symbol: str, result: dict, **kwargs) -> Dict[str, Any]:
         """Log analysis result."""
-        self.debug(
-            f"Analysis: {engine} on {symbol}",
-            event="ANALYSIS",
-            engine=engine,
-            symbol=symbol,
-            result=result,
-            **kwargs
-        )
+        return self.debug("ANALYSIS", engine=engine, symbol=symbol, result=result, **kwargs)
     
-    def twin_turbo(self, aexi_score: float, dream_score: float, triggered: bool):
+    def twin_turbo(self, aexi_score: float, dream_score: float, triggered: bool) -> Dict[str, Any]:
         """Log Twin-Turbo engine status."""
         level = LogLevel.INFO if triggered else LogLevel.DEBUG
-        self._log(
-            level,
-            f"Twin-Turbo: AEXI={aexi_score:.1f}, Dream={dream_score:.1f}",
-            event="TWIN_TURBO",
-            aexi_score=aexi_score,
-            dream_score=dream_score,
-            triggered=triggered
-        )
+        return self._log(level, "TWIN_TURBO", aexi_score=aexi_score, dream_score=dream_score, triggered=triggered)
+    
+    # ==========================================
+    # 🏥 HEALTH & OBSERVABILITY
+    # ==========================================
+    
+    def health_check(self, healthy: bool, components: dict = None) -> Dict[str, Any]:
+        """Log health check result."""
+        level = LogLevel.INFO if healthy else LogLevel.ERROR
+        return self._log(level, "HEALTH_CHECK", healthy=healthy, components=components)
 
 
 # ==========================================
 # 🌐 GLOBAL LOGGER INSTANCE
 # ==========================================
 
-# Default logger instance
-log = Logger("antigravity", LogLevel.INFO)
+# Default logger instance (production mode)
+log = Logger("antigravity", LogLevel.INFO, production=True)
 
 
-def get_logger(name: str = "antigravity", level: LogLevel = LogLevel.INFO) -> Logger:
+def get_logger(module: str = "antigravity", level: LogLevel = LogLevel.INFO, production: bool = True) -> Logger:
     """Get a logger instance."""
-    return Logger(name, level)
+    return Logger(module, level, production)

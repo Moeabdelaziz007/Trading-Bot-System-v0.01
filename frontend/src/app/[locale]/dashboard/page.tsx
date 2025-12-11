@@ -16,6 +16,10 @@ import { EvolutionaryOptimization } from '@/components/dialectic/EvolutionaryOpt
 import { ResilienceMonitor } from '@/components/dialectic/ResilienceMonitor';
 import { StrategyEngine } from '@/components/dialectic/StrategyEngine';
 
+// 🛡️ Safety & Risk Components (MVP Enhancement)
+import { SafetyBanner } from '@/components/dashboard/SafetyBanner';
+import { RiskDashboard } from '@/components/dashboard/RiskDashboard';
+
 export default function DashboardPage() {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const { portfolio, loading } = usePortfolio();
@@ -74,6 +78,12 @@ export default function DashboardPage() {
 
             {/* Main Content */}
             <main className="max-w-[1920px] mx-auto px-6 py-6 space-y-6">
+                {/* 🛡️ SAFETY BANNER - MVP Enhancement */}
+                <SafetyBanner
+                    mode="paper"
+                    disclaimerText="AlphaAxiom v2.0 Beta - Not Financial Advice"
+                />
+
                 {/* Spider Web Brain Status */}
                 <SpiderBrainStatus />
 
@@ -168,6 +178,21 @@ export default function DashboardPage() {
 
                 {/* Twin-Turbo Engines */}
                 <TwinTurboGauges />
+
+                {/* 📊 RISK DASHBOARD - MVP Enhancement */}
+                <RiskDashboard
+                    metrics={{
+                        dailyPnL: portfolio.todayPnL,
+                        dailyPnLPercent: (portfolio.todayPnL / portfolio.balance) * 100,
+                        riskConsumed: 1.2, // TODO: Connect to actual risk calculation
+                        maxDailyRisk: 5.0,
+                        openPositions: portfolio.positions.length,
+                        maxPositions: 5,
+                        largestPosition: 2.5, // TODO: Calculate from positions
+                        maxPositionSize: 5.0
+                    }}
+                    isLoading={loading}
+                />
 
                 {/* Bottom Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

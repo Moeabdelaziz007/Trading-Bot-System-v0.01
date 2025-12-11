@@ -97,11 +97,17 @@ async def on_fetch(request, env):
     url = str(request.url)
     method = str(request.method)
     
+    # 🆔 CORRELATION ID: Inject for request tracing
+    correlation_id = request.headers.get("X-Correlation-ID") or log.new_correlation_id()
+    log.set_correlation_id(correlation_id)
+    log.request(method, url.split("?")[0])
+    
     cors_headers = {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, X-System-Key"
+        "Access-Control-Allow-Headers": "Content-Type, X-System-Key, X-Correlation-ID",
+        "X-Correlation-ID": correlation_id
     }
     headers = Headers.new(cors_headers.items())
     
@@ -126,9 +132,58 @@ async def on_fetch(request, env):
         "/api/tick",      # Manual brain heartbeat
         "/api/brain",     # Brain status monitoring
         "/health",        # System health (for frontend monitoring)
+        "/healthz",       # Kubernetes-style health probe
         "/api/health",    # Health endpoint alias
     ]
     is_public = any(p in url for p in public_paths)
+    
+    # ========================================
+    # 🏥 HEALTH CHECK ENDPOINT (/healthz)
+    # ========================================
+    if "/healthz" in url:
+        try:
+            # Check critical components
+            components = {
+                "kv": False,
+                "db": False,
+                "broker": False
+            }
+            
+            # KV Check
+            try:
+                kv = getattr(env, 'BRAIN_MEMORY', None)
+                if kv:
+                    await kv.get("health_check_ping")
+                    components["kv"] = True
+            except:
+                pass
+            
+            # D1 Check
+            try:
+                db = getattr(env, 'TRADING_DB', None)
+                if db:
+                    await db.prepare("SELECT 1").first()
+                    components["db"] = True
+            except:
+                pass
+            
+            # Broker connectivity (simple check)
+            components["broker"] = bool(getattr(env, 'ALPACA_KEY', '')) or bool(getattr(env, 'CAPITAL_API_KEY', ''))
+            
+            healthy = components["kv"] and components["db"]
+            status_code = 200 if healthy else 503
+            
+            log.health_check(healthy, components)
+            
+            return Response.new(json.dumps({
+                "status": "healthy" if healthy else "degraded",
+                "components": components,
+                "timestamp": __import__('datetime').datetime.utcnow().isoformat(),
+                "correlation_id": correlation_id
+            }), status=status_code, headers=headers)
+        except Exception as e:
+            log.error("HEALTH_CHECK_FAILED", error=str(e))
+            return Response.new(json.dumps({"status": "unhealthy", "error": str(e)}), status=503, headers=headers)
     
     # Root path check
     if url.endswith("/") or url.endswith("/api"):
