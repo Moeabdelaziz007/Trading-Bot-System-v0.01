@@ -83,13 +83,39 @@ const paymentProviders = [
 export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) => {
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!selectedTier || !selectedProvider) return;
     
-    // TODO: Implement actual payment flow
-    console.log('Checkout:', { tier: selectedTier, provider: selectedProvider });
-    alert(`Processing ${selectedTier} subscription via ${selectedProvider}`);
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/payments/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tier: selectedTier,
+          provider: selectedProvider,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else if (data.error) {
+        alert(`Payment Error: ${data.error}`);
+      } else {
+        alert('Unexpected response from payment server');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Failed to initiate checkout. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -233,10 +259,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose }) =
 
                     <button
                       onClick={handleCheckout}
-                      disabled={!selectedProvider}
-                      className="w-full bg-axiom-neon-cyan hover:bg-axiom-neon-cyan/90 text-black font-mono font-bold py-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={!selectedProvider || isLoading}
+                      className="w-full bg-axiom-neon-cyan hover:bg-axiom-neon-cyan/90 text-black font-mono font-bold py-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      PROCEED_TO_CHECKOUT
+                      {isLoading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                          PROCESSING...
+                        </>
+                      ) : (
+                        'PROCEED_TO_CHECKOUT'
+                      )}
                     </button>
                   </motion.div>
                 )}
