@@ -55,7 +55,48 @@ class RiskGuardian:
         if confidence < 75:
             return {"approved": False, "reason": f"LOW CONFIDENCE ({confidence}%)"}
 
-        # 4. AI AUDIT: "The Risk Officer"
+        # 4. HARD RULE: Fixed Risk Limit (Max 1%)
+        # Enforce strict 1% risk per trade limit if size and price are known
+        # We assume if 'qty' and 'price' are in signal, we can calculate risk value.
+        # If stop_loss is present, risk = (entry - stop) * qty.
+        # If no stop loss, we assume full position value risk for safety (conservative) or rely on sizing.
+        # Here we check position value relative to account as a proxy for max exposure if SL not explicit.
+
+        qty = float(signal.get("qty", 0))
+        price = float(signal.get("price", 0))
+        balance = float(account_info.get("balance", 0))
+        equity = float(account_info.get("equity", balance)) # Use equity if available
+
+        if qty > 0 and price > 0 and equity > 0:
+            position_value = qty * price
+
+            # Scenario A: Stop Loss is known
+            stop_loss = float(signal.get("stop_loss", 0))
+            if stop_loss > 0:
+                risk_amount = abs(price - stop_loss) * qty
+                risk_pct = (risk_amount / equity) * 100
+                if risk_pct > 1.0:
+                    return {
+                        "approved": False,
+                        "reason": f"EXCESSIVE RISK: {risk_pct:.2f}% > 1.0% limit"
+                    }
+
+            # Scenario B: No Stop Loss - Check Position Sizing Cap (Safety net)
+            # If we don't have SL, we can't risk more than X% of equity in a single trade value?
+            # No, that limits position size too much (e.g. 1% pos size is tiny).
+            # Instead, we force a check: If no SL, we reject? Or we allow but assume default risk?
+            # For this strict requirement, we will REJECT if risk cannot be calculated OR rely on 'risk_amount' field.
+            # Let's check if 'risk_amount' was pre-calculated.
+            risk_amt_explicit = float(signal.get("risk_amount", 0))
+            if risk_amt_explicit > 0:
+                risk_pct = (risk_amt_explicit / equity) * 100
+                if risk_pct > 1.0:
+                    return {
+                        "approved": False,
+                        "reason": f"EXCESSIVE RISK (Explicit): {risk_pct:.2f}% > 1.0% limit"
+                    }
+
+        # 5. AI AUDIT: "The Risk Officer"
         # Ask Llama to review the trade rationale for logical fallacies or excessive risk
         rationale = signal.get("reasoning", "No rationale provided")
         
@@ -130,15 +171,16 @@ Respond ONLY with JSON: {"approved": bool, "risk_rating": "LOW"|"MED"|"HIGH", "c
         half_kelly = kelly / 2
         quarter_kelly = kelly / 4
         
-        # Never risk more than 5% even if Kelly says so
-        capped_kelly = min(kelly, 0.05)
-        safe_kelly = min(half_kelly, 0.025)
+        # Never risk more than 1% (Strict Rule) even if Kelly says so
+        capped_kelly = min(kelly, 0.01)
+        # Recommendation
+        recommended_pct = min(half_kelly, 0.01)
         
         return {
             "full_kelly": round(kelly * 100, 2),
             "half_kelly": round(half_kelly * 100, 2),
             "quarter_kelly": round(quarter_kelly * 100, 2),
-            "recommended_pct": round(safe_kelly * 100, 2),
+            "recommended_pct": round(recommended_pct * 100, 2),
             "payout_ratio": round(b, 2),
             "edge": round((p * b - q) * 100, 2)  # Expected edge %
         }

@@ -574,6 +574,21 @@ async def on_fetch(request, env):
         except Exception as e:
             return Response.new(json.dumps({"error": str(e), "status": "FAILED"}), headers=headers)
     
+    # 📰 JOURNALIST AGENT (Manual Trigger)
+    if "api/journalist/run" in url:
+        try:
+            from agents.journalist import JournalistAgent
+            # Initialize with both API key (for safety features) and env (for summarizer)
+            # We use PERPLEXITY_API_KEY if available, else empty string (will disable safety features but allow summarizer)
+            pplx_key = str(getattr(env, 'PERPLEXITY_API_KEY', ''))
+            agent = JournalistAgent(pplx_key, env)
+            result = await agent.run_cycle()
+            return Response.new(json.dumps(result), headers=headers)
+        except ImportError:
+            return Response.new(json.dumps({"error": "Journalist module not found"}), status=500, headers=headers)
+        except Exception as e:
+            return Response.new(json.dumps({"error": str(e)}), status=500, headers=headers)
+
     # Trade Execution
     if "api/trade" in url:
         params = dict(p.split("=") for p in url.split("?")[1].split("&")) if "?" in url else {}

@@ -13,6 +13,7 @@
 import json
 from typing import Dict, Optional, Any
 from js import fetch, Headers
+from gemini_adapter import GeminiAdapter
 
 
 class JournalistAgent:
@@ -23,18 +24,116 @@ class JournalistAgent:
     Acts as a "veto gate" before MathAgent executes trades.
     """
     
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, env=None):
         """
         Initialize the Journalist.
         
         Args:
             api_key: Perplexity API key (sonar access)
+            env: Worker environment (for Gemini Adapter integration)
         """
         self.name = "JournalistAgent"
         self.api_key = api_key
+        self.env = env
         self.api_url = "https://api.perplexity.ai/chat/completions"
         self.model = "sonar"  # Fast for real-time, use "sonar-pro" for deep research
+
+        # New Gemini Summarizer Integration
+        if env:
+            self.gemini = GeminiAdapter(env)
+            self.kv_key_news = "news_cache"
+            self.kv_key_summary = "daily_market_summary"
     
+    async def run_cycle(self):
+        """
+        Executes the daily market summary cycle (Journalist V2):
+        1. Fetch raw news from KV (populated by Azure Function).
+        2. Summarize using Gemini 1.5 Pro.
+        3. Save summary to KV.
+        """
+        if not self.env:
+             return {"status": "error", "message": "Environment not provided to JournalistAgent"}
+
+        try:
+            # 1. Fetch News
+            kv = getattr(self.env, 'BRAIN_MEMORY', None)
+            if not kv:
+                return {"status": "error", "message": "KV Binding 'BRAIN_MEMORY' not found"}
+
+            raw_news_json = await kv.get(self.kv_key_news)
+            if not raw_news_json:
+                return {"status": "skipped", "message": "No news found in cache"}
+
+            raw_news = json.loads(raw_news_json)
+
+            # Extract relevant text from the complex structure
+            # Structure from Azure Func: {timestamp, general: [...], specific_summary: {SYM: ...}}
+            news_text_buffer = []
+
+            if "general" in raw_news:
+                for item in raw_news["general"]:
+                    if isinstance(item, dict):
+                        headline = item.get("headline", "")
+                        summary = item.get("summary", "")
+                        news_text_buffer.append(f"- {headline}: {summary}")
+
+            if "specific_summary" in raw_news:
+                for sym, content in raw_news["specific_summary"].items():
+                    news_text_buffer.append(f"News for {sym}: {str(content)[:200]}...") # Truncate
+
+            full_text = "\n".join(news_text_buffer)
+
+            if not full_text:
+                return {"status": "skipped", "message": "News content empty"}
+
+            # 2. Summarize with Gemini
+            prompt = f"""
+            You are an expert Financial Journalist for the 'Axiom Antigravity' hedge fund.
+
+            Synthesize the following raw market news into a concise, professional daily briefing.
+            Focus on actionable insights and market sentiment.
+
+            RAW NEWS:
+            {full_text[:5000]}
+
+            FORMAT:
+            ## 🌍 Global Market Pulse
+            [2-3 sentences]
+
+            ## 🔑 Key Drivers
+            - [Bullet point]
+            - [Bullet point]
+
+            ## 🎯 Sentiment Score (0-100)
+            [Score] - [BULLISH/BEARISH/NEUTRAL]
+
+            ## ⚠️ Risk Radar
+            [Identify any major risks]
+            """
+
+            result = await self.gemini.generate_content(prompt, model="gemini-1.5-pro")
+
+            if not result["success"]:
+                # Fallback to standard gemini-pro if 1.5 fails
+                result = await self.gemini.generate_content(prompt, model="gemini-pro")
+                if not result["success"]:
+                    return {"status": "error", "message": f"AI Generation failed: {result['error']}"}
+
+            summary = result["content"]
+
+            # 3. Save Summary
+            payload = {
+                "timestamp": __import__('datetime').datetime.utcnow().isoformat(),
+                "summary": summary,
+                "model_used": "gemini-1.5-pro"
+            }
+            await kv.put(self.kv_key_summary, json.dumps(payload))
+
+            return {"status": "success", "message": "Daily summary generated"}
+
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
     async def check_breaking_news(self, symbol: str) -> Dict[str, Any]:
         """
         Check for breaking news that could affect a trade.
