@@ -26,6 +26,8 @@ export function ConsoleCard({ logs }: ConsoleCardProps) {
         return "text-destructive"
       case "reasoning":
         return "text-blue-400"
+      case "news":
+        return "text-cyan-400 font-semibold"
       default:
         return "text-muted-foreground"
     }
@@ -52,7 +54,10 @@ export function ConsoleCard({ logs }: ConsoleCardProps) {
             logs.map((log) => (
               <div key={log.id} className="mb-1 leading-relaxed">
                 <span className="text-muted-foreground/60">[{new Date(log.timestamp).toLocaleTimeString()}]</span>{" "}
-                <span className={getLogColor(log.type)}>{log.message}</span>
+                <span className={getLogColor(log.type)}>
+                  {log.type === "news" && "📰 "}
+                  {log.message}
+                </span>
               </div>
             ))
           )}

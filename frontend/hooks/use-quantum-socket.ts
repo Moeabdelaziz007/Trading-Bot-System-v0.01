@@ -22,7 +22,7 @@ export interface LogEntry {
   id: string
   timestamp: Date
   message: string
-  type: "info" | "success" | "error" | "reasoning"
+  type: "info" | "success" | "error" | "reasoning" | "news"
 }
 
 export interface QuantumState {
@@ -152,21 +152,47 @@ export function useQuantumSocket() {
 
       eventSource.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data)
+          const rawData = JSON.parse(event.data)
 
-          if (data.type === "account") {
-            setState((prev) => ({ ...prev, account: data.payload }))
-          } else if (data.type === "signal") {
+          // Handle MCP JSON-RPC 2.0 Notifications (no 'id' field)
+          if (rawData.jsonrpc === "2.0" && rawData.method) {
+            // MCP logging notification
+            if (rawData.method === "notifications/message" && rawData.params?.data) {
+              const logMessage = String(rawData.params.data)
+
+              // Detect [NEWS] logs from Spider
+              if (logMessage.includes("[NEWS]")) {
+                addLog(logMessage, "news")
+              } else if (logMessage.includes("[ERROR]")) {
+                addLog(logMessage, "error")
+              } else if (logMessage.includes("[SIGNAL]")) {
+                addLog(logMessage, "success")
+              } else if (logMessage.includes("[REASONING]")) {
+                addLog(logMessage, "reasoning")
+              } else {
+                addLog(logMessage, "info")
+              }
+              return
+            }
+          }
+
+          // Legacy custom format (backward compatibility)
+          if (rawData.type === "account") {
+            setState((prev) => ({ ...prev, account: rawData.payload }))
+          } else if (rawData.type === "signal") {
             setState((prev) => ({
               ...prev,
-              signals: [...prev.signals, data.payload],
+              signals: [...prev.signals, rawData.payload],
             }))
-            addLog(`[SIGNAL] ${data.payload.type} ${data.payload.symbol}`, "success")
-          } else if (data.type === "log") {
-            addLog(data.payload.message, data.payload.logType || "info")
+            addLog(`[SIGNAL] ${rawData.payload.type} ${rawData.payload.symbol}`, "success")
+          } else if (rawData.type === "log") {
+            addLog(rawData.payload.message, rawData.payload.logType || "info")
           }
         } catch {
-          addLog(`[DATA] ${event.data}`, "info")
+          // Non-JSON SSE data - display as raw log
+          if (event.data && event.data.trim()) {
+            addLog(`[DATA] ${event.data}`, "info")
+          }
         }
       }
 
