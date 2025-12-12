@@ -279,8 +279,47 @@ async def run_strategist(env):
 
 async def check_risk(env):
     """Risk Guardian checks."""
-    # TODO: Implement risk checks
-    return {"risk": "OK", "kill_switch": False}
+    risk_status = "OK"
+    kill_switch = False
+    reasons = []
+
+    # 1. Check Kill Switch (KV)
+    try:
+        if hasattr(env, 'BRAIN_MEMORY'):
+             panic = await env.BRAIN_MEMORY.get("panic_mode")
+             if panic == "true":
+                 risk_status = "CRITICAL"
+                 kill_switch = True
+                 reasons.append("Kill switch activated via KV (panic_mode)")
+    except Exception as e:
+        reasons.append(f"KV Check Failed: {str(e)}")
+
+    # 2. Check News Lockdown (KV)
+    try:
+        if hasattr(env, 'BRAIN_MEMORY'):
+             lockdown = await env.BRAIN_MEMORY.get("news_lockdown")
+             if lockdown == "true":
+                 risk_status = "HIGH" if risk_status != "CRITICAL" else risk_status
+                 reasons.append("News Lockdown Active")
+    except:
+        pass
+
+    # 3. Check Max Positions
+    try:
+        positions = await get_positions(env)
+        MAX_POSITIONS = 5 # Example limit
+        if len(positions) >= MAX_POSITIONS:
+             risk_status = "HIGH" if risk_status != "CRITICAL" else risk_status
+             reasons.append(f"Max positions exceeded ({len(positions)} >= {MAX_POSITIONS})")
+    except Exception as e:
+        reasons.append(f"Position Check Failed: {str(e)}")
+
+    return {
+        "risk": risk_status,
+        "kill_switch": kill_switch,
+        "details": reasons,
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 
 # ==========================================
