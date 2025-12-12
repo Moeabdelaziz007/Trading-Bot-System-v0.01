@@ -4,6 +4,36 @@
 
 ## 📅 سجل الجلسات
 
+### الجلسة: 12 ديسمبر 2025 (13:00) - 🚀 AQT Brain Goes Live
+
+**🎯 AQT MCP Server Deployment (SUCCESS!):**
+
+- ✅ **Fixed `mcp_server.py`:** Removed incompatible `sse_path`, `host`, `port` args.
+- ✅ **Systemd Update:** Changed to `fastmcp run mcp_server.py:mcp --transport sse --host 0.0.0.0 --port 8766`.
+- ✅ **Cloudflare Tunnel:** Added `httpHostHeader: localhost:8766` to fix Host header rejection.
+- ✅ **Public Endpoint:** `https://oracle.axiomid.app/sse` → HTTP 200 OK ✅
+
+**🔀 Jules AI Integration:**
+
+- ✅ Merged `fix-risk-logic-index` (Risk Checks) + `feature/jules-audit` (MCP Improvements).
+- ✅ Resolved conflicts in `mcp_server.py` (preserved CLI-based running).
+- ✅ Cleaned up junk log files (`agent_logic_test*.log`).
+- ✅ Created integration tests (`test_mcp_integration.py`) and report (`TEST_REPORT_JULES.md`).
+
+**🔧 Frontend & EA Updates:**
+
+- ✅ Upgraded Next.js 16.0.9 → 16.0.10 (Security patch).
+- ✅ Updated `AlphaReceiver.mq5` endpoint to `oracle.axiomid.app`.
+- ✅ Created Terraform config (`terraform/main.tf`) for GCP Windows VM.
+
+**Skills Acquired:**
+
+- FastMCP CLI runner vs library usage
+- Cloudflare Tunnel `httpHostHeader` configuration
+- Terraform for GCP Compute Engine
+
+---
+
 ### الجلسة: 11 ديسمبر 2025 (20:35) - 🌉 Iron Core Bridge
 
 **🎯 Strategic Pivot: "Iron Core" (MVP First)**
