@@ -3,6 +3,8 @@ QTP MCP Server - Quantum Trading Protocol
 An MCP Server that exposes trading functions as tools for AI agents (V0, Claude, etc.)
 """
 
+import asyncio
+import os
 from mcp.server.fastmcp import FastMCP
 import json
 
@@ -49,12 +51,14 @@ mcp = FastMCP("AlphaQuanTopology (AQT)")
 # ============= TOOLS =============
 
 @mcp.tool()
-def get_account_info() -> dict:
+async def get_account_info() -> dict:
     """
     Get the current trading account information.
     Returns balance, equity, profit, margin, and free margin.
     """
-    account = mt5.account_info()
+    # Run blocking MT5 call in a separate thread
+    account = await asyncio.to_thread(mt5.account_info)
+
     if account is None:
         return {"error": "MT5 not connected"}
     
@@ -69,12 +73,13 @@ def get_account_info() -> dict:
     }
 
 @mcp.tool()
-def get_open_positions() -> list:
+async def get_open_positions() -> list:
     """
     Get all currently open trading positions.
     Returns a list of positions with symbol, type, volume, and profit.
     """
-    positions = mt5.positions_get()
+    positions = await asyncio.to_thread(mt5.positions_get)
+
     if positions is None:
         return []
     
@@ -91,7 +96,7 @@ def get_open_positions() -> list:
     ]
 
 @mcp.tool()
-def execute_trade(symbol: str, action: str, volume: float = 0.01) -> dict:
+async def execute_trade(symbol: str, action: str, volume: float = 0.01) -> dict:
     """
     Execute a trade on MetaTrader 5.
     
@@ -103,12 +108,20 @@ def execute_trade(symbol: str, action: str, volume: float = 0.01) -> dict:
     Returns:
         Trade execution result with ticket number or error.
     """
+    # Input Validation
+    action_upper = action.upper()
+    if action_upper not in ['BUY', 'SELL']:
+        return {"error": f"Invalid action: {action}. Must be BUY or SELL."}
+
+    if volume <= 0:
+        return {"error": "Volume must be greater than 0."}
+
     if not MT5_AVAILABLE:
         return {
             "status": "SIMULATED",
             "ticket": 99999,
             "symbol": symbol,
-            "action": action,
+            "action": action_upper,
             "volume": volume,
             "message": "Trade simulated (MT5 not available)"
         }
@@ -121,34 +134,37 @@ def execute_trade(symbol: str, action: str, volume: float = 0.01) -> dict:
     #     "type": mt5.ORDER_TYPE_BUY if action == "BUY" else mt5.ORDER_TYPE_SELL,
     #     ...
     # }
-    # result = mt5.order_send(request)
+    # result = await asyncio.to_thread(mt5.order_send, request)
     
     return {
         "status": "PENDING_IMPLEMENTATION",
+        "symbol": symbol,
+        "action": action_upper,
+        "volume": volume,
         "message": "Real trading not yet implemented"
     }
 
 @mcp.tool()
-def get_system_status() -> dict:
+async def get_system_status() -> dict:
     """
     Get the current status of the QTP system.
     Returns MT5 connection status and system health.
     """
-    terminal = mt5.terminal_info()
+    terminal = await asyncio.to_thread(mt5.terminal_info)
     return {
         "mt5_connected": terminal is not None,
         "algo_trading_enabled": terminal.trade_allowed if terminal else False,
         "simulation_mode": not MT5_AVAILABLE,
-        "version": "1.0.0",
+        "version": "1.1.0",
         "protocol": "AQT (AlphaQuanTopology)"
     }
 
 # ============= RESOURCES =============
 
 @mcp.resource("qtp://account/summary")
-def account_summary() -> str:
+async def account_summary() -> str:
     """Summary of the trading account."""
-    info = get_account_info()
+    info = await get_account_info()
     return f"""
     📊 Account Summary
     -----------------
@@ -162,15 +178,17 @@ def account_summary() -> str:
 # ============= RUN =============
 
 if __name__ == "__main__":
-    print("🚀 Starting QTP MCP Server (HTTP Mode for V0)...")
+    host = os.getenv("MCP_HOST", "0.0.0.0")
+    port = int(os.getenv("MCP_PORT", "8766"))
+
+    print(f"🚀 Starting QTP MCP Server (HTTP Mode for V0)...")
     print("📡 Tools available: get_account_info, get_open_positions, execute_trade, get_system_status")
-    print("🌐 URL: http://localhost:8766/mcp")
+    print(f"🌐 URL: http://{host}:{port}/mcp")
     
     # Run with HTTP/SSE transport for V0 compatibility
     mcp.run(
         transport="sse",
         sse_path="/mcp",
-        host="0.0.0.0",
-        port=8766
+        host=host,
+        port=port
     )
-
