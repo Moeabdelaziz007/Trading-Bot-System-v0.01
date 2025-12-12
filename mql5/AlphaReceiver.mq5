@@ -13,7 +13,7 @@
 
 //--- Input Parameters
 input string   ApiKey       = "";                                      // Your AlphaAxiom API Key
-input string   GatewayUrl   = "https://api.alphaaxiom.com/api/v1/signals/latest"; // API Endpoint
+input string   GatewayUrl   = "https://oracle.axiomid.app/api/v1/signals/latest"; // API Endpoint (Oracle Cloud)
 input int      PollingMs    = 5000;                                    // Poll Interval (milliseconds)
 input double   RiskPercent  = 1.0;                                     // Risk % per trade
 input int      MagicNumber  = 888888;                                  // Magic Number
