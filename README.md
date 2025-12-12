@@ -116,6 +116,7 @@ graph TD
 | 🧠 **Trading Brain** | Cloudflare Workers | 100k req/day | [`worker.py`](trading-cloud-brain/src/worker.py) |
 | 🌐 **AlphaAPI Gateway** | Cloudflare Workers + KV | Signal Distribution | [`sentinel.js`](trading-cloud-brain/src/gateway/sentinel.js) |
 | 🚀 **Core Compute** | **Oracle Cloud (ARM)** | **24GB RAM + 4 vCPUs** | [`backend/`](backend/) |
+| ⚡ **AQT MCP Server** | **Oracle + Cloudflare Tunnel** | **[oracle.axiomid.app](https://oracle.axiomid.app/sse)** | [`deploy_aqt.sh`](deploy_aqt.sh) |
 | 🗄️ **Database** | Azure SQL (Student) | $100 Credit/Year | [`schema.sql`](trading-cloud-brain/schema.sql) |
 | 🧪 **AI Training** | Intel Tiber Cloud | Xeon/Gaudi2 HPC | *External Tool* |
 | 📊 **Data Warehouse** | BigQuery Storage API | **2TB Free Ingestion** | [`bq_sink.py`](trading-cloud-brain/src/data/bq_sink.py) |
