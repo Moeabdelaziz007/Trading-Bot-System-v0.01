@@ -114,7 +114,8 @@ graph TD
 | Component | Technology | Free Tier Hack | File Location |
 |:----------|:-----------|:---------------|:--------------|
 | 🧠 **Trading Brain** | Cloudflare Workers | 100k req/day | [`worker.py`](trading-cloud-brain/src/worker.py) |
-| 🚀 **Core Compute** | **Oracle Cloud (ARM)** | **24GB RAM + 4 vCPUs** | [`watchdog/`](backend/watchdog/) |
+| 🌐 **AlphaAPI Gateway** | Cloudflare Workers + KV | Signal Distribution | [`sentinel.js`](trading-cloud-brain/src/gateway/sentinel.js) |
+| 🚀 **Core Compute** | **Oracle Cloud (ARM)** | **24GB RAM + 4 vCPUs** | [`backend/`](backend/) |
 | 🗄️ **Database** | Azure SQL (Student) | $100 Credit/Year | [`schema.sql`](trading-cloud-brain/schema.sql) |
 | 🧪 **AI Training** | Intel Tiber Cloud | Xeon/Gaudi2 HPC | *External Tool* |
 | 📊 **Data Warehouse** | BigQuery Storage API | **2TB Free Ingestion** | [`bq_sink.py`](trading-cloud-brain/src/data/bq_sink.py) |
@@ -124,6 +125,7 @@ graph TD
 | 🤖 **AI: Strategy** | Gemini Pro (Student) | Unlimited* | [`agents/`](trading-cloud-brain/src/agents/) |
 | ⚡ **AI: Reflex** | Groq LPU | 14k tokens/min | [`workers_ai.py`](trading-cloud-brain/src/workers_ai.py) |
 | 🏦 **Broker: FIX** | Pepperstone/IC Markets | Protocol Only | [`fix_client.py`](trading-cloud-brain/src/utils/fix_client.py) |
+| 📡 **MT5 Clients** | AlphaReceiver EA | Client-Side Execution | [`mql5/AlphaReceiver.mq5`](mql5/AlphaReceiver.mq5) |
 
 ---
 

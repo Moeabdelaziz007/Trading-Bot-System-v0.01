@@ -1,0 +1,6 @@
+# MetaTrader5 (Windows only - install manually)
+fastapi
+uvicorn[standard]
+websockets
+cryptography
+mcp

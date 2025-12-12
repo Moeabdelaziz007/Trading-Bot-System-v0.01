@@ -58,3 +58,12 @@ ASSET_SYMBOL_MAP = {
 MAX_POSITION_SIZE_PERCENT = 5.0  # Max 5% of portfolio per trade
 DEFAULT_STOP_LOSS_PERCENT = 2.0  # Default SL: -2%
 DEFAULT_TAKE_PROFIT_PERCENT = 4.0  # Default TP: +4%
+
+# ============================================
+# AI MODEL API KEYS
+# ============================================
+ZHIPU_API_KEY = secrets.get_secret("ZHIPU_API_KEY", "")  # GLM-4 / Z.ai
+OPENROUTER_API_KEY = secrets.get_secret("OPENROUTER_API_KEY", "")  # Multi-Model Gateway
+GROQ_API_KEY = secrets.get_secret("GROQ_API_KEY", "")  # Groq LPU
+GEMINI_API_KEY = secrets.get_secret("GEMINI_API_KEY", "")  # Google Gemini
+DEEPSEEK_API_KEY = secrets.get_secret("DEEPSEEK_API_KEY", "")  # DeepSeek

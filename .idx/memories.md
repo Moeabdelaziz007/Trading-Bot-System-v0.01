@@ -4,9 +4,54 @@
 
 ## 📅 سجل الجلسات
 
-### الجلسة: 11 ديسمبر 2025 (12:30)
+### الجلسة: 11 ديسمبر 2025 (20:35) - 🌉 Iron Core Bridge
 
-**🚀 MVP Enhancement Suite (82% → 90% Readiness):**
+**🎯 Strategic Pivot: "Iron Core" (MVP First)**
+
+- ✅ **Decision:** Focus on Core Loop (Brain → Telegram → MT5) before Swarm.
+- ✅ **AlphaReceiver.mq5:** Created MT5 EA for polling cloud API.
+- ✅ **Workflow:** WebRequest + OnTimer (5s) + Simple JSON parsing.
+- ✅ **API Endpoint:** `/api/v1/signals/latest` verified in worker.py.
+
+**🔧 Technical Implementation:**
+
+- MQL5 WebRequest requires URL whitelisting (Tools > Options > Expert Advisors).
+- CTrade class for order execution.
+- Signal deduplication via `signal_id` tracking.
+
+**Skills Acquired:**
+
+- MQL5 WebRequest best practices
+- MT5-Cloud API polling architecture
+- Simple JSON parsing in MQL5
+
+---
+
+### الجلسة: 11 ديسمبر 2025 (16:30) - 🌐 AlphaAPI Gateway
+
+**🚀 Platform Transformation (API-as-a-Service):**
+
+- ✅ **Sentinel Gateway (`sentinel.js`):** Cloudflare Worker for signal distribution.
+- ✅ **Signal Broadcaster (`signal_broadcaster.py`):** Fire-and-Forget pattern (0.01ms).
+- ✅ **AlphaReceiver.mq5:** MT5 Expert Advisor for clients.
+- ✅ **Decision Engine Updated:** Integrated broadcaster with async pattern.
+- ✅ **Oracle Cloud Setup:** IP `161.153.3.177` - Ubuntu 22.04 (1 OCPU, 1GB RAM).
+
+**🔧 Infrastructure:**
+
+- Oracle VM Public IP: `161.153.3.177`
+- SSH Key: `~/.ssh/oracle/ssh-key-2025-12-11.key`
+- OpenRouter API Key: Saved to `backend/.env`
+
+**Skills Acquired:**
+
+- Cloudflare KV Bindings for API Auth
+- MQL5 WebRequest Non-Blocking Pattern
+- Python asyncio Fire-and-Forget
+
+---
+
+### الجلسة: 11 ديسمبر 2025 (12:30)
 
 - ✅ **Risk Constitution (`RISK_MODEL.md`):**
   - Created "Survival First" laws: Max 5% Drawdown, Max 5% Position.

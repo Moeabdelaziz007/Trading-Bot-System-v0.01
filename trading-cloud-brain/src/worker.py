@@ -21,6 +21,7 @@ Consolidated Packages:
 
 from js import Response, fetch, Headers, JSON
 import json
+import datetime
 from base64 import b64encode
 
 # Consolidated package imports
@@ -308,6 +309,70 @@ async def on_fetch(request, env):
             "max_trades": MAX_TRADES_PER_DAY
         }
         return Response.new(json.dumps(result), headers=headers)
+    
+    # ==========================================
+    # 🌐 ALPHA API GATEWAY (Signal Distribution)
+    # ==========================================
+    
+    # AlphaAPI Health Check
+    if "api/v1/health" in url:
+        return Response.new(json.dumps({
+            "status": "healthy",
+            "service": "AlphaAPI Gateway",
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        }), headers=headers)
+    
+    # AlphaAPI: Push Signal (Internal - from Decision Engine)
+    if "api/v1/signals/push" in url and method == "POST":
+        internal_token = request.headers.get("X-Internal-Token")
+        internal_secret = str(getattr(env, 'INTERNAL_SECRET', ''))
+        
+        if not internal_token or internal_token != internal_secret:
+            return Response.new(json.dumps({"error": "Forbidden"}), status=403, headers=headers)
+        
+        try:
+            body_js = await request.json()
+            signal = json.loads(JSON.stringify(body_js))
+            signal["server_timestamp"] = datetime.datetime.utcnow().isoformat()
+            
+            # Store latest signal in KV
+            await env.SIGNALS_KV.put("signal:latest", json.dumps(signal))
+            
+            # Store in history (24h TTL)
+            history_key = f"signal:{int(datetime.datetime.utcnow().timestamp())}"
+            await env.SIGNALS_KV.put(history_key, json.dumps(signal), expiration_ttl=86400)
+            
+            log.info(f"📡 Signal stored: {signal.get('action', 'N/A')} {signal.get('symbol', 'N/A')}")
+            
+            return Response.new(json.dumps({
+                "status": "stored",
+                "signal_id": signal.get("signal_id", history_key)
+            }), headers=headers)
+        except Exception as e:
+            return Response.new(json.dumps({"error": str(e)}), status=400, headers=headers)
+    
+    # AlphaAPI: Get Latest Signal (External - for MT5 Clients)
+    if "api/v1/signals/latest" in url and method == "GET":
+        api_key = request.headers.get("X-API-Key")
+        
+        if not api_key:
+            return Response.new(json.dumps({"error": "API Key required"}), status=401, headers=headers)
+        
+        # Validate API Key in KV
+        client_data = await env.API_KEYS_KV.get(api_key)
+        if not client_data:
+            return Response.new(json.dumps({"error": "Invalid API Key"}), status=401, headers=headers)
+        
+        # Fetch latest signal
+        signal = await env.SIGNALS_KV.get("signal:latest")
+        
+        if not signal:
+            return Response.new(json.dumps({
+                "status": "no_signal",
+                "message": "No signals available"
+            }), headers=headers)
+        
+        return Response.new(signal, headers=headers)
     
     # ==========================================
     # 📊 LEARNING LOOP & DRIFT GUARD ENDPOINTS

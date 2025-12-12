@@ -24,6 +24,15 @@ crons = [
 binding = "BRAIN_MEMORY"
 id = "e31a120e1f8f40dbb17d3278d2921c6e"
 
+# 🌐 ALPHA API GATEWAY: Signal Distribution
+[[kv_namespaces]]
+binding = "SIGNALS_KV"
+id = "5eb318674df04d19980199959dc11dd6"
+
+[[kv_namespaces]]
+binding = "API_KEYS_KV"
+id = "d44af3dedb9d4625825c90b1fff479ed"
+
 # 💾 DATABASE: D1 (SQLite at Edge)
 [[d1_databases]]
 binding = "TRADING_DB"
@@ -58,6 +67,7 @@ CAPITAL_DEMO = "true"
 # wrangler secret put CAPITAL_API_KEY
 # wrangler secret put CAPITAL_EMAIL
 # wrangler secret put CAPITAL_PASSWORD
+# wrangler secret put INTERNAL_SECRET   # 🌐 AlphaAPI Gateway Token
 #
 # For local development, create a `.dev.vars` file with these keys.
 # The `.dev.vars` file is automatically ignored by git.
