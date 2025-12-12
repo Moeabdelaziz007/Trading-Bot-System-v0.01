@@ -13,10 +13,11 @@ export function TradingChart({ symbol = "BTCUSD", theme = "dark" }: TradingChart
     useEffect(() => {
         if (!containerRef.current) return
 
-        // Clear previous widget
-        containerRef.current.innerHTML = ""
+        // Clear previous widget content safely
+        const container = containerRef.current
+        container.innerHTML = ""
 
-        // Create TradingView widget
+        // Create TradingView widget script
         const script = document.createElement("script")
         script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
         script.type = "text/javascript"
@@ -39,18 +40,18 @@ export function TradingChart({ symbol = "BTCUSD", theme = "dark" }: TradingChart
             gridColor: theme === "dark" ? "rgba(57, 255, 20, 0.06)" : "rgba(0, 0, 0, 0.06)",
         })
 
-        containerRef.current.appendChild(script)
+        container.appendChild(script)
 
         return () => {
-            if (containerRef.current) {
-                containerRef.current.innerHTML = ""
+            if (container) {
+                container.innerHTML = ""
             }
         }
     }, [symbol, theme])
 
     return (
-        <div className="tradingview-widget-container h-full w-full min-h-[400px] rounded-lg border border-border bg-card overflow-hidden">
-            <div ref={containerRef} className="h-full w-full" />
+        <div className="tradingview-widget-container h-full w-full min-h-[600px] rounded-lg border border-border bg-card overflow-hidden">
+            <div id="tradingview_widget" ref={containerRef} className="h-full w-full" />
         </div>
     )
 }
