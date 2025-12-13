@@ -1,0 +1,18 @@
+{
+  "auth_bypass": {
+    "status": "FAILED",
+    "details": "Connection Refused (Target Down)"
+  },
+  "sql_injection": {
+    "status": "ERROR",
+    "details": "HTTPConnectionPool(host='localhost', port=8787): Max retries exceeded with url: /api/news/push (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8787): Failed to establish a new connection: [Errno 111] Connection refused\"))"
+  },
+  "circuit_breaker": {
+    "status": "FAIL",
+    "details": "No Circuit Breaker detected (Circuit did not open)."
+  },
+  "rate_limit": {
+    "status": "SKIPPED",
+    "details": ""
+  }
+}
