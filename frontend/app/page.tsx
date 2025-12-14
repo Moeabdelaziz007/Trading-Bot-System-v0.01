@@ -23,7 +23,7 @@ export default function QuantumDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background relative" style={{ selectionBackgroundColor: "var(--color-neon-green)", selectionOpacity: 0.3 }}>
+    <div className="min-h-screen bg-background relative">
       {/* Background Neural Network */}
       <NeuralTopology />
 

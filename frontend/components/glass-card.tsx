@@ -53,7 +53,7 @@ export function GlassCard({
     ? {
         duration: 2,
         repeat: Infinity,
-        ease: "easeInOut",
+        ease: "easeInOut" as const,
       }
     : {};
 
@@ -121,7 +121,7 @@ export function GlassCard({
           transition={{
             duration: 3,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: "easeInOut" as const,
           }}
         />
       )}
