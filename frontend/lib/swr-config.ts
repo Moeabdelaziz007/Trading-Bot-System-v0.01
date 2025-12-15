@@ -44,14 +44,15 @@ const mockNewsData = {
 export const fetcher = async (url: string) => {
     try {
         // For development, use mock data to avoid CORS issues
-        if (process.env.NODE_ENV === 'development') {
-            if (url.includes('/api/briefing/latest')) {
-                return mockBriefingData;
-            }
-            if (url.includes('/api/news/latest')) {
-                return mockNewsData;
-            }
-        }
+        // For development, use mock data to avoid CORS issues
+        // if (process.env.NODE_ENV === 'development') {
+        //     if (url.includes('/api/briefing/latest')) {
+        //         return mockBriefingData;
+        //     }
+        //     if (url.includes('/api/news/latest')) {
+        //         return mockNewsData;
+        //     }
+        // }
 
         const response = await fetch(url, {
             method: 'GET',
@@ -61,26 +62,27 @@ export const fetcher = async (url: string) => {
                 // Remove Cache-Control header that's causing CORS issues
             },
         });
-        
+
         if (!response.ok) {
             const error = new Error(`HTTP error! status: ${response.status}`);
             (error as any).info = await response.json();
             (error as any).status = response.status;
             throw error;
         }
-        
+
         return response.json();
     } catch (error) {
         console.error('API fetch error:', error);
         // Return mock data on error for development
-        if (process.env.NODE_ENV === 'development') {
-            if (url.includes('/api/briefing/latest')) {
-                return mockBriefingData;
-            }
-            if (url.includes('/api/news/latest')) {
-                return mockNewsData;
-            }
-        }
+        // Return mock data on error for development
+        // if (process.env.NODE_ENV === 'development') {
+        //     if (url.includes('/api/briefing/latest')) {
+        //         return mockBriefingData;
+        //     }
+        //     if (url.includes('/api/news/latest')) {
+        //         return mockNewsData;
+        //     }
+        // }
         throw error;
     }
 };

@@ -2,15 +2,12 @@
 
 import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    TrendingUp, TrendingDown, Minus, RefreshCw, Newspaper,
-    ArrowUpRight, Zap, Globe, Activity, Radio
-} from "lucide-react";
-import { GlassCard } from "@/components/glass-card";
+import { RefreshCw, Newspaper, ArrowUpRight, Radio } from "lucide-react";
 import dynamic from "next/dynamic";
 import { performanceMonitor } from '../../lib/performance-monitor';
 import { useBriefing, useNews } from '../../lib/swr-config';
-import { BriefingSkeleton, NewsGridSkeleton, DataFetchError } from './loading-skeletons';
+import { NewsGridSkeleton, DataFetchError } from './loading-skeletons';
+import DailyBriefingCard from './daily-briefing-card';
 
 // ==========================================
 // 🚀 OPTIMIZED DYNAMIC IMPORTS
@@ -70,17 +67,6 @@ export default function NewsClientWrapper({ initialNews, initialBriefing }: News
         // No need to call trackWebVitals() as it doesn't exist
     }, []);
 
-    // Optimized date formatting to prevent hydration mismatch
-    const formatDate = useCallback((dateString: string) => {
-        try {
-            const date = new Date(dateString);
-            // Use ISO format to prevent locale-based hydration mismatch
-            return date.toISOString().slice(0, 19).replace('T', ' ').replace(/\.\d+Z$/, '');
-        } catch {
-            return dateString; // Fallback to original string
-        }
-    }, []);
-
     // Manual refresh function using SWR mutate
     const fetchData = useCallback(async () => {
         setOrbState("analyzing");
@@ -96,34 +82,11 @@ export default function NewsClientWrapper({ initialNews, initialBriefing }: News
         }
     }, [mutateBriefing, mutateNews]);
 
-    // Memoized sentiment style calculation
-    const getSentimentStyle = useCallback((sentiment: string) => {
-        switch (sentiment) {
-            case "Bullish": return { icon: <TrendingUp className="w-4 h-4" style={{ color: "var(--color-sentiment-bullish)" }} /> };
-            case "Bearish": return { icon: <TrendingDown className="w-4 h-4" style={{ color: "var(--color-sentiment-bearish)" }} /> };
-            default: return { icon: <Minus className="w-4 h-4" style={{ color: "var(--color-sentiment-neutral)" }} /> };
-        }
-    }, []);
-
-    // Memoized calculations to prevent unnecessary re-renders
-    const sentimentStyle = useMemo(() =>
-        briefing ? getSentimentStyle(briefing.sentiment) : getSentimentStyle("Neutral"),
-        [briefing, getSentimentStyle]
-    );
-
     const visibleNews = useMemo(() => news.slice(0, visibleCount), [news, visibleCount]);
-    const briefingTime = useMemo(() =>
-        briefing ? formatDate(briefing.created_at) : '',
-        [briefing, formatDate]
-    );
-
-    // Determine loading and error states
-    const isLoading = briefingLoading || newsLoading;
-    const hasError = briefingError || newsError;
 
     return (
         <div className="min-h-screen bg-black text-gray-200 font-mono p-4 md:p-6 lg:p-8">
-            
+
             {/* Performance Dashboard - Only in development */}
             {process.env.NODE_ENV === 'development' && mounted && (
                 <Suspense fallback={null}>
@@ -146,14 +109,14 @@ export default function NewsClientWrapper({ initialNews, initialBriefing }: News
                         <Suspense fallback={<div className="w-8 h-8 bg-gray-800 rounded-full animate-pulse" />}>
                             <PulsingOrb state={orbState} />
                         </Suspense>
-                        
+
                         <div>
                             <Suspense fallback={<div className="h-6 w-32 bg-gray-800 rounded animate-pulse" />}>
                                 <GlitchText className="text-xl md:text-2xl text-white">
                                     INTELLIGENCE_HUB
                                 </GlitchText>
                             </Suspense>
-                            
+
                             <p className="text-xs text-gray-500 mt-1 flex items-center gap-2">
                                 <Radio className="w-3 h-3" style={{ color: "var(--color-primary-cyan)" }} />
                                 QUANTUM MARKET ANALYSIS SYSTEM v2.0
@@ -170,7 +133,7 @@ export default function NewsClientWrapper({ initialNews, initialBriefing }: News
                                 borderColor: "rgba(0, 240, 255, 0.3)",
                                 color: "var(--color-primary-cyan)"
                             }}
-                            whileHover={{ 
+                            whileHover={{
                                 scale: 1.05,
                                 backgroundColor: "rgba(0, 240, 255, 0.2)"
                             }}
@@ -178,10 +141,10 @@ export default function NewsClientWrapper({ initialNews, initialBriefing }: News
                         >
                             <RefreshCw className="w-4 h-4" /> SYNC
                         </motion.button>
-                        
+
                         <div className="text-xs text-gray-600 flex items-center gap-2">
-                            <div 
-                                className="w-2 h-2 rounded-full animate-pulse" 
+                            <div
+                                className="w-2 h-2 rounded-full animate-pulse"
                                 style={{ backgroundColor: "var(--color-sentiment-bullish)" }}
                             />
                             ONLINE
@@ -197,95 +160,12 @@ export default function NewsClientWrapper({ initialNews, initialBriefing }: News
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
                 >
-                    {briefingError ? (
-                        <DataFetchError
-                            message="Failed to load briefing data"
-                            onRetry={() => mutateBriefing()}
-                        />
-                    ) : briefingLoading ? (
-                        <BriefingSkeleton />
-                    ) : (
-                        <GlassCard
-                            sentiment={
-                                briefing?.sentiment === "Bullish" ? "bullish" :
-                                briefing?.sentiment === "Bearish" ? "bearish" :
-                                "neutral"
-                            }
-                            className="relative p-6"
-                        >
-                            <div className="relative z-10">
-                                {/* Header */}
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <Zap className="w-5 h-5" style={{ color: "#facc15" }} />
-                                        <span className="text-xs text-gray-400 uppercase tracking-widest">Daily Executive Briefing</span>
-                                    </div>
-                                    {briefing && (
-                                        <motion.div
-                                            className="flex items-center gap-2 px-3 py-1 rounded-full shadow-lg border"
-                                            style={{
-                                                boxShadow: briefing.sentiment === "Bullish" ? "var(--glow-bullish)" :
-                                                           briefing.sentiment === "Bearish" ? "var(--glow-bearish)" :
-                                                           "var(--glow-neutral)"
-                                            }}
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                        >
-                                            {sentimentStyle.icon}
-                                            <span
-                                                className="text-lg font-bold"
-                                                style={{
-                                                    color: briefing.sentiment === "Bullish" ? "var(--color-sentiment-bullish)" :
-                                                           briefing.sentiment === "Bearish" ? "var(--color-sentiment-bearish)" :
-                                                           "var(--color-sentiment-neutral)"
-                                                }}
-                                            >
-                                                {briefing.sentiment.toUpperCase()}
-                                            </span>
-                                        </motion.div>
-                                    )}
-                                </div>
-
-                                {/* AI Summary with Optimized Typewriter */}
-                                <div className="min-h-[80px] text-lg md:text-xl leading-relaxed text-gray-300">
-                                    {briefing ? (
-                                        <Suspense fallback={<div className="h-4 w-32 bg-gray-800 rounded animate-pulse" />}>
-                                            <Typewriter text={briefing.summary} speed={30} />
-                                        </Suspense>
-                                    ) : (
-                                        <div className="text-gray-500 text-center py-4">
-                                            <Globe className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                                            <p>Waiting AI Analysis...</p>
-                                            <p className="text-xs mt-1">Daily briefing generates at 08:00 Cairo Time</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Impact Tags */}
-                                <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/10">
-                                    <span className="text-xs text-gray-500 mr-2">MARKET DRIVERS:</span>
-                                    {['FED_RATES', 'BTC_HALVING', 'CHINA_STIMULUS', 'AI_SECTOR'].map((driver, i) => (
-                                        <Suspense key={i} fallback={<div className="px-2 py-1 bg-gray-800 rounded text-xs">Loading...</div>}>
-                                            <NeonTag type={i % 2 === 0 ? "positive" : i % 2 === 1 ? "critical" : "positive" as const}>
-                                                {driver.replace('_', ' ')}
-                                            </NeonTag>
-                                        </Suspense>
-                                    ))}
-                                </div>
-
-                                {briefing && (
-                                    <div className="mt-4 text-xs text-gray-600 flex items-center gap-2">
-                                        <span
-                                            className="w-1 h-1 rounded-full"
-                                            style={{ backgroundColor: "var(--color-primary-cyan)" }}
-                                        />
-                                        Generated by Perplexity Sonar • {new Date(briefing.created_at).toLocaleString()}
-                                    </div>
-                                )}
-                            </div>
-                        </GlassCard>
-                    )}
+                    <DailyBriefingCard
+                        briefing={briefing}
+                        isLoading={briefingLoading}
+                        isError={briefingError}
+                        onRetry={() => mutateBriefing()}
+                    />
                 </motion.div>
 
                 {/* ==========================================
@@ -343,11 +223,11 @@ export default function NewsClientWrapper({ initialNews, initialBriefing }: News
                                                     {new Date(item.published_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
-                                            
+
                                             <h3 className="text-sm md:text-base font-medium text-gray-300 group-hover:text-white line-clamp-2 transition-colors">
                                                 {item.title}
                                             </h3>
-                                            
+
                                             <div className="mt-2 flex justify-end">
                                                 <ArrowUpRight size={14} className="text-gray-600 group-hover:text-[var(--color-primary-cyan)] transition-colors" />
                                             </div>
