@@ -77,22 +77,24 @@ CAPITAL_DEMO = "true"
 # 🏰 THE CITADEL (Architecture v2.0)
 # ==========================================
 
-# 🔒 STATE: Durable Objects (DISABLED - Requires paid plan or specific Python class structure)
-# [[durable_objects.bindings]]
-# name = "TRADE_MANAGER"
-# class_name = "TradeManager"
+# 🔒 STATE: Durable Objects (SQLite-backed)
+# Active Context Persistence: Circuit Breaker, Positions, Wallet
+[[durable_objects.bindings]]
+name = "TRADE_SESSION"
+class_name = "DurableTradeSession"
 
-# 📨 EXECUTION: Queues (Async Reliability) - DISABLED (Requires Paid Plan)
+# 📦 MIGRATIONS: SQLite Schema
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["DurableTradeSession"]
+
+# 📨 EXECUTION: Queues (Async Reliability) - STUB for Phase 2
 # [[queues.producers]]
-# queue = "trade-queue"
-# binding = "TRADE_QUEUE"
+# queue = "news-ingestion"
+# binding = "NEWS_QUEUE"
 
 # [[queues.consumers]]
-# queue = "trade-queue"
-# max_batch_size = 5
+# queue = "news-ingestion"
+# max_batch_size = 10
 # max_batch_timeout = 5
 
-# 📦 MIGRATIONS (DISABLED)
-# [[migrations]]
-# tag = "v1"
-# new_sqlite_classes = ["TradeManager"]

@@ -1,6 +1,6 @@
 "use client"
 
-import { Download, Wifi, WifiOff, Loader2 } from "lucide-react"
+import { Download, Wifi, WifiOff, Loader2, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface StatusIndicatorProps {
@@ -8,9 +8,10 @@ interface StatusIndicatorProps {
   isConnecting: boolean
   onConnect: () => void
   onDownload: () => void
+  onSentinel: () => void
 }
 
-export function StatusIndicator({ isConnected, isConnecting, onConnect, onDownload }: StatusIndicatorProps) {
+export function StatusIndicator({ isConnected, isConnecting, onConnect, onDownload, onSentinel }: StatusIndicatorProps) {
   return (
     <div className="flex items-center gap-3">
       {!isConnected && !isConnecting && (
@@ -24,6 +25,16 @@ export function StatusIndicator({ isConnected, isConnecting, onConnect, onDownlo
           Download Engine
         </Button>
       )}
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onSentinel}
+        className="border-[#39FF14]/50 text-[#39FF14] bg-[#39FF14]/10 hover:bg-[#39FF14]/20 hover:text-[#39FF14]"
+      >
+        <MessageSquare className="mr-2 h-4 w-4" />
+        Connect Sentinel
+      </Button>
 
       <button
         onClick={onConnect}

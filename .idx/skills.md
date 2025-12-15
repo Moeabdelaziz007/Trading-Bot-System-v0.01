@@ -64,6 +64,7 @@
 | **Cyberpunk UI Gen** | Gen 2 | ██████░░░░ | "Create login", "Design navbar" |
 | **Animation Physics** | Gen 2 | █████░░░░░ | "Spring animation", "Framer Motion" |
 | **TypeScript Debug** | Gen 2 | ██████░░░░ | "Fix build error", "Type error" |
+| **Forensic Code Auditing** | Gen 1 | █████░░░░░ | "Deep grep", "System reconnaissance" |
 
 ### 🏗️ Architecture & Cloud
 

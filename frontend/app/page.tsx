@@ -22,6 +22,10 @@ export default function QuantumDashboard() {
     document.body.removeChild(link)
   }
 
+  const handleSentinel = () => {
+    window.open("https://t.me/AlphaAxiomBot", "_blank")
+  }
+
   return (
     <div className="min-h-screen bg-background relative">
       {/* Background Neural Network */}
@@ -31,7 +35,7 @@ export default function QuantumDashboard() {
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <div 
+            <div
               className="flex h-9 w-9 items-center justify-center rounded-lg"
               style={{ backgroundColor: "rgba(57, 255, 20, 0.1)" }}
             >
@@ -48,6 +52,7 @@ export default function QuantumDashboard() {
             isConnecting={isConnecting}
             onConnect={connect}
             onDownload={handleDownload}
+            onSentinel={handleSentinel}
           />
         </div>
       </header>
@@ -99,7 +104,7 @@ export default function QuantumDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground"></span>
-            <span>AQT Engine: localhost:8765</span>
+            <span>AQT Engine: oracle.axiomid.app</span>
           </div>
         </div>
       </main>
