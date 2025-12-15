@@ -12,8 +12,8 @@
 #include <Trade/Trade.mqh>
 
 //--- Input Parameters
-input string   ApiKey       = "";                                      // Your AlphaAxiom API Key
-input string   GatewayUrl   = "https://oracle.axiomid.app/api/v1/signals/latest"; // API Endpoint (Oracle Cloud)
+input string   ApiKey       = "aw-windows-local-key";                  // Your AlphaAxiom API Key
+input string   GatewayUrl   = "http://localhost:8000/api/v1/signals/latest"; // API Endpoint (Localhost)
 input int      PollingMs    = 5000;                                    // Poll Interval (milliseconds)
 input double   RiskPercent  = 1.0;                                     // Risk % per trade
 input int      MagicNumber  = 888888;                                  // Magic Number
@@ -29,8 +29,8 @@ int requestTimeout = 5000;
 //+------------------------------------------------------------------+
 int OnInit()
 {
-    // Validate API Key
-    if(StringLen(ApiKey) < 10)
+    // Validate API Key (Relaxed for Localhost)
+    if(StringLen(ApiKey) < 3)
     {
         Print("❌ Error: Please enter a valid API Key in settings");
         return(INIT_PARAMETERS_INCORRECT);
