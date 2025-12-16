@@ -57,6 +57,27 @@ except ImportError:
     AIOHTTP_AVAILABLE = False
     import requests  # Fallback to sync requests
 
+# Load environment variables for API keys
+import os
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+
+# Try to import AI Council
+try:
+    from ai_council import AICouncil, AIConfig
+    # Configure API keys
+    AIConfig.GROQ_API_KEY = GROQ_API_KEY
+    AIConfig.PERPLEXITY_API_KEY = PERPLEXITY_API_KEY
+    AIConfig.GEMINI_API_KEY = GEMINI_API_KEY
+    AIConfig.OPENROUTER_API_KEY = OPENROUTER_API_KEY
+    AI_COUNCIL_AVAILABLE = True
+    logger.info("🤖 AI Council loaded successfully")
+except ImportError:
+    AI_COUNCIL_AVAILABLE = False
+    logger.warning("AI Council not available - using cipher-only mode")
+
 
 # ============================================
 # CONFIGURATION
@@ -503,9 +524,17 @@ class OracleAPIClient:
 
 class InstitutionalBrain:
     """
-    🧠 Institutional Trading Brain - Production Grade
+    🧠 Institutional Trading Brain - AI-Enhanced
     
-    Runs 24/7, analyzing markets and sending high-confidence signals.
+    Runs 24/7, analyzing markets with:
+    1. Technical Analysis (Cipher Engine)
+    2. AI Council (Groq, Perplexity, Gemini, DeepSeek)
+    
+    AI makes the brain smarter with:
+    - News filtering (avoid high-impact events)
+    - Sentiment analysis (market mood)
+    - Pattern recognition (chart patterns)
+    - Self-improvement (learning from trades)
     """
     
     def __init__(self):
@@ -513,6 +542,20 @@ class InstitutionalBrain:
         self.mt5 = MT5Connector(self.config)
         self.cipher = InstitutionalCipherEngine()
         self.api_client = OracleAPIClient(self.config)
+        
+        # AI Council for enhanced decisions
+        if AI_COUNCIL_AVAILABLE:
+            self.ai_council = AICouncil()
+            logger.info("🤖 AI Council integrated - Brain is now smarter!")
+        else:
+            self.ai_council = None
+            logger.warning("⚠️ AI Council not available - using cipher-only mode")
+        
+        # Trade history for self-improvement
+        self.trade_history = []
+        self.win_count = 0
+        self.loss_count = 0
+        
         self.last_analysis_time = {}
         self.cycles = 0
         self.running = False
@@ -579,7 +622,7 @@ class InstitutionalBrain:
                 await asyncio.sleep(60)  # Wait 1 minute before retry
     
     async def _analyze_symbol(self, symbol: str) -> Optional[Dict]:
-        """Analyze a single symbol."""
+        """Analyze a single symbol with AI enhancement."""
         try:
             # Fetch data
             candles = await self.mt5.get_candles(symbol, self.config.CANDLE_COUNT)
@@ -588,7 +631,7 @@ class InstitutionalBrain:
                 logger.warning(f"   ⚠️ {symbol}: No data")
                 return None
             
-            # Run analysis
+            # Run cipher analysis first
             result = await self.cipher.analyze(
                 symbol,
                 candles["open"],
@@ -598,21 +641,71 @@ class InstitutionalBrain:
                 candles["volume"]
             )
             
+            cipher_score = result["confidence"]
             action = result["action"]
-            confidence = result["confidence"]
             reasons = result["reasons"]
             
-            # Log result
-            if action != "NONE" and confidence >= self.config.CONFIDENCE_THRESHOLD:
-                logger.info(f"   🌊 {symbol}: {action} | Conf: {confidence}/100")
+            # ============================================
+            # AI COUNCIL CONSULTATION
+            # ============================================
+            if self.ai_council and action != "NONE":
+                logger.info(f"   🤖 Consulting AI Council for {symbol}...")
+                
+                # Consult AI models
+                ai_result = await self.ai_council.consult(
+                    symbol=symbol,
+                    price=result["indicators"]["price"],
+                    indicators=result["indicators"],
+                    cipher_score=cipher_score,
+                    recent_prices=list(candles["close"][-50:])
+                )
+                
+                # Update score with AI adjustment
+                ai_adjusted_score = ai_result.get("ai_adjusted_score", cipher_score)
+                news_risk = ai_result.get("news_risk", "LOW")
+                consensus = ai_result.get("consensus", "HOLD")
+                
+                # Add AI insights to reasons
+                if ai_result.get("models_consulted"):
+                    reasons.append(f"🤖 AI: {consensus} ({len(ai_result['models_consulted'])} models)")
+                
+                # Override action if AI strongly disagrees
+                if news_risk == "HIGH":
+                    logger.warning(f"   📰 {symbol}: High news risk - SKIPPING trade")
+                    result["action"] = "NONE"
+                    result["reasons"].append("⚠️ High news risk - trade avoided")
+                    return None
+                
+                # Use AI-adjusted score
+                result["confidence"] = ai_adjusted_score
+                result["ai_analysis"] = ai_result
+                
+                logger.info(f"   📊 Score: {cipher_score}→{ai_adjusted_score} | News: {news_risk} | AI: {consensus}")
+            
+            # ============================================
+            # FINAL DECISION
+            # ============================================
+            action = result["action"]
+            final_confidence = result["confidence"]
+            
+            if action != "NONE" and final_confidence >= self.config.CONFIDENCE_THRESHOLD:
+                logger.info(f"   🌊 {symbol}: {action} | Conf: {final_confidence}/100")
                 logger.info(f"      Reasons: {', '.join(reasons[:3])}")
                 logger.info(f"      SL: {result['stop_loss']:.5f} | TP: {result['take_profit']:.5f}")
+                
+                # Track trade for self-improvement
+                self.trade_history.append({
+                    "symbol": symbol,
+                    "action": action,
+                    "confidence": final_confidence,
+                    "timestamp": result["timestamp"]
+                })
                 
                 # Send to API
                 await self.api_client.send_signal(result)
                 return result
             else:
-                logger.info(f"   💤 {symbol}: {action} | Conf: {confidence}/100 (below threshold)")
+                logger.info(f"   💤 {symbol}: {action} | Conf: {final_confidence}/100 (below threshold)")
                 return None
                 
         except Exception as e:
