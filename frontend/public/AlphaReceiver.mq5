@@ -129,15 +129,18 @@ void FetchAndProcessSignal()
     double tp       = StringToDouble(ExtractJsonValue(response, "tp"));
     double quantity = StringToDouble(ExtractJsonValue(response, "quantity"));
     string reason   = ExtractJsonValue(response, "reason");
+    int confidence  = (int)StringToInteger(ExtractJsonValue(response, "confidence"));
     
-    //--- Log received signal
-    Print("📡 New Signal Received:");
-    Print("   ID: ", signalId);
-    Print("   Action: ", action);
-    Print("   Symbol: ", symbol);
-    Print("   Qty: ", quantity);
-    Print("   SL: ", sl, " | TP: ", tp);
-    Print("   Reason: ", reason);
+    //--- Log received signal (Institutional Format)
+    Print("═══════════════════════════════════════════════════");
+    Print("🌊 INSTITUTIONAL CIPHER SIGNAL");
+    Print("═══════════════════════════════════════════════════");
+    Print("   📡 ID: ", signalId);
+    Print("   🎯 Action: ", action, " ", symbol);
+    Print("   📊 Confidence: ", confidence, "/100");
+    Print("   💰 Qty: ", quantity, " | SL: ", sl, " | TP: ", tp);
+    Print("   📋 Reason: ", reason);
+    Print("═══════════════════════════════════════════════════");
     
     //--- Execute trade if enabled
     if(!EnableTrades)
