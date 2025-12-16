@@ -99,7 +99,24 @@ class BrainConfig:
     CANDLE_COUNT = 500
     
     # Signal Thresholds
-    CONFIDENCE_THRESHOLD = 80  # 80% minimum
+    CONFIDENCE_THRESHOLD = 70  # 70% minimum (lowered from 80 for more trades)
+    
+    # ============================================
+    # TRADING MODES - AI Strategy Selection
+    # ============================================
+    # SNIPER = Long-term trades, higher TP, let profits run
+    # SCALPER = Quick wins, tight SL/TP, hit-and-run style
+    TRADING_MODE = "SCALPER"  # "SNIPER" or "SCALPER"
+    
+    # SNIPER Mode Settings (Long-term)
+    SNIPER_SL_PIPS = 50    # 50 pips stop loss
+    SNIPER_TP_PIPS = 150   # 150 pips take profit (1:3 R:R)
+    SNIPER_HOLD_TIME = 24  # Hold for up to 24 hours
+    
+    # SCALPER Mode Settings (Quick wins)
+    SCALPER_SL_PIPS = 15   # 15 pips stop loss
+    SCALPER_TP_PIPS = 30   # 30 pips take profit (1:2 R:R)
+    SCALPER_HOLD_TIME = 2  # Close within 2 hours max
     
     # API Settings
     SIGNAL_API_URL = "https://oracle.axiomid.app/api/v1/signals/push"
