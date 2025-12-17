@@ -1,0 +1,19 @@
+{
+    "trading_mode": "SCALPER",
+    "risk_percentage": 2.0,
+    "confidence_threshold": 50,
+    "max_open_positions": 3,
+    "symbols": [
+        "EURUSD",
+        "GBPUSD",
+        "USDJPY",
+        "USDCHF"
+    ],
+    "is_active": true,
+    "emergency_stop": false,
+    "_meta": {
+        "version": "1.0",
+        "last_modified": "2025-12-16T12:28:00Z",
+        "modified_by": "system"
+    }
+}

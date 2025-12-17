@@ -4,9 +4,13 @@ Managing Broker selection and unified access.
 """
 
 from .base import Broker
-from .oanda import OandaProvider
-from .capital import CapitalProvider
-from core import Logger, LogLevel, ConfigurationError
+# from .oanda import OandaProvider
+# from .capital import CapitalProvider
+import logging
+
+class ConfigurationError(Exception):
+    pass
+
 
 class BrokerGateway:
     """
@@ -16,21 +20,14 @@ class BrokerGateway:
     
     def __init__(self, env):
         self.env = env
-        self.log = Logger("broker.gateway", LogLevel.INFO)
-        self.active_broker: Broker = self._initialize_broker()
+        self.log = logging.getLogger("broker.gateway")
+        # self.active_broker: Broker = self._initialize_broker()
+        self.active_broker = None
         
     def _initialize_broker(self) -> Broker:
         """Initialize the configured broker."""
-        broker_name = getattr(self.env, 'PRIMARY_BROKER', 'OANDA').upper()
-        
-        self.log.info(f"Initializing broker: {broker_name}")
-        
-        if broker_name == 'OANDA':
-            return OandaProvider(self.env)
-        elif broker_name == 'CAPITAL':
-            return CapitalProvider(self.env)
-        else:
-            raise ConfigurationError("PRIMARY_BROKER", f"Unknown broker: {broker_name}. Supported: OANDA, CAPITAL")
+        return None # Legacy disabled
+
             
     async def get_account(self):
         """Get account summary from active broker."""

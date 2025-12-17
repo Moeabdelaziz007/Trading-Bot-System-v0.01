@@ -1,5 +1,4 @@
-eu   client"
-
+"use client"
 
 import { Zap } from "lucide-react"
 import { useQuantumSocket } from "@/hooks/use-quantum-socket"
@@ -9,12 +8,15 @@ import { SignalsCard } from "@/components/signals-card"
 import { ConsoleCard } from "@/components/console-card"
 import { TradingChart } from "@/components/trading-chart"
 import { NeuralTopology } from "@/components/neural-topology"
+import { EngineStatusHero } from "@/components/engine-status-hero"
+import { EngineControlPanel } from "@/components/engine-control-panel"
+import { AlphaLoopCard } from "@/components/alpha-loop-card"
+import { VoiceIndicator } from "@/components/voice-indicator"
 
-export default function QuantumDashboard() {
+export default function AlphaAxiomDashboard() {
   const { isConnected, isConnecting, account, signals, logs, connect } = useQuantumSocket()
 
   const handleDownload = () => {
-    // Download AlphaReceiver EA from local public folder
     const link = document.createElement('a')
     link.href = "/AlphaReceiver.mq5"
     link.download = "AlphaReceiver.mq5"
@@ -26,6 +28,9 @@ export default function QuantumDashboard() {
   const handleSentinel = () => {
     window.open("https://t.me/AlphaAxiomBot", "_blank")
   }
+
+  // Engine state - would come from WebSocket in production
+  const engineState = isConnected ? "running" : isConnecting ? "connecting" : "stopped"
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -43,8 +48,8 @@ export default function QuantumDashboard() {
               <Zap className="h-5 w-5" style={{ color: "var(--color-neon-green)" }} />
             </div>
             <div>
-              <h1 className="text-base font-semibold tracking-tight text-foreground">AlphaQuanTopology</h1>
-              <p className="text-xs text-muted-foreground">AQT Neural Engine v2.4</p>
+              <h1 className="text-base font-semibold tracking-tight text-foreground">AlphaAxiom</h1>
+              <p className="text-xs text-muted-foreground">Money Machine v1.0</p>
             </div>
           </div>
 
@@ -60,34 +65,50 @@ export default function QuantumDashboard() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Connection Error Banner */}
-        {!isConnected && !isConnecting && (
-          <div className="mb-6 rounded-lg border border-border bg-secondary/30 p-4">
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">Engine not running?</span> Download and run the AQT Engine
-              locally, then click the status indicator to connect.
-            </p>
-          </div>
-        )}
+        {/* NEW: Engine Status Hero */}
+        <EngineStatusHero
+          engineState={engineState}
+          wallet={10000}
+          generation={3}
+          tradestoday={2}
+          maxTrades={10}
+        />
 
-        {/* TradingView Chart - Full Width */}
+        {/* NEW: Control + Alpha Loop + Voice Row */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
+          <EngineControlPanel
+            isRunning={isConnected}
+            currentMode="scalping"
+            riskLevel="medium"
+            autoTrade={false}
+            onStart={connect}
+          />
+          <AlphaLoopCard
+            generation={3}
+            lastEvolution="Dec 10, 2025"
+            nextEvolutionIn="4 days"
+          />
+          <VoiceIndicator
+            isListening={false}
+            isConnected={isConnected}
+            lastCommand="Start scalping Bitcoin"
+            lastCommandTime="2m ago"
+          />
+        </div>
+
+        {/* TradingView Chart */}
         <div className="mb-6">
           <TradingChart symbol="BTCUSD" theme="dark" />
         </div>
 
-        {/* Bento Grid */}
+        {/* Data Cards Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* Account Card */}
           <div className="lg:col-span-1">
             <AccountCard account={account} />
           </div>
-
-          {/* Signals Card */}
           <div className="lg:col-span-1">
             <SignalsCard signals={signals} />
           </div>
-
-          {/* Console Card */}
           <div className="md:col-span-2 lg:col-span-1">
             <ConsoleCard logs={logs} />
           </div>
@@ -105,10 +126,11 @@ export default function QuantumDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground"></span>
-            <span>AQT Engine: oracle.axiomid.app</span>
+            <span>Engine: oracle.axiomid.app</span>
           </div>
         </div>
       </main>
     </div>
   )
 }
+

@@ -65,11 +65,91 @@
 
 ## 📅 سجل الجلسات
 
+### الجلسة: 17 ديسمبر 2025 (05:30) - 🚀 Axiom Alpha Ecosystem Build
+
+**✅ Phase 1: Universal Connector & Aladdin Shield (COMPLETE!)**
+
+- ✅ `src/adapters/base.py` - ExchangeAdapter ABC + Factory Pattern
+- ✅ `src/adapters/bybit_adapter.py` - Bybit V5 Unified Trading
+- ✅ `src/adapters/mt5_adapter.py` - MT5 HTTP Bridge
+- ✅ `src/engine/aladdin.py` - Risk & Correlation Engine (BlackRock-inspired)
+- ✅ `src/engine/portfolio_manager.py` - Central Orchestrator
+- ✅ `src/webhook_listener.py` - FastAPI Signal Receiver (TradingView compatible)
+- ✅ **Verified:** All imports working, Aladdin shield active
+
+**✅ Phase 2: The Money Flow Logic (COMPLETE!)**
+
+- ✅ `src/engine/cipher.py` - Market Cipher B (MFI + VWAP)
+- ✅ `src/engine/news_filter.py` - Perplexity API (Red Folder Detection)
+- ✅ **Verified:** CipherEngine + NewsFilter tested and operational
+
+**🚀 Phase 3: Wispr UX (IN PROGRESS)**
+
+- ⏳ Tauri v2 Client Architecture
+- ⏳ Voice Input (Groq Whisper)
+- ⏳ TTS Output (Edge TTS)
+- ⏳ Zero-Config Onboarding
+
+**📦 New Files Created:**
+
+```
+src/
+├── adapters/
+│   ├── base.py            
+│   ├── bybit_adapter.py   
+│   └── mt5_adapter.py     
+├── engine/
+│   ├── aladdin.py         
+│   ├── cipher.py          
+│   ├── news_filter.py     
+│   └── portfolio_manager.py
+└── webhook_listener.py    
+```
+
+**🔧 Legacy Code Fixed:**
+
+- Fixed `src/brokers/base.py` (removed broken 'core' import)
+- Fixed `src/brokers/gateway.py` (disabled legacy OANDA/Capital providers)
+- Fixed `src/brokers/__init__.py` (cleaned up exports)
+
+**🌐 External Research:**
+
+- Analyzed "Hacking The Markets" (Part Time Larry) GitHub repos
+- Integrated Webhook pattern from `tradingview-binance-strategy-alert-webhook`
+
+---
+
+### الجلسة: 16 ديسمبر 2025 (12:20) - 🎙️ Voice AI Interface "Axiom Whisper"
+
+**✅ Research Completed:**
+
+- Evaluated 6 platforms (OpenAI, Vapi, Retell, Vocode, Deepgram, Gemini)
+- Selected: **Groq Whisper (STT) + Gemini Flash (LLM) + Edge TTS** = 100% FREE
+
+**🎯 New Approach: "Wispr Flow-style Embedded Agent"**
+
+- Voice agent ships inside AlphaReceiver folder
+- Users download once, voice control works instantly
+- Speaks: "Axiom, switch to SNIPER mode" → Brain updates config
+
+**📦 Files Planned:**
+
+- `axiom_whisper/axiom_whisper.py` (Main voice agent)
+- `axiom_whisper/config_manager.py` (JSON config handler)
+- `axiom_whisper/voice_functions.py` (Function definitions)
+
+**⏳ Status:** Awaiting user approval on implementation plan.
+
+---
+
 ### الجلسة: 15 ديسمبر 2025 (13:15) - ☁️ Infrastructure Reboot (AWS) (Active)
 
 - **AWS Instance:** `m7i-flex.large` (Windows Server 2025).
 - **IP:** `54.162.158.245`.
 - **Key:** Converted `AQT.ppk` -> `AQT.pem` for Mac RDP access.
+- **Credentials:**
+  - **User:** `Administrator`
+  - **Pass:** `.=PAoDw)xF15y1pKuN-aKiNYbmD.mR@I`
 - **Context:** User recalled old Azure Student Credit ($100), verified in legacy logs. Transitioned to AWS for performance.
 
 ### الجلسة: 15 ديسمبر 2025 (10:50) - 🕵️ Grand Audit & Identity Confirmation

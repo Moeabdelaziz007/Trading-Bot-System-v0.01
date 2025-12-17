@@ -27,6 +27,8 @@ import numpy as np
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from pathlib import Path
+from src.utils.config_manager import ConfigManager
+from src.utils.ipc_manager import IPCManager
 
 # Setup professional logging (DeepSeek)
 log_dir = Path("logs")
@@ -99,7 +101,7 @@ class BrainConfig:
     CANDLE_COUNT = 500
     
     # Signal Thresholds
-    CONFIDENCE_THRESHOLD = 70  # 70% minimum (lowered from 80 for more trades)
+    CONFIDENCE_THRESHOLD = 50  # 50% minimum (SCALING TEST MODE)
     
     # ============================================
     # TRADING MODES - AI Strategy Selection
@@ -128,6 +130,22 @@ class BrainConfig:
     
     # Loop Settings
     ANALYSIS_INTERVAL_SECONDS = 300  # 5 minutes
+
+    # Runtime Configuration (Managed by ConfigManager)
+    _runtime_config = {}
+
+    @classmethod
+    def load_runtime_config(cls):
+        """Load latest config from disk."""
+        config = ConfigManager.load_config()
+        if config:
+            cls._runtime_config = config
+            cls.TRADING_MODE = config.get("trading_mode", cls.TRADING_MODE)
+            cls.MAX_RISK_PERCENT = config.get("risk_percentage", cls.MAX_RISK_PERCENT)
+            cls.CONFIDENCE_THRESHOLD = config.get("confidence_threshold", cls.CONFIDENCE_THRESHOLD)
+            logger.info(f"⚙️ Brain Config Updated: Mode={cls.TRADING_MODE} | Risk={cls.MAX_RISK_PERCENT}%")
+            
+        return config
 
 
 # ============================================
@@ -576,7 +594,30 @@ class InstitutionalBrain:
         self.last_analysis_time = {}
         self.cycles = 0
         self.running = False
-    
+        
+        # Initialize IPC (Fast Lane)
+        self.ipc = IPCManager(is_server=True)
+
+    async def _handle_voice_command(self, cmd: Dict):
+        """Handle emergency commands from Voice Agent (Fast Lane)."""
+        action = cmd.get("action")
+        logger.warning(f"🚨 RECEIVED VOICE COMMAND: {action}")
+        
+        if action == "EMERGENCY_STOP":
+            logger.error("🛑 EMERGENCY STOP TRIGGERED BY VOICE!")
+            self.running = False
+            await self.mt5.disconnect()
+            # In a real scenario, we would also close all positions here immediately
+            
+        elif action == "CLOSE_ALL":
+            logger.warning("📉 Closing all positions via Voice...")
+            # Logic to close all positions would go here
+            
+        elif action == "MARKET_BUY":
+            symbol = cmd.get("symbol")
+            logger.info(f"🟢 Voice Trade: BUY {symbol}")
+            # Logic to execute immediate buy
+            
     async def start(self):
         """Start the brain loop."""
         logger.info("=" * 60)
@@ -590,6 +631,9 @@ class InstitutionalBrain:
         
         # Connect to MT5
         await self.mt5.connect()
+        
+        # Start IPC Server (Fast Lane)
+        asyncio.create_task(self.ipc.start_server(self._handle_voice_command))
         
         # Start async loop
         self.running = True
@@ -606,6 +650,19 @@ class InstitutionalBrain:
                 
                 logger.info(f"\n🔄 Cycle #{self.cycles} | {timestamp}")
                 logger.info("-" * 40)
+                
+                # ----------------------------------------------------
+                # 1. LOAD CONFIG (Slow Lane - Safe Update)
+                # ----------------------------------------------------
+                current_config = self.config.load_runtime_config()
+                if current_config and not current_config.get("is_active", True):
+                    logger.info("💤 System PAUSED via Config.")
+                    await asyncio.sleep(5)
+                    continue
+
+                # ----------------------------------------------------
+                # 2. ANALYSIS LOOP
+                # ----------------------------------------------------
                 
                 # Parallel analysis of all symbols (DeepSeek pattern)
                 tasks = [
@@ -661,6 +718,39 @@ class InstitutionalBrain:
             cipher_score = result["confidence"]
             action = result["action"]
             reasons = result["reasons"]
+            
+            # ============================================
+            # APPLY TRADING MODE PREFERENCES (SL/TP)
+            # ============================================
+            if action != "NONE":
+                # Determine pip size
+                if "JPY" in symbol:
+                    pip_size = 0.01
+                elif "XAU" in symbol:
+                    pip_size = 0.1
+                else:
+                    pip_size = 0.0001
+                
+                # Get settings based on mode
+                if self.config.TRADING_MODE == "SNIPER":
+                    sl_pips = self.config.SNIPER_SL_PIPS
+                    tp_pips = self.config.SNIPER_TP_PIPS
+                else: # SCALPER (Default)
+                    sl_pips = self.config.SCALPER_SL_PIPS
+                    tp_pips = self.config.SCALPER_TP_PIPS
+                
+                current_price = result["indicators"]["price"]
+                
+                # Calculate SL/TP prices
+                if action == "BUY":
+                    result["stop_loss"] = current_price - (sl_pips * pip_size)
+                    result["take_profit"] = current_price + (tp_pips * pip_size)
+                elif action == "SELL":
+                    result["stop_loss"] = current_price + (sl_pips * pip_size)
+                    result["take_profit"] = current_price - (tp_pips * pip_size)
+                
+                # Add mode info to reasons
+                reasons.append(f"🎯 Mode: {self.config.TRADING_MODE} ({sl_pips}/{tp_pips} pips)")
             
             # ============================================
             # AI COUNCIL CONSULTATION

@@ -5,7 +5,7 @@ Defines the abstract base class for all broker connectors.
 
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
-from core import Logger, LogLevel
+import logging
 
 class Broker(ABC):
     """
@@ -16,7 +16,7 @@ class Broker(ABC):
     def __init__(self, name: str, env: dict):
         self.name = name
         self.env = env
-        self.log = Logger(f"broker.{name.lower()}", LogLevel.INFO)
+        self.log = logging.getLogger(f"broker.{name.lower()}")
     
     @abstractmethod
     async def get_account_summary(self) -> Dict:
