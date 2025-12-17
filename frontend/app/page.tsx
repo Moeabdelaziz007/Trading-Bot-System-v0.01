@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Zap } from "lucide-react"
 import { useQuantumSocket } from "@/hooks/use-quantum-socket"
 import { StatusIndicator } from "@/components/status-indicator"
@@ -12,17 +13,14 @@ import { EngineStatusHero } from "@/components/engine-status-hero"
 import { EngineControlPanel } from "@/components/engine-control-panel"
 import { AlphaLoopCard } from "@/components/alpha-loop-card"
 import { VoiceIndicator } from "@/components/voice-indicator"
+import { DownloadModal } from "@/components/download-modal"
 
 export default function AlphaAxiomDashboard() {
   const { isConnected, isConnecting, account, signals, logs, connect } = useQuantumSocket()
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false)
 
   const handleDownload = () => {
-    const link = document.createElement('a')
-    link.href = "/AlphaReceiver.mq5"
-    link.download = "AlphaReceiver.mq5"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    setIsDownloadModalOpen(true)
   }
 
   const handleSentinel = () => {
@@ -130,6 +128,12 @@ export default function AlphaAxiomDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Wispr Flow-style Download Modal */}
+      <DownloadModal
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+      />
     </div>
   )
 }
